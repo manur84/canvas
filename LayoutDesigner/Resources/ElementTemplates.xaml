@@ -235,27 +235,30 @@
     <!-- ElementGroup DataTemplate -->
     <DataTemplate DataType="{x:Type models:ElementGroup}">
         <!-- Group is visualized with a dashed border and label to indicate grouped elements -->
-        <Border Background="Transparent"
-                BorderBrush="#FF0078D7"
-                BorderThickness="2"
-                CornerRadius="4"
-                Padding="4">
-            <Border.Style>
-                <Style TargetType="Border">
-                    <Setter Property="BorderDashArray" Value="4 2"/>
-                    <Setter Property="Opacity" Value="0.7"/>
-                    <Style.Triggers>
-                        <!-- Highlight on mouse over for better visibility -->
-                        <Trigger Property="IsMouseOver" Value="True">
-                            <Setter Property="Opacity" Value="1.0"/>
-                            <Setter Property="BorderBrush" Value="#FF005A9E"/>
-                        </Trigger>
-                    </Style.Triggers>
-                </Style>
-            </Border.Style>
+        <Grid>
+            <!-- Dashed border using Rectangle (Border doesn't support dash arrays) -->
+            <Rectangle Stroke="#FF0078D7"
+                      StrokeThickness="2"
+                      RadiusX="4"
+                      RadiusY="4"
+                      Fill="Transparent"
+                      StrokeDashArray="4 2">
+                <Rectangle.Style>
+                    <Style TargetType="Rectangle">
+                        <Setter Property="Opacity" Value="0.7"/>
+                        <Style.Triggers>
+                            <!-- Highlight on mouse over for better visibility -->
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Opacity" Value="1.0"/>
+                                <Setter Property="Stroke" Value="#FF005A9E"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Rectangle.Style>
+            </Rectangle>
 
-            <!-- Group indicator labels -->
-            <Grid>
+            <!-- Group indicator labels with padding -->
+            <Grid Margin="4">
                 <!-- Group name label -->
                 <TextBlock Text="{Binding Name, StringFormat='Group: {0}', Mode=OneWay}"
                           FontFamily="Segoe UI"
@@ -287,7 +290,7 @@
                           VerticalAlignment="Top"
                           Margin="-2,14,0,0"/>
             </Grid>
-        </Border>
+        </Grid>
     </DataTemplate>
 
 </ResourceDictionary>
