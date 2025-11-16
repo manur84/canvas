@@ -45,6 +45,7 @@ namespace LayoutDesigner.Controls
 
             // Initialize adorners when loaded
             Loaded += OnLoaded;
+            Unloaded += OnUnloaded;
         }
 
         private void OnLoaded(object sender, RoutedEventArgs e)
@@ -61,6 +62,27 @@ namespace LayoutDesigner.Controls
                 // Create and add selection rectangle adorner
                 _selectionAdorner = new SelectionRectangleAdorner(this);
                 _adornerLayer.Add(_selectionAdorner);
+            }
+        }
+
+        private void OnUnloaded(object sender, RoutedEventArgs e)
+        {
+            // Clean up adorners to prevent resource leaks
+            if (_adornerLayer != null)
+            {
+                if (_snapLinesAdorner != null)
+                {
+                    _adornerLayer.Remove(_snapLinesAdorner);
+                    _snapLinesAdorner = null;
+                }
+
+                if (_selectionAdorner != null)
+                {
+                    _adornerLayer.Remove(_selectionAdorner);
+                    _selectionAdorner = null;
+                }
+
+                _adornerLayer = null;
             }
         }
 

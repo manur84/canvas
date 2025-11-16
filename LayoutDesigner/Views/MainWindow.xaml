@@ -7,6 +7,7 @@
         xmlns:vm="clr-namespace:LayoutDesigner.ViewModels"
         xmlns:controls="clr-namespace:LayoutDesigner.Controls"
         xmlns:models="clr-namespace:LayoutDesigner.Models"
+        xmlns:converters="clr-namespace:LayoutDesigner.Converters"
         mc:Ignorable="d"
         Title="{Binding Title}"
         Height="800" Width="1400"
@@ -15,6 +16,10 @@
     <Window.DataContext>
         <vm:MainViewModel/>
     </Window.DataContext>
+
+    <Window.Resources>
+        <converters:ColorToBrushConverter x:Key="ColorToBrushConverter"/>
+    </Window.Resources>
 
     <Window.InputBindings>
         <KeyBinding Key="N" Modifiers="Ctrl" Command="{Binding NewCommand}"/>
@@ -111,6 +116,9 @@
             <Button Content="Cut" Command="{Binding CanvasViewModel.CutCommand}" Style="{StaticResource IconButton}" Padding="8,4" Margin="2"/>
             <Button Content="Paste" Command="{Binding CanvasViewModel.PasteCommand}" Style="{StaticResource IconButton}" Padding="8,4" Margin="2"/>
             <Separator/>
+            <Button Content="Group" Command="{Binding CanvasViewModel.GroupCommand}" Style="{StaticResource IconButton}" Padding="8,4" Margin="2"/>
+            <Button Content="Ungroup" Command="{Binding CanvasViewModel.UngroupCommand}" Style="{StaticResource IconButton}" Padding="8,4" Margin="2"/>
+            <Separator/>
             <Button Content="Zoom +" Command="{Binding ZoomInCommand}" Style="{StaticResource IconButton}" Padding="8,4" Margin="2"/>
             <Button Content="Zoom -" Command="{Binding ZoomOutCommand}" Style="{StaticResource IconButton}" Padding="8,4" Margin="2"/>
             <TextBlock Text="{Binding CanvasViewModel.Zoom, StringFormat={}{0:P0}}" VerticalAlignment="Center" Margin="4,0"/>
@@ -183,7 +191,7 @@
             <local:ToolboxPanel Grid.Column="0" DataContext="{Binding CanvasViewModel}"/>
 
             <!-- Canvas -->
-            <Border Grid.Column="1" Background="#FFE5E5E5" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,0">
+            <Border Grid.Column="1" Background="{Binding CanvasViewModel.Document.BackgroundColor, Converter={StaticResource ColorToBrushConverter}}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,0">
                 <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
                     <controls:DesignCanvas x:Name="DesignCanvas"
                                           Width="{Binding CanvasViewModel.CanvasWidth}"
