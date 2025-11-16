@@ -45,6 +45,21 @@ namespace LayoutDesigner.Views
             DesignCanvas.AllowDrop = true;
             DesignCanvas.DragEnter += OnCanvasDragEnter;
             DesignCanvas.Drop += OnCanvasDrop;
+
+            // Add keyboard shortcut support
+            PreviewKeyDown += OnPreviewKeyDown;
+        }
+
+        private void OnPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (DataContext is not MainViewModel viewModel)
+                return;
+
+            // Let CanvasViewModel handle the key
+            if (viewModel.CanvasViewModel.HandleKeyDown(e.Key, Keyboard.Modifiers))
+            {
+                e.Handled = true;
+            }
         }
 
         private void OnCanvasMouseWheel(object sender, MouseWheelEventArgs e)

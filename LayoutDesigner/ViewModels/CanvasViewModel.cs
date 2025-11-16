@@ -11,7 +11,7 @@ namespace LayoutDesigner.ViewModels
     /// <summary>
     /// ViewModel for the canvas containing all layout elements
     /// </summary>
-    public class CanvasViewModel : ViewModelBase
+    public partial class CanvasViewModel : ViewModelBase
     {
         private readonly IUndoRedoService _undoRedoService;
         private LayoutDocument _document;
@@ -23,6 +23,9 @@ namespace LayoutDesigner.ViewModels
         private double _gridSize = 20;
         private bool _snapToGrid = true;
         private List<LayoutElementBase> _clipboard = new();
+
+        // Partial method for grouping commands initialization
+        partial void InitializeGroupingCommands();
 
         public CanvasViewModel()
         {
@@ -59,6 +62,9 @@ namespace LayoutDesigner.ViewModels
             DistributeVerticallyCommand = new RelayCommand(DistributeVertically, () => SelectedElements.Count >= 3);
             LockCommand = new RelayCommand(LockElements, () => SelectedElements.Count > 0);
             UnlockCommand = new RelayCommand(UnlockElements, () => SelectedElements.Count > 0);
+
+            // Initialize grouping commands from partial class
+            InitializeGroupingCommands();
         }
 
         #region Properties

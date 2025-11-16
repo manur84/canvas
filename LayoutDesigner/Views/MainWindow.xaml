@@ -66,8 +66,10 @@
                 <MenuItem Header="_Delete" Command="{Binding CanvasViewModel.DeleteSelectedCommand}" InputGestureText="Del"/>
                 <MenuItem Header="Du_plicate" Command="{Binding CanvasViewModel.DuplicateSelectedCommand}" InputGestureText="Ctrl+D"/>
                 <MenuItem Header="Select _All" Command="{Binding CanvasViewModel.SelectAllCommand}" InputGestureText="Ctrl+A"/>
+                <Separator/>
+                <MenuItem Header="_Group" Command="{Binding CanvasViewModel.GroupCommand}" InputGestureText="Ctrl+G"/>
+                <MenuItem Header="Un_group" Command="{Binding CanvasViewModel.UngroupCommand}" InputGestureText="Ctrl+Shift+G"/>
             </MenuItem>
-
             <MenuItem Header="_View">
                 <MenuItem Header="Zoom _In" Command="{Binding ZoomInCommand}" InputGestureText="Ctrl+Plus"/>
                 <MenuItem Header="Zoom _Out" Command="{Binding ZoomOutCommand}" InputGestureText="Ctrl+Minus"/>

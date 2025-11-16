@@ -28,6 +28,7 @@ namespace LayoutDesigner
             Services.Register<IExportService, ExportService>();
             Services.Register<IAssetService, AssetService>();
             Services.Register<IUndoRedoService, UndoRedoService>();
+            Services.Register<IErrorHandlingService, ErrorHandlingService>();
         }
     }
 

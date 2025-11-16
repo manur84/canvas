@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using LayoutDesigner.Helpers;
@@ -17,6 +18,11 @@ namespace LayoutDesigner.Controls
         private bool _isDragging;
         private readonly List<UIElement> _selectedElements = new();
         private Pen? _gridPen; // Cached pen for grid rendering
+
+        // Adorners for visual feedback
+        private SnapLinesAdorner? _snapLinesAdorner;
+        private SelectionRectangleAdorner? _selectionAdorner;
+        private AdornerLayer? _adornerLayer;
 
         static DesignCanvas()
         {
@@ -36,6 +42,26 @@ namespace LayoutDesigner.Controls
             MouseLeftButtonDown += OnMouseLeftButtonDown;
             MouseLeftButtonUp += OnMouseLeftButtonUp;
             MouseMove += OnMouseMove;
+
+            // Initialize adorners when loaded
+            Loaded += OnLoaded;
+        }
+
+        private void OnLoaded(object sender, RoutedEventArgs e)
+        {
+            // Get or create adorner layer
+            _adornerLayer = AdornerLayer.GetAdornerLayer(this);
+
+            if (_adornerLayer != null)
+            {
+                // Create and add snap lines adorner
+                _snapLinesAdorner = new SnapLinesAdorner(this);
+                _adornerLayer.Add(_snapLinesAdorner);
+
+                // Create and add selection rectangle adorner
+                _selectionAdorner = new SelectionRectangleAdorner(this);
+                _adornerLayer.Add(_selectionAdorner);
+            }
         }
 
         #region Dependency Properties
@@ -187,6 +213,9 @@ namespace LayoutDesigner.Controls
                 {
                     element.ReleaseMouseCapture();
                 }
+
+                // Clear snap lines when drag ends
+                _snapLinesAdorner?.Clear();
 
                 _dragStartPoint = null;
                 _isDragging = false;
