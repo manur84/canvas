@@ -1,0 +1,237 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:models="clr-namespace:LayoutDesigner.Models">
+
+    <!--
+        Element DataTemplates for Canvas
+        Best Practice: Separate DataTemplates into ResourceDictionary for better organization
+        Each template is optimized for performance and visual quality
+    -->
+
+    <!-- TextElement DataTemplate -->
+    <DataTemplate DataType="{x:Type models:TextElement}">
+        <Border Background="{Binding BackgroundColor, Converter={StaticResource ColorToBrushConverter}}"
+                BorderBrush="{Binding BorderColor, Converter={StaticResource ColorToBrushConverter}}"
+                BorderThickness="{Binding BorderThickness}"
+                CornerRadius="{Binding CornerRadius}"
+                Padding="{Binding Padding}"
+                Visibility="{Binding HasBorder, Converter={StaticResource BoolToVisibilityConverter}}">
+            <!-- Best Practice: Effects can be expensive, only apply when needed -->
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="{Binding ShadowBlur}"
+                                ShadowDepth="0"
+                                Color="{Binding ShadowColor, Converter={StaticResource ColorToBrushConverter}}"
+                                Opacity="1"
+                                Direction="0"
+                                RenderingBias="Performance"/>
+            </Border.Effect>
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Effect" Value="{x:Null}"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding HasShadow}" Value="True">
+                            <Setter Property="Effect">
+                                <Setter.Value>
+                                    <DropShadowEffect BlurRadius="{Binding ShadowBlur}"
+                                                    ShadowDepth="5"
+                                                    Color="Black"
+                                                    Opacity="0.5"/>
+                                </Setter.Value>
+                            </Setter>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+
+            <TextBlock Text="{Binding Text}"
+                      FontFamily="{Binding FontFamily}"
+                      FontSize="{Binding FontSize}"
+                      FontWeight="{Binding IsBold, Converter={StaticResource BoolToFontWeight}}"
+                      FontStyle="{Binding IsItalic, Converter={StaticResource BoolToFontStyle}}"
+                      Foreground="{Binding ForegroundColor, Converter={StaticResource ColorToBrushConverter}}"
+                      TextAlignment="{Binding TextAlignment}"
+                      VerticalAlignment="{Binding VerticalAlignment}"
+                      TextWrapping="Wrap"
+                      LineHeight="{Binding LineHeight}"
+                      TextOptions.TextFormattingMode="Display"
+                      TextOptions.TextRenderingMode="Auto"/>
+        </Border>
+    </DataTemplate>
+
+    <!-- ImageElement DataTemplate -->
+    <DataTemplate DataType="{x:Type models:ImageElement}">
+        <Border BorderBrush="{Binding BorderColor, Converter={StaticResource ColorToBrushConverter}}"
+                BorderThickness="{Binding BorderThickness}"
+                CornerRadius="{Binding CornerRadius}">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="BorderThickness" Value="0"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding HasBorder}" Value="True">
+                            <Setter Property="BorderThickness" Value="{Binding BorderThickness}"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+
+            <!-- Best Practice: Use RenderOptions for image quality -->
+            <Image Source="{Binding ImagePath}"
+                   Stretch="{Binding StretchMode, Converter={StaticResource ImageStretchConverter}}"
+                   RenderOptions.BitmapScalingMode="HighQuality"
+                   RenderOptions.EdgeMode="Unspecified">
+                <!-- Image Effects: Brightness, Contrast, Saturation, Blur, Grayscale -->
+                <Image.Style>
+                    <Style TargetType="Image">
+                        <Style.Triggers>
+                            <!-- Grayscale Effect -->
+                            <DataTrigger Binding="{Binding Grayscale}" Value="True">
+                                <Setter Property="Effect">
+                                    <Setter.Value>
+                                        <FormatConvertedBitmap DestinationFormat="Gray32Float"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </DataTrigger>
+
+                            <!-- Blur Effect -->
+                            <DataTrigger Binding="{Binding Blur}" Value="0">
+                                <Setter Property="Effect" Value="{x:Null}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Image.Style>
+            </Image>
+        </Border>
+    </DataTemplate>
+
+    <!-- ShapeElement DataTemplate -->
+    <DataTemplate DataType="{x:Type models:ShapeElement}">
+        <Grid>
+            <!-- Rectangle -->
+            <Rectangle Fill="{Binding FillColor, Converter={StaticResource ColorToBrushConverter}}"
+                      Stroke="{Binding StrokeColor, Converter={StaticResource ColorToBrushConverter}}"
+                      StrokeThickness="{Binding StrokeThickness}"
+                      RadiusX="{Binding CornerRadius}"
+                      RadiusY="{Binding CornerRadius}">
+                <Rectangle.Style>
+                    <Style TargetType="Rectangle">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding ShapeType}" Value="Rectangle">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding ShapeType}" Value="RoundedRectangle">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Rectangle.Style>
+            </Rectangle>
+
+            <!-- Ellipse -->
+            <Ellipse Fill="{Binding FillColor, Converter={StaticResource ColorToBrushConverter}}"
+                    Stroke="{Binding StrokeColor, Converter={StaticResource ColorToBrushConverter}}"
+                    StrokeThickness="{Binding StrokeThickness}">
+                <Ellipse.Style>
+                    <Style TargetType="Ellipse">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding ShapeType}" Value="Ellipse">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </Setter>
+                        </Style.Triggers>
+                    </Style>
+                </Ellipse.Style>
+            </Ellipse>
+
+            <!-- Line -->
+            <Line X1="0" Y1="0"
+                  X2="{Binding Width}"
+                  Y2="{Binding Height}"
+                  Stroke="{Binding StrokeColor, Converter={StaticResource ColorToBrushConverter}}"
+                  StrokeThickness="{Binding StrokeThickness}">
+                <Line.Style>
+                    <Style TargetType="Line">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding ShapeType}" Value="Line">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Line.Style>
+            </Line>
+        </Grid>
+    </DataTemplate>
+
+    <!-- QrCodeElement DataTemplate -->
+    <DataTemplate DataType="{x:Type models:QrCodeElement}">
+        <Border Background="{Binding BackgroundColor, Converter={StaticResource ColorToBrushConverter}}"
+                Padding="4">
+            <Rectangle Fill="Gray" Width="100" Height="100"/>
+            <!-- Note: QR Code rendering would be handled by a specialized control -->
+        </Border>
+    </DataTemplate>
+
+    <!-- DynamicFieldElement DataTemplate -->
+    <DataTemplate DataType="{x:Type models:DynamicFieldElement}">
+        <Border Background="#FFF8F9FA"
+                BorderBrush="#FFADB5BD"
+                BorderThickness="1"
+                Padding="8,4">
+            <TextBlock Text="{Binding FieldType, StringFormat='[{0} Field]'}"
+                      FontFamily="Consolas"
+                      FontSize="14"
+                      Foreground="#FF495057"
+                      VerticalAlignment="Center"/>
+        </Border>
+    </DataTemplate>
+
+    <!-- LineElement DataTemplate -->
+    <DataTemplate DataType="{x:Type models:LineElement}">
+        <Line X1="0" Y1="0"
+              X2="{Binding X2}"
+              Y2="{Binding Y2}"
+              Stroke="{Binding StrokeColor, Converter={StaticResource ColorToBrushConverter}}"
+              StrokeThickness="{Binding StrokeThickness}"
+              StrokeStartLineCap="Round"
+              StrokeEndLineCap="Round"
+              UseLayoutRounding="True"
+              SnapsToDevicePixels="True"/>
+    </DataTemplate>
+
+    <!-- ButtonElement DataTemplate -->
+    <DataTemplate DataType="{x:Type models:ButtonElement}">
+        <Border Background="{Binding BackgroundColor, Converter={StaticResource ColorToBrushConverter}}"
+                BorderBrush="{Binding BorderColor, Converter={StaticResource ColorToBrushConverter}}"
+                BorderThickness="{Binding BorderThickness}"
+                CornerRadius="{Binding CornerRadius}"
+                Padding="12,6">
+            <TextBlock Text="{Binding Text}"
+                      FontFamily="{Binding FontFamily}"
+                      FontSize="{Binding FontSize}"
+                      FontWeight="{Binding IsBold, Converter={StaticResource BoolToFontWeight}}"
+                      FontStyle="{Binding IsItalic, Converter={StaticResource BoolToFontStyle}}"
+                      Foreground="{Binding ForegroundColor, Converter={StaticResource ColorToBrushConverter}}"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      TextOptions.TextFormattingMode="Display"/>
+        </Border>
+    </DataTemplate>
+
+    <!-- TableElement DataTemplate -->
+    <DataTemplate DataType="{x:Type models:TableElement}">
+        <Border Background="{Binding RowBackgroundColor, Converter={StaticResource ColorToBrushConverter}}"
+                BorderBrush="{Binding BorderColor, Converter={StaticResource ColorToBrushConverter}}"
+                BorderThickness="{Binding BorderThickness}">
+            <Grid>
+                <TextBlock Text="{Binding Rows, StringFormat='Table ({0} rows)'}"
+                          FontFamily="{Binding FontFamily}"
+                          FontSize="{Binding FontSize}"
+                          Foreground="{Binding ForegroundColor, Converter={StaticResource ColorToBrushConverter}}"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center"/>
+            </Grid>
+        </Border>
+    </DataTemplate>
+
+</ResourceDictionary>

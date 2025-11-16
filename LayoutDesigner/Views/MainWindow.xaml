@@ -228,80 +228,7 @@
                             </ContextMenu>
                         </controls:DesignCanvas.ContextMenu>
 
-                        <controls:DesignCanvas.Resources>
-                            <!-- DataTemplates for different element types -->
-                            <DataTemplate DataType="{x:Type models:TextElement}">
-                                <Border Background="{Binding BackgroundColor, Converter={StaticResource ColorToBrushConverter}}"
-                                       BorderBrush="#40000000" BorderThickness="1">
-                                    <TextBlock Text="{Binding Text}"
-                                             FontFamily="{Binding FontFamily}"
-                                             FontSize="{Binding FontSize}"
-                                             FontWeight="{Binding IsBold, Converter={StaticResource BoolToFontWeight}}"
-                                             FontStyle="{Binding IsItalic, Converter={StaticResource BoolToFontStyle}}"
-                                             Foreground="{Binding ForegroundColor, Converter={StaticResource ColorToBrushConverter}}"
-                                             TextAlignment="{Binding TextAlignment}"
-                                             VerticalAlignment="{Binding VerticalAlignment}"
-                                             TextWrapping="Wrap"
-                                             Padding="4"/>
-                                </Border>
-                            </DataTemplate>
-
-                            <DataTemplate DataType="{x:Type models:ImageElement}">
-                                <Border BorderBrush="#40000000" BorderThickness="1">
-                                    <Image Source="{Binding ImagePath}"
-                                          Stretch="{Binding StretchMode, Converter={StaticResource ImageStretchConverter}}"/>
-                                </Border>
-                            </DataTemplate>
-
-                            <DataTemplate DataType="{x:Type models:ShapeElement}">
-                                <Grid>
-                                    <Rectangle Fill="{Binding FillColor, Converter={StaticResource ColorToBrushConverter}}"
-                                             Stroke="{Binding StrokeColor, Converter={StaticResource ColorToBrushConverter}}"
-                                             StrokeThickness="{Binding StrokeThickness}"
-                                             RadiusX="{Binding CornerRadius}"
-                                             RadiusY="{Binding CornerRadius}"
-                                             Visibility="{Binding ShapeType, Converter={StaticResource ShapeTypeToVisibility}, ConverterParameter=Rectangle}"/>
-                                    <Ellipse Fill="{Binding FillColor, Converter={StaticResource ColorToBrushConverter}}"
-                                            Stroke="{Binding StrokeColor, Converter={StaticResource ColorToBrushConverter}}"
-                                            StrokeThickness="{Binding StrokeThickness}"
-                                            Visibility="{Binding ShapeType, Converter={StaticResource ShapeTypeToVisibility}, ConverterParameter=Ellipse}"/>
-                                </Grid>
-                            </DataTemplate>
-
-                            <DataTemplate DataType="{x:Type models:QrCodeElement}">
-                                <Border BorderBrush="#40000000" BorderThickness="1">
-                                    <TextBlock Text="{Binding Content}" TextWrapping="Wrap" Padding="4"
-                                             HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                </Border>
-                            </DataTemplate>
-
-                            <DataTemplate DataType="{x:Type models:DynamicFieldElement}">
-                                <Border Background="{Binding BackgroundColor, Converter={StaticResource ColorToBrushConverter}}"
-                                       BorderBrush="#40000000" BorderThickness="1">
-                                    <TextBlock Text="{Binding Format}"
-                                             FontFamily="{Binding FontFamily}"
-                                             FontSize="{Binding FontSize}"
-                                             Foreground="{Binding ForegroundColor, Converter={StaticResource ColorToBrushConverter}}"
-                                             VerticalAlignment="Center"
-                                             Padding="4"/>
-                                </Border>
-                            </DataTemplate>
-
-                            <!-- Element Container Style -->
-                            <Style TargetType="ContentPresenter" x:Key="ElementStyle">
-                                <Setter Property="Canvas.Left" Value="{Binding X}"/>
-                                <Setter Property="Canvas.Top" Value="{Binding Y}"/>
-                                <Setter Property="Width" Value="{Binding Width}"/>
-                                <Setter Property="Height" Value="{Binding Height}"/>
-                                <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
-                                <Setter Property="RenderTransform">
-                                    <Setter.Value>
-                                        <RotateTransform Angle="{Binding Rotation}"/>
-                                    </Setter.Value>
-                                </Setter>
-                                <Setter Property="Opacity" Value="{Binding Opacity}"/>
-                            </Style>
-                        </controls:DesignCanvas.Resources>
+                        <!-- DataTemplates are now in Resources/ElementTemplates.xaml -->
 
                         <ItemsControl ItemsSource="{Binding CanvasViewModel.Elements}">
                             <ItemsControl.ItemsPanel>
@@ -310,20 +237,33 @@
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemContainerStyle>
-                                <Style TargetType="ContentPresenter">
+                                <Style TargetType="ContentPresenter" BasedOn="{StaticResource OptimizedCanvasElement}">
+                                    <!-- Canvas positioning via attached properties -->
                                     <Setter Property="Canvas.Left" Value="{Binding X}"/>
                                     <Setter Property="Canvas.Top" Value="{Binding Y}"/>
                                     <Setter Property="Width" Value="{Binding Width}"/>
                                     <Setter Property="Height" Value="{Binding Height}"/>
                                     <Setter Property="Canvas.ZIndex" Value="{Binding ZIndex}"/>
+
+                                    <!-- Rotation transform -->
                                     <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
                                     <Setter Property="RenderTransform">
                                         <Setter.Value>
                                             <RotateTransform Angle="{Binding Rotation}"/>
                                         </Setter.Value>
                                     </Setter>
+
+                                    <!-- Visibility and opacity -->
                                     <Setter Property="Opacity" Value="{Binding Opacity}"/>
                                     <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                                    <!-- Locked element behavior -->
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsLocked}" Value="True">
+                                            <Setter Property="IsHitTestVisible" Value="False"/>
+                                            <Setter Property="Opacity" Value="0.6"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
                                 </Style>
                             </ItemsControl.ItemContainerStyle>
                         </ItemsControl>
