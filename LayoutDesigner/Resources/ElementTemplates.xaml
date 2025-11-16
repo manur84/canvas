@@ -70,7 +70,8 @@
             </Border.Style>
 
             <!-- Best Practice: Use RenderOptions for image quality -->
-            <Image Source="{Binding ImagePath}"
+            <!-- Performance: ImagePathConverter implements lazy loading with caching -->
+            <Image Source="{Binding ImagePath, Converter={StaticResource ImagePathConverter}}"
                    Stretch="{Binding StretchMode, Converter={StaticResource ImageStretchConverter}}"
                    RenderOptions.BitmapScalingMode="HighQuality"
                    RenderOptions.EdgeMode="Unspecified">

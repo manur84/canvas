@@ -6,6 +6,7 @@
     <converters:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
     <converters:ColorToBrushConverter x:Key="ColorToBrushConverter"/>
     <converters:ImageStretchConverter x:Key="ImageStretchConverter"/>
+    <converters:ImagePathConverter x:Key="ImagePathConverter"/>
     <converters:BoolToFontWeightConverter x:Key="BoolToFontWeight"/>
     <converters:BoolToFontStyleConverter x:Key="BoolToFontStyle"/>
     <converters:TypeToVisibilityConverter x:Key="TypeToVisibility"/>
