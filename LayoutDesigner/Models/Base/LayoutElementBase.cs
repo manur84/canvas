@@ -20,6 +20,8 @@ namespace LayoutDesigner.Models.Base
         private bool _isLocked;
         private bool _isVisible = true;
         private double _opacity = 1.0;
+        private bool _enableBitmapCache = false; // Performance: BitmapCache for complex elements
+        private bool _useLayoutRounding = true; // Performance: Pixel-perfect rendering
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -120,6 +122,26 @@ namespace LayoutDesigner.Models.Base
         {
             get => _opacity;
             set => SetProperty(ref _opacity, Math.Clamp(value, 0.0, 1.0));
+        }
+
+        /// <summary>
+        /// Enable BitmapCache for better performance on complex elements
+        /// Best Practice: Enable for elements that are rendered frequently but change infrequently
+        /// </summary>
+        public bool EnableBitmapCache
+        {
+            get => _enableBitmapCache;
+            set => SetProperty(ref _enableBitmapCache, value);
+        }
+
+        /// <summary>
+        /// Use layout rounding for pixel-perfect rendering
+        /// Best Practice: Prevents blurry rendering on non-integer pixel positions
+        /// </summary>
+        public bool UseLayoutRounding
+        {
+            get => _useLayoutRounding;
+            set => SetProperty(ref _useLayoutRounding, value);
         }
 
         /// <summary>

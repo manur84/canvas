@@ -9,12 +9,14 @@ namespace LayoutDesigner.Controls
 {
     /// <summary>
     /// Custom Canvas control for the layout designer with selection, drag, and resize capabilities
+    /// Optimized for performance following WPF best practices
     /// </summary>
     public class DesignCanvas : Canvas
     {
         private Point? _dragStartPoint;
         private bool _isDragging;
         private readonly List<UIElement> _selectedElements = new();
+        private Pen? _gridPen; // Cached pen for grid rendering
 
         static DesignCanvas()
         {
@@ -26,6 +28,10 @@ namespace LayoutDesigner.Controls
         {
             Background = Brushes.White;
             ClipToBounds = true;
+
+            // Performance optimizations - WPF Best Practices
+            RenderOptions.SetEdgeMode(this, EdgeMode.Aliased); // Faster rendering for grid lines
+            RenderOptions.SetBitmapScalingMode(this, BitmapScalingMode.HighQuality); // Better image quality
 
             MouseLeftButtonDown += OnMouseLeftButtonDown;
             MouseLeftButtonUp += OnMouseLeftButtonUp;
@@ -80,23 +86,37 @@ namespace LayoutDesigner.Controls
 
         private void DrawGrid(DrawingContext dc)
         {
-            var pen = new Pen(new SolidColorBrush(Color.FromArgb(40, 128, 128, 128)), 1);
-            pen.Freeze();
+            // Cache the pen for better performance (Best Practice: Reuse frozen objects)
+            if (_gridPen == null)
+            {
+                var brush = new SolidColorBrush(Color.FromArgb(40, 128, 128, 128));
+                brush.Freeze(); // Best Practice: Freeze unchanging brushes
+                _gridPen = new Pen(brush, 1);
+                _gridPen.Freeze(); // Best Practice: Freeze unchanging pens
+            }
 
             double width = ActualWidth;
             double height = ActualHeight;
 
+            // Best Practice: Use GuidelineSet for pixel-perfect rendering
+            var guidelines = new GuidelineSet();
+
             // Vertical lines
             for (double x = 0; x < width; x += GridSize)
             {
-                dc.DrawLine(pen, new Point(x, 0), new Point(x, height));
+                guidelines.GuidelinesX.Add(x);
+                dc.DrawLine(_gridPen, new Point(x, 0), new Point(x, height));
             }
 
             // Horizontal lines
             for (double y = 0; y < height; y += GridSize)
             {
-                dc.DrawLine(pen, new Point(0, y), new Point(width, y));
+                guidelines.GuidelinesY.Add(y);
+                dc.DrawLine(_gridPen, new Point(0, y), new Point(width, y));
             }
+
+            dc.PushGuidelineSet(guidelines);
+            dc.Pop();
         }
 
         #endregion

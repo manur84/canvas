@@ -11,6 +11,7 @@
     <converters:TypeToVisibilityConverter x:Key="TypeToVisibility"/>
     <converters:ShapeTypeToVisibilityConverter x:Key="ShapeTypeToVisibility"/>
     <converters:BoolToYesNoConverter x:Key="BoolToYesNoConverter"/>
+    <converters:BoolToBitmapCacheConverter x:Key="BoolToBitmapCacheConverter"/>
 
     <!-- Colors -->
     <SolidColorBrush x:Key="PrimaryBrush" Color="#FF0078D7"/>
@@ -150,6 +151,28 @@
         <Setter Property="Background" Value="{StaticResource BackgroundBrush}"/>
         <Setter Property="BorderBrush" Value="{StaticResource BorderBrush}"/>
         <Setter Property="BorderThickness" Value="0,1,0,0"/>
+    </Style>
+
+    <!-- Canvas Element Performance Style (WPF Best Practices) -->
+    <!-- This style applies performance optimizations to all canvas elements -->
+    <Style x:Key="OptimizedCanvasElement" TargetType="ContentPresenter">
+        <!-- Best Practice: Use LayoutRounding for pixel-perfect rendering -->
+        <Setter Property="UseLayoutRounding" Value="{Binding UseLayoutRounding, FallbackValue=True}"/>
+
+        <!-- Best Practice: Enable BitmapCache for complex elements that change infrequently -->
+        <Setter Property="CacheMode" Value="{Binding EnableBitmapCache, Converter={StaticResource BoolToBitmapCacheConverter}}"/>
+
+        <!-- Best Practice: Use SnapsToDevicePixels for crisp rendering -->
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+
+        <!-- Best Practice: Set TextOptions for better text rendering -->
+        <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+        <Setter Property="TextOptions.TextRenderingMode" Value="Auto"/>
+        <Setter Property="TextOptions.TextHintingMode" Value="Auto"/>
+
+        <!-- Best Practice: Enable hardware acceleration -->
+        <Setter Property="RenderOptions.BitmapScalingMode" Value="HighQuality"/>
+        <Setter Property="RenderOptions.EdgeMode" Value="Unspecified"/>
     </Style>
 
 </ResourceDictionary>
