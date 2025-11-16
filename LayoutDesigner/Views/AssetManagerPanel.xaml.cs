@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using LayoutDesigner.Helpers;
 using LayoutDesigner.Models;
+using LayoutDesigner.Services;
 using LayoutDesigner.Services.Interfaces;
 
 namespace LayoutDesigner.Views

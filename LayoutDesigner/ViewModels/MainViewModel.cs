@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using LayoutDesigner.Events;
 using LayoutDesigner.Helpers;
+using LayoutDesigner.Services;
 using LayoutDesigner.Services.Interfaces;
 using LayoutDesigner.ViewModels.Base;
 using LayoutDesigner.Constants;
