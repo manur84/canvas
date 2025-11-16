@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -65,7 +67,7 @@ namespace LayoutDesigner.Views
             }
             catch (Exception ex)
             {
-                _errorHandler.HandleError(ex, "Failed to load assets", showMessageBox: false);
+                _errorHandler.HandleError(ex, "Failed to load assets", showDialog: false);
             }
         }
 

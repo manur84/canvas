@@ -64,7 +64,7 @@ namespace LayoutDesigner.ViewModels.Base
             {
                 // Log error using ErrorHandlingService
                 var errorService = ServiceContainer.GetService<Services.Interfaces.IErrorHandlingService>();
-                errorService?.HandleError(ex, "AsyncRelayCommand error", showMessageBox: false);
+                errorService?.HandleError(ex, "AsyncRelayCommand error", showDialog: false);
                 throw; // Re-throw to allow handling at higher level
             }
             finally
@@ -143,7 +143,7 @@ namespace LayoutDesigner.ViewModels.Base
             catch (Exception ex)
             {
                 var errorService = ServiceContainer.GetService<Services.Interfaces.IErrorHandlingService>();
-                errorService?.HandleError(ex, $"AsyncRelayCommand<{typeof(T).Name}> error", showMessageBox: false);
+                errorService?.HandleError(ex, $"AsyncRelayCommand<{typeof(T).Name}> error", showDialog: false);
                 throw;
             }
             finally

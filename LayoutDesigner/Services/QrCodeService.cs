@@ -68,7 +68,7 @@ namespace LayoutDesigner.Services
             }
             catch (Exception ex)
             {
-                _errorHandlingService.HandleError(ex, "Error generating QR code", showMessageBox: false);
+                _errorHandlingService.HandleError(ex, "Error generating QR code", showDialog: false);
 
                 // Return a simple error placeholder
                 return CreateErrorBitmap();
@@ -97,7 +97,7 @@ namespace LayoutDesigner.Services
             }
             catch (Exception ex)
             {
-                _errorHandlingService.HandleError(ex, $"Invalid color format: {hex}", showMessageBox: false);
+                _errorHandlingService.HandleError(ex, $"Invalid color format: {hex}", showDialog: false);
             }
 
             // Fallback to black for invalid colors

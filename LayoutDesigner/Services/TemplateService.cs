@@ -260,7 +260,7 @@ namespace LayoutDesigner.Services
                         FontSize = 20,
                         IsBold = true,
                         ForegroundColor = "#FF0078D7",
-                        TextAlignment = "Center"
+                        TextAlignment = System.Windows.TextAlignment.Center
                     },
                     new TextElement
                     {
@@ -273,7 +273,7 @@ namespace LayoutDesigner.Services
                         FontSize = 32,
                         IsBold = true,
                         ForegroundColor = "#FF212529",
-                        TextAlignment = "Center"
+                        TextAlignment = System.Windows.TextAlignment.Center
                     },
                     new TextElement
                     {
@@ -285,7 +285,7 @@ namespace LayoutDesigner.Services
                         Text = "Company Name",
                         FontSize = 14,
                         ForegroundColor = "#FF6C757D",
-                        TextAlignment = "Center"
+                        TextAlignment = System.Windows.TextAlignment.Center
                     }
                 }
             });
@@ -386,8 +386,8 @@ namespace LayoutDesigner.Services
                         FontSize = 36,
                         IsBold = true,
                         ForegroundColor = "#FFFFFFFF",
-                        TextAlignment = "Center",
-                        VerticalAlignment = "Center"
+                        TextAlignment = System.Windows.TextAlignment.Center,
+                        VerticalAlignment = System.Windows.VerticalAlignment.Center
                     }
                 }
             });
@@ -439,7 +439,7 @@ namespace LayoutDesigner.Services
                         FontSize = 36,
                         IsBold = true,
                         ForegroundColor = "#FFD4AF37",
-                        TextAlignment = "Center"
+                        TextAlignment = System.Windows.TextAlignment.Center
                     },
                     new TextElement
                     {
@@ -451,7 +451,7 @@ namespace LayoutDesigner.Services
                         Text = "This is to certify that",
                         FontSize = 18,
                         ForegroundColor = "#FF212529",
-                        TextAlignment = "Center"
+                        TextAlignment = System.Windows.TextAlignment.Center
                     },
                     new TextElement
                     {
@@ -464,7 +464,7 @@ namespace LayoutDesigner.Services
                         FontSize = 42,
                         IsBold = true,
                         ForegroundColor = "#FF212529",
-                        TextAlignment = "Center"
+                        TextAlignment = System.Windows.TextAlignment.Center
                     },
                     new TextElement
                     {
@@ -476,7 +476,7 @@ namespace LayoutDesigner.Services
                         Text = "has successfully completed the requirements for",
                         FontSize = 16,
                         ForegroundColor = "#FF495057",
-                        TextAlignment = "Center"
+                        TextAlignment = System.Windows.TextAlignment.Center
                     },
                     new TextElement
                     {
@@ -489,7 +489,7 @@ namespace LayoutDesigner.Services
                         FontSize = 24,
                         IsBold = true,
                         ForegroundColor = "#FF212529",
-                        TextAlignment = "Center"
+                        TextAlignment = System.Windows.TextAlignment.Center
                     }
                 }
             });

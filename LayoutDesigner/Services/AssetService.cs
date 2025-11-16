@@ -57,7 +57,7 @@ namespace LayoutDesigner.Services
             }
             catch (Exception ex)
             {
-                _errorHandlingService.HandleError(ex, "Error importing asset", showMessageBox: false);
+                _errorHandlingService.HandleError(ex, "Error importing asset", showDialog: false);
                 return null;
             }
         }
@@ -71,7 +71,7 @@ namespace LayoutDesigner.Services
             }
             catch (Exception ex)
             {
-                _errorHandlingService.HandleError(ex, $"Error checking if asset exists: {relativePath}", showMessageBox: false);
+                _errorHandlingService.HandleError(ex, $"Error checking if asset exists: {relativePath}", showDialog: false);
                 return false;
             }
         }
@@ -92,7 +92,7 @@ namespace LayoutDesigner.Services
             }
             catch (Exception ex)
             {
-                _errorHandlingService.HandleError(ex, "Error getting assets", showMessageBox: false);
+                _errorHandlingService.HandleError(ex, "Error getting assets", showDialog: false);
                 return new List<string>();
             }
         }

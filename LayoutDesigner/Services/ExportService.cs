@@ -35,7 +35,7 @@ namespace LayoutDesigner.Services
             }
             catch (Exception ex)
             {
-                _errorHandlingService.HandleError(ex, "Error exporting to PNG", showMessageBox: false);
+                _errorHandlingService.HandleError(ex, "Error exporting to PNG", showDialog: false);
                 return false;
             }
         }
@@ -59,7 +59,7 @@ namespace LayoutDesigner.Services
             }
             catch (Exception ex)
             {
-                _errorHandlingService.HandleError(ex, "Error exporting to JPG", showMessageBox: false);
+                _errorHandlingService.HandleError(ex, "Error exporting to JPG", showDialog: false);
                 return false;
             }
         }

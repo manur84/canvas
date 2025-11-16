@@ -53,7 +53,7 @@ namespace LayoutDesigner.Services
             }
             catch (Exception ex)
             {
-                _errorHandlingService.HandleError(ex, "Error saving layout", showMessageBox: false);
+                _errorHandlingService.HandleError(ex, "Error saving layout", showDialog: false);
                 return false;
             }
         }
@@ -77,7 +77,7 @@ namespace LayoutDesigner.Services
             }
             catch (Exception ex)
             {
-                _errorHandlingService.HandleError(ex, "Error loading layout", showMessageBox: false);
+                _errorHandlingService.HandleError(ex, "Error loading layout", showDialog: false);
                 return null;
             }
         }
@@ -101,7 +101,7 @@ namespace LayoutDesigner.Services
             }
             catch (Exception ex)
             {
-                _errorHandlingService.HandleError(ex, "Error loading recent files", showMessageBox: false);
+                _errorHandlingService.HandleError(ex, "Error loading recent files", showDialog: false);
             }
 
             return new List<string>();
@@ -137,7 +137,7 @@ namespace LayoutDesigner.Services
             }
             catch (Exception ex)
             {
-                _errorHandlingService.HandleError(ex, "Error adding recent file", showMessageBox: false);
+                _errorHandlingService.HandleError(ex, "Error adding recent file", showDialog: false);
             }
         }
     }
