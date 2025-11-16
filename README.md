@@ -345,6 +345,8 @@ Layout Designer Team
 - **[FEATURES.md](FEATURES.md)** ✨ NEU - Vollständige Feature-Dokumentation mit allen Details
 - **[ARCHITECTURE.md](ARCHITECTURE.md)** - Technische Architektur-Dokumentation für Entwickler
 - **[CHANGELOG.md](CHANGELOG.md)** - Versionshistorie und Änderungen
+- **[CODE_IMPROVEMENTS.md](CODE_IMPROVEMENTS.md)** - Code-Qualität und Verbesserungen
+- **[CODE_QUALITY_ISSUES.md](CODE_QUALITY_ISSUES.md)** ⚠️ NEU - Gefundene Probleme und Fixes
 
 ## 📞 Support
 
