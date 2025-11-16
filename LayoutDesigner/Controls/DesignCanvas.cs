@@ -101,6 +101,14 @@ namespace LayoutDesigner.Controls
             DependencyProperty.Register(nameof(SnapToGrid), typeof(bool), typeof(DesignCanvas),
                 new FrameworkPropertyMetadata(true));
 
+        public static readonly DependencyProperty SnapToElementsProperty =
+            DependencyProperty.Register(nameof(SnapToElements), typeof(bool), typeof(DesignCanvas),
+                new FrameworkPropertyMetadata(true));
+
+        public static readonly DependencyProperty ElementsProperty =
+            DependencyProperty.Register(nameof(Elements), typeof(System.Collections.IEnumerable), typeof(DesignCanvas),
+                new FrameworkPropertyMetadata(null));
+
         public double GridSize
         {
             get => (double)GetValue(GridSizeProperty);
@@ -117,6 +125,18 @@ namespace LayoutDesigner.Controls
         {
             get => (bool)GetValue(SnapToGridProperty);
             set => SetValue(SnapToGridProperty, value);
+        }
+
+        public bool SnapToElements
+        {
+            get => (bool)GetValue(SnapToElementsProperty);
+            set => SetValue(SnapToElementsProperty, value);
+        }
+
+        public System.Collections.IEnumerable? Elements
+        {
+            get => (System.Collections.IEnumerable?)GetValue(ElementsProperty);
+            set => SetValue(ElementsProperty, value);
         }
 
         #endregion
@@ -213,11 +233,42 @@ namespace LayoutDesigner.Controls
             var newX = layoutElement.X + delta.X;
             var newY = layoutElement.Y + delta.Y;
 
+            // Clear previous snap lines
+            _snapLinesAdorner?.Clear();
+
             // Snap to grid if enabled (cached property access)
             if (SnapToGrid)
             {
                 newX = SnapHelper.SnapToGrid(newX, GridSize);
                 newY = SnapHelper.SnapToGrid(newY, GridSize);
+            }
+
+            // Snap to elements if enabled
+            bool snappedToElement = false;
+            if (SnapToElements && Elements != null)
+            {
+                // Temporarily update position for snap calculation
+                var originalX = layoutElement.X;
+                var originalY = layoutElement.Y;
+                layoutElement.X = newX;
+                layoutElement.Y = newY;
+
+                var otherElements = Elements.OfType<LayoutElementBase>().Where(e => e != layoutElement);
+                var (snapX, snapY, snapped) = SnapHelper.SnapToElements(layoutElement, otherElements);
+
+                if (snapped)
+                {
+                    newX = snapX;
+                    newY = snapY;
+                    snappedToElement = true;
+
+                    // Show snap lines
+                    ShowSnapLines(layoutElement, otherElements);
+                }
+
+                // Restore original position
+                layoutElement.X = originalX;
+                layoutElement.Y = originalY;
             }
 
             // Update position with bounds check
@@ -243,6 +294,73 @@ namespace LayoutDesigner.Controls
                 _dragStartPoint = null;
                 _isDragging = false;
                 e.Handled = true;
+            }
+        }
+
+        #endregion
+
+        #region Private Helper Methods
+
+        /// <summary>
+        /// Shows snap lines for the currently dragged element
+        /// </summary>
+        private void ShowSnapLines(LayoutElementBase movingElement, IEnumerable<LayoutElementBase> otherElements)
+        {
+            if (_snapLinesAdorner == null)
+                return;
+
+            var snapDistance = SnapHelper.DefaultSnapDistance;
+            var movingX = movingElement.X;
+            var movingY = movingElement.Y;
+            var movingWidth = movingElement.Width;
+            var movingHeight = movingElement.Height;
+            var movingRight = movingX + movingWidth;
+            var movingBottom = movingY + movingHeight;
+            var movingCenterX = movingX + movingWidth / 2;
+            var movingCenterY = movingY + movingHeight / 2;
+
+            foreach (var other in otherElements)
+            {
+                var otherX = other.X;
+                var otherY = other.Y;
+                var otherWidth = other.Width;
+                var otherHeight = other.Height;
+                var otherRight = otherX + otherWidth;
+                var otherBottom = otherY + otherHeight;
+                var otherCenterX = otherX + otherWidth / 2;
+                var otherCenterY = otherY + otherHeight / 2;
+
+                // Check for horizontal alignment (vertical lines)
+                if (Math.Abs(movingX - otherX) < snapDistance) // Left to Left
+                    _snapLinesAdorner.ShowVerticalLine(otherX, 0, ActualHeight);
+
+                if (Math.Abs(movingRight - otherRight) < snapDistance) // Right to Right
+                    _snapLinesAdorner.ShowVerticalLine(otherRight, 0, ActualHeight);
+
+                if (Math.Abs(movingCenterX - otherCenterX) < snapDistance) // Center to Center
+                    _snapLinesAdorner.ShowVerticalLine(otherCenterX, 0, ActualHeight);
+
+                if (Math.Abs(movingX - otherRight) < snapDistance) // Left to Right
+                    _snapLinesAdorner.ShowVerticalLine(otherRight, 0, ActualHeight);
+
+                if (Math.Abs(movingRight - otherX) < snapDistance) // Right to Left
+                    _snapLinesAdorner.ShowVerticalLine(otherX, 0, ActualHeight);
+
+                // Check for vertical alignment (horizontal lines)
+                if (Math.Abs(movingY - otherY) < snapDistance) // Top to Top
+                    _snapLinesAdorner.ShowHorizontalLine(otherY, 0, ActualWidth);
+
+                if (Math.Abs(movingBottom - otherBottom) < snapDistance) // Bottom to Bottom
+                    _snapLinesAdorner.ShowHorizontalLine(otherBottom, 0, ActualWidth);
+
+                if (Math.Abs(movingCenterY - otherCenterY) < snapDistance) // Center to Center
+                    _snapLinesAdorner.ShowHorizontalLine(otherCenterY, 0, ActualWidth);
+
+                if (Math.Abs(movingY - otherBottom) < snapDistance) // Top to Bottom
+                    _snapLinesAdorner.ShowHorizontalLine(otherBottom, 0, ActualWidth);
+
+                if (Math.Abs(movingBottom - otherY) < snapDistance) // Bottom to Top
+                    _snapLinesAdorner.ShowHorizontalLine(otherY, 0, ActualWidth);
             }
         }
 
