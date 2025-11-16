@@ -188,6 +188,10 @@
             <StatusBarItem>
                 <TextBlock Text="{Binding UndoRedoStatus}" FontWeight="SemiBold"/>
             </StatusBarItem>
+            <Separator/>
+            <StatusBarItem>
+                <TextBlock Text="{Binding DirtyElementsCount, StringFormat='Modified: {0}'}" FontWeight="SemiBold" Foreground="#FFFF8C00"/>
+            </StatusBarItem>
         </StatusBar>
 
         <!-- Main Content -->
@@ -274,6 +278,9 @@
                                 <Style TargetType="ContentPresenter" BasedOn="{StaticResource OptimizedCanvasElement}">
                                     <!-- Enable SelectionAdorner behavior -->
                                     <Setter Property="behaviors:SelectionBehavior.EnableSelectionAdorner" Value="True"/>
+
+                                    <!-- Enable Dirty Tracking for performance -->
+                                    <Setter Property="behaviors:DirtyTrackingBehavior.EnableDirtyTracking" Value="True"/>
 
                                     <!-- Canvas positioning via attached properties -->
                                     <Setter Property="Canvas.Left" Value="{Binding X}"/>

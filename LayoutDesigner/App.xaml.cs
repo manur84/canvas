@@ -31,6 +31,7 @@ namespace LayoutDesigner
             Services.Register<IExportService, ExportService>();
             Services.Register<IAssetService, AssetService>();
             Services.Register<ITemplateService, TemplateService>();
+            Services.Register<IDirtyTrackingService, DirtyTrackingService>();
         }
     }
 

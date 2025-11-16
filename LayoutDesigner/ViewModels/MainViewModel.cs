@@ -16,6 +16,7 @@ namespace LayoutDesigner.ViewModels
         private readonly ILayoutStorageService _storageService;
         private readonly IUndoRedoService _undoRedoService;
         private readonly IErrorHandlingService _errorHandler;
+        private readonly IDirtyTrackingService _dirtyTrackingService;
         private string? _currentFilePath;
         private bool _isDirty;
         private List<string> _recentFiles;
@@ -30,6 +31,7 @@ namespace LayoutDesigner.ViewModels
             _storageService = App.Services.Resolve<ILayoutStorageService>();
             _undoRedoService = App.Services.Resolve<IUndoRedoService>();
             _errorHandler = App.Services.Resolve<IErrorHandlingService>();
+            _dirtyTrackingService = App.Services.Resolve<IDirtyTrackingService>();
             _recentFiles = new List<string>();
 
             CanvasViewModel = new CanvasViewModel();
@@ -38,6 +40,7 @@ namespace LayoutDesigner.ViewModels
             // Subscribe to changes
             CanvasViewModel.Document.Elements.CollectionChanged += (s, e) => IsDirty = true;
             _undoRedoService.StateChanged += OnUndoRedoStateChanged;
+            _dirtyTrackingService.DirtyStateChanged += (s, e) => OnPropertyChanged(nameof(DirtyElementsCount));
 
             // Commands
             NewCommand = new RelayCommand(async () => await NewAsync());
@@ -106,6 +109,8 @@ namespace LayoutDesigner.ViewModels
         public int UndoCount => _undoRedoService.UndoHistory.Count;
         public int RedoCount => _undoRedoService.RedoHistory.Count;
         public string UndoRedoStatus => $"Undo: {UndoCount} | Redo: {RedoCount}";
+
+        public int DirtyElementsCount => _dirtyTrackingService.DirtyCount;
 
         public List<string> RecentFiles
         {
@@ -212,6 +217,9 @@ namespace LayoutDesigner.ViewModels
                 {
                     CurrentFilePath = filePath;
                     IsDirty = false;
+
+                    // Clear dirty tracking after successful save
+                    _dirtyTrackingService.ClearAll();
 
                     // Refresh recent files list
                     LoadRecentFiles();
