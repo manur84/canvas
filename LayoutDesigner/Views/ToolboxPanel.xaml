@@ -40,6 +40,12 @@
                               Style="{StaticResource ModernButton}" Margin="0,4"/>
                         <Button Content="🕐 Dynamic Field" Command="{Binding AddDynamicFieldCommand}"
                               Style="{StaticResource ModernButton}" Margin="0,4"/>
+                        <Button Content="🔗 Line Connector" Command="{Binding AddLineCommand}"
+                              Style="{StaticResource ModernButton}" Margin="0,4"/>
+                        <Button Content="🔘 Button" Command="{Binding AddButtonCommand}"
+                              Style="{StaticResource ModernButton}" Margin="0,4"/>
+                        <Button Content="📊 Table" Command="{Binding AddTableCommand}"
+                              Style="{StaticResource ModernButton}" Margin="0,4"/>
                     </StackPanel>
                 </GroupBox>
 

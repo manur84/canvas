@@ -36,6 +36,9 @@ namespace LayoutDesigner.ViewModels
             AddShapeCommand = new RelayCommand<string>(AddShape);
             AddQrCodeCommand = new RelayCommand(AddQrCode);
             AddDynamicFieldCommand = new RelayCommand(AddDynamicField);
+            AddLineCommand = new RelayCommand(AddLine);
+            AddButtonCommand = new RelayCommand(AddButton);
+            AddTableCommand = new RelayCommand(AddTable);
             DeleteSelectedCommand = new RelayCommand(DeleteSelected, () => SelectedElements.Count > 0);
             DuplicateSelectedCommand = new RelayCommand(DuplicateSelected, () => SelectedElements.Count > 0);
             CopyCommand = new RelayCommand(Copy, () => SelectedElements.Count > 0);
@@ -163,6 +166,9 @@ namespace LayoutDesigner.ViewModels
         public ICommand AddShapeCommand { get; }
         public ICommand AddQrCodeCommand { get; }
         public ICommand AddDynamicFieldCommand { get; }
+        public ICommand AddLineCommand { get; }
+        public ICommand AddButtonCommand { get; }
+        public ICommand AddTableCommand { get; }
         public ICommand DeleteSelectedCommand { get; }
         public ICommand DuplicateSelectedCommand { get; }
         public ICommand CopyCommand { get; }
@@ -269,6 +275,53 @@ namespace LayoutDesigner.ViewModels
             };
 
             AddElement(element, "Add Dynamic Field");
+        }
+
+        private void AddLine()
+        {
+            var element = new LineElement
+            {
+                Name = $"Line {Elements.Count + 1}",
+                X = 50,
+                Y = 50,
+                Width = 200,
+                Height = 2,
+                X2 = 250,
+                Y2 = 50
+            };
+
+            AddElement(element, "Add Line");
+        }
+
+        private void AddButton()
+        {
+            var element = new ButtonElement
+            {
+                Name = $"Button {Elements.Count + 1}",
+                X = 50,
+                Y = 50,
+                Width = 120,
+                Height = 40,
+                Text = "Click Me"
+            };
+
+            AddElement(element, "Add Button");
+        }
+
+        private void AddTable()
+        {
+            var element = new TableElement
+            {
+                Name = $"Table {Elements.Count + 1}",
+                X = 50,
+                Y = 50,
+                Width = 400,
+                Height = 200,
+                Rows = 3,
+                Columns = 3
+            };
+
+            AddElement(element, "Add Table");
         }
 
         private void AddElement(LayoutElementBase element, string actionName)

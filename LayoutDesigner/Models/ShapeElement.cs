@@ -12,6 +12,16 @@ namespace LayoutDesigner.Models
         private string _strokeColor = "#FF000000";
         private double _strokeThickness = 2;
         private double _cornerRadius;
+        private bool _useGradient = false;
+        private string _gradientStartColor = "#FF808080";
+        private string _gradientEndColor = "#FF404040";
+        private string _gradientDirection = "Vertical";
+        private bool _hasShadow = false;
+        private string _shadowColor = "#80000000";
+        private double _shadowBlur = 10;
+        private double _shadowOffsetX = 5;
+        private double _shadowOffsetY = 5;
+        private string _strokeDashStyle = "Solid";
 
         public override string ElementType => "Shape";
 
@@ -60,6 +70,96 @@ namespace LayoutDesigner.Models
             set => SetProperty(ref _cornerRadius, value);
         }
 
+        /// <summary>
+        /// Use gradient fill instead of solid color
+        /// </summary>
+        public bool UseGradient
+        {
+            get => _useGradient;
+            set => SetProperty(ref _useGradient, value);
+        }
+
+        /// <summary>
+        /// Gradient start color (#RRGGBB or #AARRGGBB)
+        /// </summary>
+        public string GradientStartColor
+        {
+            get => _gradientStartColor;
+            set => SetProperty(ref _gradientStartColor, value);
+        }
+
+        /// <summary>
+        /// Gradient end color (#RRGGBB or #AARRGGBB)
+        /// </summary>
+        public string GradientEndColor
+        {
+            get => _gradientEndColor;
+            set => SetProperty(ref _gradientEndColor, value);
+        }
+
+        /// <summary>
+        /// Gradient direction: Vertical, Horizontal, Diagonal, Radial
+        /// </summary>
+        public string GradientDirection
+        {
+            get => _gradientDirection;
+            set => SetProperty(ref _gradientDirection, value);
+        }
+
+        /// <summary>
+        /// Enable drop shadow
+        /// </summary>
+        public bool HasShadow
+        {
+            get => _hasShadow;
+            set => SetProperty(ref _hasShadow, value);
+        }
+
+        /// <summary>
+        /// Shadow color (#RRGGBB or #AARRGGBB)
+        /// </summary>
+        public string ShadowColor
+        {
+            get => _shadowColor;
+            set => SetProperty(ref _shadowColor, value);
+        }
+
+        /// <summary>
+        /// Shadow blur radius
+        /// </summary>
+        public double ShadowBlur
+        {
+            get => _shadowBlur;
+            set => SetProperty(ref _shadowBlur, value);
+        }
+
+        /// <summary>
+        /// Shadow horizontal offset
+        /// </summary>
+        public double ShadowOffsetX
+        {
+            get => _shadowOffsetX;
+            set => SetProperty(ref _shadowOffsetX, value);
+        }
+
+        /// <summary>
+        /// Shadow vertical offset
+        /// </summary>
+        public double ShadowOffsetY
+        {
+            get => _shadowOffsetY;
+            set => SetProperty(ref _shadowOffsetY, value);
+        }
+
+        /// <summary>
+        /// Stroke dash style: Solid, Dash, Dot, DashDot
+        /// </summary>
+        public string StrokeDashStyle
+        {
+            get => _strokeDashStyle;
+            set => SetProperty(ref _strokeDashStyle, value);
+        }
+
         public override LayoutElementBase Clone()
         {
             return new ShapeElement
@@ -78,7 +178,17 @@ namespace LayoutDesigner.Models
                 FillColor = FillColor,
                 StrokeColor = StrokeColor,
                 StrokeThickness = StrokeThickness,
-                CornerRadius = CornerRadius
+                CornerRadius = CornerRadius,
+                UseGradient = UseGradient,
+                GradientStartColor = GradientStartColor,
+                GradientEndColor = GradientEndColor,
+                GradientDirection = GradientDirection,
+                HasShadow = HasShadow,
+                ShadowColor = ShadowColor,
+                ShadowBlur = ShadowBlur,
+                ShadowOffsetX = ShadowOffsetX,
+                ShadowOffsetY = ShadowOffsetY,
+                StrokeDashStyle = StrokeDashStyle
             };
         }
     }

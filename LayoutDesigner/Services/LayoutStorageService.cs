@@ -160,6 +160,9 @@ namespace LayoutDesigner.Services
                 "Shape" => JsonSerializer.Deserialize<ShapeElement>(root.GetRawText(), options),
                 "QrCode" => JsonSerializer.Deserialize<QrCodeElement>(root.GetRawText(), options),
                 "DynamicField" => JsonSerializer.Deserialize<DynamicFieldElement>(root.GetRawText(), options),
+                "Line" => JsonSerializer.Deserialize<LineElement>(root.GetRawText(), options),
+                "Button" => JsonSerializer.Deserialize<ButtonElement>(root.GetRawText(), options),
+                "Table" => JsonSerializer.Deserialize<TableElement>(root.GetRawText(), options),
                 _ => throw new JsonException($"Unknown element type: {elementType}")
             };
         }

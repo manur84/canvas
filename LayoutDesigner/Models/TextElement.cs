@@ -19,6 +19,18 @@ namespace LayoutDesigner.Models
         private string _backgroundColor = "#00FFFFFF";
         private TextAlignment _textAlignment = TextAlignment.Left;
         private VerticalAlignment _verticalAlignment = VerticalAlignment.Top;
+        private double _lineHeight = 1.2;
+        private double _letterSpacing = 0;
+        private bool _hasShadow = false;
+        private string _shadowColor = "#80000000";
+        private double _shadowBlur = 5;
+        private double _shadowOffsetX = 2;
+        private double _shadowOffsetY = 2;
+        private bool _hasBorder = false;
+        private string _borderColor = "#FF000000";
+        private double _borderThickness = 1;
+        private double _padding = 4;
+        private double _cornerRadius = 0;
 
         public override string ElementType => "Text";
 
@@ -112,6 +124,114 @@ namespace LayoutDesigner.Models
             set => SetProperty(ref _verticalAlignment, value);
         }
 
+        /// <summary>
+        /// Line height multiplier (1.0 = normal, 1.5 = 150%, etc.)
+        /// </summary>
+        public double LineHeight
+        {
+            get => _lineHeight;
+            set => SetProperty(ref _lineHeight, value);
+        }
+
+        /// <summary>
+        /// Letter spacing in pixels
+        /// </summary>
+        public double LetterSpacing
+        {
+            get => _letterSpacing;
+            set => SetProperty(ref _letterSpacing, value);
+        }
+
+        /// <summary>
+        /// Enable text shadow
+        /// </summary>
+        public bool HasShadow
+        {
+            get => _hasShadow;
+            set => SetProperty(ref _hasShadow, value);
+        }
+
+        /// <summary>
+        /// Shadow color (#RRGGBB or #AARRGGBB)
+        /// </summary>
+        public string ShadowColor
+        {
+            get => _shadowColor;
+            set => SetProperty(ref _shadowColor, value);
+        }
+
+        /// <summary>
+        /// Shadow blur radius
+        /// </summary>
+        public double ShadowBlur
+        {
+            get => _shadowBlur;
+            set => SetProperty(ref _shadowBlur, value);
+        }
+
+        /// <summary>
+        /// Shadow horizontal offset
+        /// </summary>
+        public double ShadowOffsetX
+        {
+            get => _shadowOffsetX;
+            set => SetProperty(ref _shadowOffsetX, value);
+        }
+
+        /// <summary>
+        /// Shadow vertical offset
+        /// </summary>
+        public double ShadowOffsetY
+        {
+            get => _shadowOffsetY;
+            set => SetProperty(ref _shadowOffsetY, value);
+        }
+
+        /// <summary>
+        /// Enable border
+        /// </summary>
+        public bool HasBorder
+        {
+            get => _hasBorder;
+            set => SetProperty(ref _hasBorder, value);
+        }
+
+        /// <summary>
+        /// Border color (#RRGGBB or #AARRGGBB)
+        /// </summary>
+        public string BorderColor
+        {
+            get => _borderColor;
+            set => SetProperty(ref _borderColor, value);
+        }
+
+        /// <summary>
+        /// Border thickness in pixels
+        /// </summary>
+        public double BorderThickness
+        {
+            get => _borderThickness;
+            set => SetProperty(ref _borderThickness, value);
+        }
+
+        /// <summary>
+        /// Internal padding in pixels
+        /// </summary>
+        public double Padding
+        {
+            get => _padding;
+            set => SetProperty(ref _padding, value);
+        }
+
+        /// <summary>
+        /// Corner radius for rounded borders
+        /// </summary>
+        public double CornerRadius
+        {
+            get => _cornerRadius;
+            set => SetProperty(ref _cornerRadius, value);
+        }
+
         public override LayoutElementBase Clone()
         {
             return new TextElement
@@ -135,7 +255,19 @@ namespace LayoutDesigner.Models
                 ForegroundColor = ForegroundColor,
                 BackgroundColor = BackgroundColor,
                 TextAlignment = TextAlignment,
-                VerticalAlignment = VerticalAlignment
+                VerticalAlignment = VerticalAlignment,
+                LineHeight = LineHeight,
+                LetterSpacing = LetterSpacing,
+                HasShadow = HasShadow,
+                ShadowColor = ShadowColor,
+                ShadowBlur = ShadowBlur,
+                ShadowOffsetX = ShadowOffsetX,
+                ShadowOffsetY = ShadowOffsetY,
+                HasBorder = HasBorder,
+                BorderColor = BorderColor,
+                BorderThickness = BorderThickness,
+                Padding = Padding,
+                CornerRadius = CornerRadius
             };
         }
     }
