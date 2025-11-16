@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Nullable>enable</Nullable>
+    <ApplicationIcon>Resources\Icons\app.ico</ApplicationIcon>
+    <AssemblyName>LayoutDesigner</AssemblyName>
+    <RootNamespace>LayoutDesigner</RootNamespace>
+    <Version>1.0.0</Version>
+    <Authors>Layout Designer Team</Authors>
+    <Company>Layout Designer</Company>
+    <Product>WPF Layout Designer</Product>
+    <Description>Professional layout design tool for creating room and overview displays</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="QRCoder" Version="1.6.0" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf" Version="1.1.77" />
+  </ItemGroup>
+
+</Project>

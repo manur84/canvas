@@ -1,0 +1,72 @@
+<UserControl x:Class="LayoutDesigner.Views.ToolboxPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="200"
+             Background="{StaticResource BackgroundBrush}">
+
+    <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,1,0">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="8">
+                <TextBlock Text="Elements" FontSize="16" FontWeight="Bold" Margin="0,0,0,12"/>
+
+                <GroupBox Header="Basic Elements" Style="{StaticResource PropertyGroup}">
+                    <StackPanel>
+                        <Button Content="➕ Add Text" Command="{Binding AddTextCommand}"
+                              Style="{StaticResource ModernButton}" Margin="0,4"/>
+                        <Button Content="🖼️ Add Image" Command="{Binding AddImageCommand}"
+                              Style="{StaticResource ModernButton}" Margin="0,4"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox Header="Shapes" Style="{StaticResource PropertyGroup}">
+                    <StackPanel>
+                        <Button Content="⬜ Rectangle" Command="{Binding AddShapeCommand}" CommandParameter="Rectangle"
+                              Style="{StaticResource ModernButton}" Margin="0,4"/>
+                        <Button Content="⭕ Ellipse" Command="{Binding AddShapeCommand}" CommandParameter="Ellipse"
+                              Style="{StaticResource ModernButton}" Margin="0,4"/>
+                        <Button Content="➖ Line" Command="{Binding AddShapeCommand}" CommandParameter="Line"
+                              Style="{StaticResource ModernButton}" Margin="0,4"/>
+                        <Button Content="▢ Rounded Rectangle" Command="{Binding AddShapeCommand}" CommandParameter="RoundedRectangle"
+                              Style="{StaticResource ModernButton}" Margin="0,4"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox Header="Special Elements" Style="{StaticResource PropertyGroup}">
+                    <StackPanel>
+                        <Button Content="📱 QR Code" Command="{Binding AddQrCodeCommand}"
+                              Style="{StaticResource ModernButton}" Margin="0,4"/>
+                        <Button Content="🕐 Dynamic Field" Command="{Binding AddDynamicFieldCommand}"
+                              Style="{StaticResource ModernButton}" Margin="0,4"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox Header="Selection" Style="{StaticResource PropertyGroup}">
+                    <StackPanel>
+                        <Button Content="🗑️ Delete Selected" Command="{Binding DeleteSelectedCommand}"
+                              Style="{StaticResource ModernButton}" Background="#FFDC3545" Margin="0,4"/>
+                        <Button Content="📋 Duplicate" Command="{Binding DuplicateSelectedCommand}"
+                              Style="{StaticResource ModernButton}" Margin="0,4"/>
+                        <Button Content="✅ Select All" Command="{Binding SelectAllCommand}"
+                              Style="{StaticResource ModernButton}" Margin="0,4"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox Header="Arrange" Style="{StaticResource PropertyGroup}">
+                    <StackPanel>
+                        <Button Content="⬆️ Bring to Front" Command="{Binding BringToFrontCommand}"
+                              Style="{StaticResource ModernButton}" Margin="0,4"/>
+                        <Button Content="⬇️ Send to Back" Command="{Binding SendToBackCommand}"
+                              Style="{StaticResource ModernButton}" Margin="0,4"/>
+                        <Button Content="🔼 Bring Forward" Command="{Binding BringForwardCommand}"
+                              Style="{StaticResource ModernButton}" Margin="0,4"/>
+                        <Button Content="🔽 Send Backward" Command="{Binding SendBackwardCommand}"
+                              Style="{StaticResource ModernButton}" Margin="0,4"/>
+                    </StackPanel>
+                </GroupBox>
+            </StackPanel>
+        </ScrollViewer>
+    </Border>
+</UserControl>

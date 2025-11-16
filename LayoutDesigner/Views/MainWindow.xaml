@@ -1,0 +1,238 @@
+<Window x:Class="LayoutDesigner.Views.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:LayoutDesigner.Views"
+        xmlns:vm="clr-namespace:LayoutDesigner.ViewModels"
+        xmlns:controls="clr-namespace:LayoutDesigner.Controls"
+        xmlns:models="clr-namespace:LayoutDesigner.Models"
+        mc:Ignorable="d"
+        Title="{Binding Title}"
+        Height="800" Width="1400"
+        WindowStartupLocation="CenterScreen">
+
+    <Window.DataContext>
+        <vm:MainViewModel/>
+    </Window.DataContext>
+
+    <Window.InputBindings>
+        <KeyBinding Key="N" Modifiers="Ctrl" Command="{Binding NewCommand}"/>
+        <KeyBinding Key="O" Modifiers="Ctrl" Command="{Binding OpenCommand}"/>
+        <KeyBinding Key="S" Modifiers="Ctrl" Command="{Binding SaveCommand}"/>
+        <KeyBinding Key="Z" Modifiers="Ctrl" Command="{Binding UndoCommand}"/>
+        <KeyBinding Key="Y" Modifiers="Ctrl" Command="{Binding RedoCommand}"/>
+        <KeyBinding Key="Add" Modifiers="Ctrl" Command="{Binding ZoomInCommand}"/>
+        <KeyBinding Key="Subtract" Modifiers="Ctrl" Command="{Binding ZoomOutCommand}"/>
+        <KeyBinding Key="D0" Modifiers="Ctrl" Command="{Binding ZoomResetCommand}"/>
+    </Window.InputBindings>
+
+    <DockPanel>
+        <!-- Menu -->
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_File">
+                <MenuItem Header="_New" Command="{Binding NewCommand}" InputGestureText="Ctrl+N"/>
+                <MenuItem Header="_Open..." Command="{Binding OpenCommand}" InputGestureText="Ctrl+O"/>
+                <MenuItem Header="_Save" Command="{Binding SaveCommand}" InputGestureText="Ctrl+S"/>
+                <MenuItem Header="Save _As..." Command="{Binding SaveAsCommand}"/>
+                <Separator/>
+                <MenuItem Header="E_xport">
+                    <MenuItem Header="Export as _PNG..." Command="{Binding ExportPngCommand}"/>
+                    <MenuItem Header="Export as _JPG..." Command="{Binding ExportJpgCommand}"/>
+                </MenuItem>
+                <Separator/>
+                <MenuItem Header="E_xit" Command="{Binding ExitCommand}"/>
+            </MenuItem>
+
+            <MenuItem Header="_Edit">
+                <MenuItem Header="_Undo" Command="{Binding UndoCommand}" InputGestureText="Ctrl+Z"/>
+                <MenuItem Header="_Redo" Command="{Binding RedoCommand}" InputGestureText="Ctrl+Y"/>
+                <Separator/>
+                <MenuItem Header="_Delete" Command="{Binding CanvasViewModel.DeleteSelectedCommand}" InputGestureText="Del"/>
+                <MenuItem Header="Du_plicate" Command="{Binding CanvasViewModel.DuplicateSelectedCommand}" InputGestureText="Ctrl+D"/>
+                <MenuItem Header="Select _All" Command="{Binding CanvasViewModel.SelectAllCommand}" InputGestureText="Ctrl+A"/>
+            </MenuItem>
+
+            <MenuItem Header="_View">
+                <MenuItem Header="Zoom _In" Command="{Binding ZoomInCommand}" InputGestureText="Ctrl+Plus"/>
+                <MenuItem Header="Zoom _Out" Command="{Binding ZoomOutCommand}" InputGestureText="Ctrl+Minus"/>
+                <MenuItem Header="_Reset Zoom" Command="{Binding ZoomResetCommand}" InputGestureText="Ctrl+0"/>
+                <Separator/>
+                <MenuItem Header="Show _Grid" IsCheckable="True" IsChecked="{Binding CanvasViewModel.ShowGrid}"/>
+                <MenuItem Header="_Snap to Grid" IsCheckable="True" IsChecked="{Binding CanvasViewModel.SnapToGrid}"/>
+            </MenuItem>
+
+            <MenuItem Header="_Arrange">
+                <MenuItem Header="Bring to _Front" Command="{Binding CanvasViewModel.BringToFrontCommand}"/>
+                <MenuItem Header="Send to _Back" Command="{Binding CanvasViewModel.SendToBackCommand}"/>
+                <MenuItem Header="Bring _Forward" Command="{Binding CanvasViewModel.BringForwardCommand}"/>
+                <MenuItem Header="Send Back_ward" Command="{Binding CanvasViewModel.SendBackwardCommand}"/>
+            </MenuItem>
+        </Menu>
+
+        <!-- Toolbar -->
+        <ToolBar DockPanel.Dock="Top" Height="40">
+            <Button Content="New" Command="{Binding NewCommand}" Style="{StaticResource IconButton}" Padding="8,4" Margin="2"/>
+            <Button Content="Open" Command="{Binding OpenCommand}" Style="{StaticResource IconButton}" Padding="8,4" Margin="2"/>
+            <Button Content="Save" Command="{Binding SaveCommand}" Style="{StaticResource IconButton}" Padding="8,4" Margin="2"/>
+            <Separator/>
+            <Button Content="Undo" Command="{Binding UndoCommand}" Style="{StaticResource IconButton}" Padding="8,4" Margin="2"/>
+            <Button Content="Redo" Command="{Binding RedoCommand}" Style="{StaticResource IconButton}" Padding="8,4" Margin="2"/>
+            <Separator/>
+            <Button Content="Zoom +" Command="{Binding ZoomInCommand}" Style="{StaticResource IconButton}" Padding="8,4" Margin="2"/>
+            <Button Content="Zoom -" Command="{Binding ZoomOutCommand}" Style="{StaticResource IconButton}" Padding="8,4" Margin="2"/>
+            <TextBlock Text="{Binding CanvasViewModel.Zoom, StringFormat={}{0:P0}}" VerticalAlignment="Center" Margin="4,0"/>
+        </ToolBar>
+
+        <!-- Status Bar -->
+        <StatusBar DockPanel.Dock="Bottom" Height="24">
+            <StatusBarItem>
+                <TextBlock Text="{Binding CanvasViewModel.Elements.Count, StringFormat=Elements: {0}}"/>
+            </StatusBarItem>
+            <Separator/>
+            <StatusBarItem>
+                <TextBlock Text="{Binding CanvasViewModel.SelectedElements.Count, StringFormat=Selected: {0}}"/>
+            </StatusBarItem>
+            <Separator/>
+            <StatusBarItem>
+                <TextBlock>
+                    <Run Text="Size: "/>
+                    <Run Text="{Binding CanvasViewModel.CanvasWidth, StringFormat={}{0:F0}}"/>
+                    <Run Text=" x "/>
+                    <Run Text="{Binding CanvasViewModel.CanvasHeight, StringFormat={}{0:F0}}"/>
+                </TextBlock>
+            </StatusBarItem>
+        </StatusBar>
+
+        <!-- Main Content -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="200"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="280"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Toolbox Panel -->
+            <local:ToolboxPanel Grid.Column="0" DataContext="{Binding CanvasViewModel}"/>
+
+            <!-- Canvas -->
+            <Border Grid.Column="1" Background="#FFE5E5E5" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,0">
+                <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto">
+                    <controls:DesignCanvas x:Name="DesignCanvas"
+                                          Width="{Binding CanvasViewModel.CanvasWidth}"
+                                          Height="{Binding CanvasViewModel.CanvasHeight}"
+                                          ShowGrid="{Binding CanvasViewModel.ShowGrid}"
+                                          GridSize="{Binding CanvasViewModel.GridSize}"
+                                          SnapToGrid="{Binding CanvasViewModel.SnapToGrid}">
+                        <controls:DesignCanvas.LayoutTransform>
+                            <ScaleTransform ScaleX="{Binding CanvasViewModel.Zoom}" ScaleY="{Binding CanvasViewModel.Zoom}"/>
+                        </controls:DesignCanvas.LayoutTransform>
+
+                        <controls:DesignCanvas.Resources>
+                            <!-- DataTemplates for different element types -->
+                            <DataTemplate DataType="{x:Type models:TextElement}">
+                                <Border Background="{Binding BackgroundColor, Converter={StaticResource ColorToBrushConverter}}"
+                                       BorderBrush="#40000000" BorderThickness="1">
+                                    <TextBlock Text="{Binding Text}"
+                                             FontFamily="{Binding FontFamily}"
+                                             FontSize="{Binding FontSize}"
+                                             FontWeight="{Binding IsBold, Converter={StaticResource BoolToFontWeight}}"
+                                             FontStyle="{Binding IsItalic, Converter={StaticResource BoolToFontStyle}}"
+                                             Foreground="{Binding ForegroundColor, Converter={StaticResource ColorToBrushConverter}}"
+                                             TextAlignment="{Binding TextAlignment}"
+                                             VerticalAlignment="{Binding VerticalAlignment}"
+                                             TextWrapping="Wrap"
+                                             Padding="4"/>
+                                </Border>
+                            </DataTemplate>
+
+                            <DataTemplate DataType="{x:Type models:ImageElement}">
+                                <Border BorderBrush="#40000000" BorderThickness="1">
+                                    <Image Source="{Binding ImagePath}"
+                                          Stretch="{Binding StretchMode, Converter={StaticResource ImageStretchConverter}}"/>
+                                </Border>
+                            </DataTemplate>
+
+                            <DataTemplate DataType="{x:Type models:ShapeElement}">
+                                <Grid>
+                                    <Rectangle Fill="{Binding FillColor, Converter={StaticResource ColorToBrushConverter}}"
+                                             Stroke="{Binding StrokeColor, Converter={StaticResource ColorToBrushConverter}}"
+                                             StrokeThickness="{Binding StrokeThickness}"
+                                             RadiusX="{Binding CornerRadius}"
+                                             RadiusY="{Binding CornerRadius}"
+                                             Visibility="{Binding ShapeType, Converter={StaticResource ShapeTypeToVisibility}, ConverterParameter=Rectangle}"/>
+                                    <Ellipse Fill="{Binding FillColor, Converter={StaticResource ColorToBrushConverter}}"
+                                            Stroke="{Binding StrokeColor, Converter={StaticResource ColorToBrushConverter}}"
+                                            StrokeThickness="{Binding StrokeThickness}"
+                                            Visibility="{Binding ShapeType, Converter={StaticResource ShapeTypeToVisibility}, ConverterParameter=Ellipse}"/>
+                                </Grid>
+                            </DataTemplate>
+
+                            <DataTemplate DataType="{x:Type models:QrCodeElement}">
+                                <Border BorderBrush="#40000000" BorderThickness="1">
+                                    <TextBlock Text="{Binding Content}" TextWrapping="Wrap" Padding="4"
+                                             HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                            </DataTemplate>
+
+                            <DataTemplate DataType="{x:Type models:DynamicFieldElement}">
+                                <Border Background="{Binding BackgroundColor, Converter={StaticResource ColorToBrushConverter}}"
+                                       BorderBrush="#40000000" BorderThickness="1">
+                                    <TextBlock Text="{Binding Format}"
+                                             FontFamily="{Binding FontFamily}"
+                                             FontSize="{Binding FontSize}"
+                                             Foreground="{Binding ForegroundColor, Converter={StaticResource ColorToBrushConverter}}"
+                                             VerticalAlignment="Center"
+                                             Padding="4"/>
+                                </Border>
+                            </DataTemplate>
+
+                            <!-- Element Container Style -->
+                            <Style TargetType="ContentPresenter" x:Key="ElementStyle">
+                                <Setter Property="Canvas.Left" Value="{Binding X}"/>
+                                <Setter Property="Canvas.Top" Value="{Binding Y}"/>
+                                <Setter Property="Width" Value="{Binding Width}"/>
+                                <Setter Property="Height" Value="{Binding Height}"/>
+                                <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+                                <Setter Property="RenderTransform">
+                                    <Setter.Value>
+                                        <RotateTransform Angle="{Binding Rotation}"/>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter Property="Opacity" Value="{Binding Opacity}"/>
+                            </Style>
+                        </controls:DesignCanvas.Resources>
+
+                        <ItemsControl ItemsSource="{Binding CanvasViewModel.Elements}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <Canvas/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemContainerStyle>
+                                <Style TargetType="ContentPresenter">
+                                    <Setter Property="Canvas.Left" Value="{Binding X}"/>
+                                    <Setter Property="Canvas.Top" Value="{Binding Y}"/>
+                                    <Setter Property="Width" Value="{Binding Width}"/>
+                                    <Setter Property="Height" Value="{Binding Height}"/>
+                                    <Setter Property="Canvas.ZIndex" Value="{Binding ZIndex}"/>
+                                    <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+                                    <Setter Property="RenderTransform">
+                                        <Setter.Value>
+                                            <RotateTransform Angle="{Binding Rotation}"/>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Setter Property="Opacity" Value="{Binding Opacity}"/>
+                                    <Setter Property="Visibility" Value="{Binding IsVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                </Style>
+                            </ItemsControl.ItemContainerStyle>
+                        </ItemsControl>
+                    </controls:DesignCanvas>
+                </ScrollViewer>
+            </Border>
+
+            <!-- Property Panel -->
+            <local:PropertyPanel Grid.Column="2" DataContext="{Binding PropertyPanelViewModel}"/>
+        </Grid>
+    </DockPanel>
+</Window>
