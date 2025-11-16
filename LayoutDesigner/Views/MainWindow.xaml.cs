@@ -7,6 +7,7 @@ using System.Linq;
 using LayoutDesigner.ViewModels;
 using LayoutDesigner.Events;
 using LayoutDesigner.Commands;
+using LayoutDesigner.Constants;
 
 namespace LayoutDesigner.Views
 {
@@ -246,8 +247,8 @@ namespace LayoutDesigner.Views
                         viewModel.CanvasViewModel.Elements.Add(imageElement);
 
                         // Offset next image position
-                        x += 20;
-                        y += 20;
+                        x += UIConstants.DropOffsetPixels;
+                        y += UIConstants.DropOffsetPixels;
                     }
                 }
 

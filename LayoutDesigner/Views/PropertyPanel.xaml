@@ -150,7 +150,8 @@
                             <Label Content="Image Path:" Style="{StaticResource PropertyLabel}"/>
                             <TextBox Text="{Binding ImagePath, UpdateSourceTrigger=PropertyChanged}"
                                    Style="{StaticResource ModernTextBox}"/>
-                            <Button Content="Browse..." Margin="0,4,0,0" Style="{StaticResource ModernButton}"/>
+                            <Button Content="Browse..." Margin="0,4,0,0" Style="{StaticResource ModernButton}"
+                                    Command="{Binding DataContext.BrowseImageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
 
                             <Label Content="Stretch Mode:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
                             <ComboBox SelectedItem="{Binding StretchMode}" Style="{StaticResource ModernComboBox}">

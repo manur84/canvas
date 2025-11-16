@@ -1,6 +1,9 @@
 using LayoutDesigner.Models.Base;
+using LayoutDesigner.Models;
 using LayoutDesigner.ViewModels.Base;
+using LayoutDesigner.Helpers;
 using System.Collections.Specialized;
+using System.Windows.Input;
 
 namespace LayoutDesigner.ViewModels
 {
@@ -16,6 +19,9 @@ namespace LayoutDesigner.ViewModels
         {
             _canvasViewModel = canvasViewModel;
             _canvasViewModel.SelectedElements.CollectionChanged += OnSelectionChanged;
+
+            // Commands
+            BrowseImageCommand = new RelayCommand(BrowseImage, () => SelectedElement is ImageElement);
         }
 
         public LayoutElementBase? SelectedElement
@@ -27,6 +33,9 @@ namespace LayoutDesigner.ViewModels
         public bool HasSelection => SelectedElement != null;
 
         public bool HasMultipleSelection => _canvasViewModel.SelectedElements.Count > 1;
+
+        // Commands
+        public ICommand BrowseImageCommand { get; }
 
         // Canvas properties (exposed for editing when no element is selected)
         public double CanvasWidth
@@ -97,6 +106,21 @@ namespace LayoutDesigner.ViewModels
 
             OnPropertyChanged(nameof(HasSelection));
             OnPropertyChanged(nameof(HasMultipleSelection));
+
+            // Update command can execute state
+            OnPropertyChanged(nameof(BrowseImageCommand));
+        }
+
+        private void BrowseImage()
+        {
+            if (SelectedElement is not ImageElement imageElement)
+                return;
+
+            var filePath = FileDialogHelper.ShowOpenImageDialog();
+            if (filePath != null)
+            {
+                imageElement.ImagePath = filePath;
+            }
         }
     }
 }

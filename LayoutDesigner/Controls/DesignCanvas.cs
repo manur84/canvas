@@ -5,6 +5,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using LayoutDesigner.Helpers;
 using LayoutDesigner.Models.Base;
+using LayoutDesigner.Constants;
 
 namespace LayoutDesigner.Controls
 {
@@ -191,10 +192,10 @@ namespace LayoutDesigner.Controls
             var currentPoint = e.GetPosition(this);
             var delta = currentPoint - _dragStartPoint.Value;
 
-            // Start dragging if moved more than 3 pixels (dead zone to avoid accidental drags)
+            // Start dragging if moved more than dead zone threshold (to avoid accidental drags)
             if (!_isDragging)
             {
-                if (Math.Abs(delta.X) > 3 || Math.Abs(delta.Y) > 3)
+                if (Math.Abs(delta.X) > UIConstants.DragDeadZonePixels || Math.Abs(delta.Y) > UIConstants.DragDeadZonePixels)
                 {
                     _isDragging = true;
                 }

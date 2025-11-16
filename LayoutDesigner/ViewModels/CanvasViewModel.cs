@@ -2,6 +2,7 @@ using LayoutDesigner.Models;
 using LayoutDesigner.Models.Base;
 using LayoutDesigner.Services.Interfaces;
 using LayoutDesigner.ViewModels.Base;
+using LayoutDesigner.Constants;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
@@ -483,8 +484,8 @@ namespace LayoutDesigner.ViewModels
             {
                 var clone = element.Clone();
                 // Offset the pasted element to make it visible
-                clone.X += 20;
-                clone.Y += 20;
+                clone.X += UIConstants.PasteOffsetPixels;
+                clone.Y += UIConstants.PasteOffsetPixels;
                 newElements.Add(clone);
                 Elements.Add(clone);
             }

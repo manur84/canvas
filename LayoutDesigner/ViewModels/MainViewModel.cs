@@ -2,6 +2,7 @@ using LayoutDesigner.Events;
 using LayoutDesigner.Helpers;
 using LayoutDesigner.Services.Interfaces;
 using LayoutDesigner.ViewModels.Base;
+using LayoutDesigner.Constants;
 using System.Windows;
 using System.Windows.Input;
 
@@ -219,12 +220,12 @@ namespace LayoutDesigner.ViewModels
 
         private void ZoomIn()
         {
-            CanvasViewModel.Zoom *= 1.2;
+            CanvasViewModel.Zoom *= UIConstants.ZoomFactor;
         }
 
         private void ZoomOut()
         {
-            CanvasViewModel.Zoom /= 1.2;
+            CanvasViewModel.Zoom /= UIConstants.ZoomFactor;
         }
 
         private void ZoomReset()

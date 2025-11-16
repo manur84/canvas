@@ -229,4 +229,62 @@
         </Border>
     </DataTemplate>
 
+    <!-- ElementGroup DataTemplate -->
+    <DataTemplate DataType="{x:Type models:ElementGroup}">
+        <!-- Group is visualized with a dashed border and label to indicate grouped elements -->
+        <Border Background="Transparent"
+                BorderBrush="#FF0078D7"
+                BorderThickness="2"
+                CornerRadius="4"
+                Padding="4">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="BorderDashArray" Value="4 2"/>
+                    <Setter Property="Opacity" Value="0.7"/>
+                    <Style.Triggers>
+                        <!-- Highlight on mouse over for better visibility -->
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="Opacity" Value="1.0"/>
+                            <Setter Property="BorderBrush" Value="#FF005A9E"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+
+            <!-- Group indicator labels -->
+            <Grid>
+                <!-- Group name label -->
+                <TextBlock Text="{Binding Name, StringFormat='Group: {0}', Mode=OneWay}"
+                          FontFamily="Segoe UI"
+                          FontSize="10"
+                          FontWeight="Bold"
+                          Foreground="#FF0078D7"
+                          Background="#FFFFFF"
+                          Padding="4,2"
+                          HorizontalAlignment="Left"
+                          VerticalAlignment="Top"
+                          Margin="-2,-2,0,0">
+                    <TextBlock.Effect>
+                        <DropShadowEffect BlurRadius="3"
+                                        ShadowDepth="1"
+                                        Color="Black"
+                                        Opacity="0.3"
+                                        RenderingBias="Performance"/>
+                    </TextBlock.Effect>
+                </TextBlock>
+
+                <!-- Child count indicator -->
+                <TextBlock Text="{Binding Children.Count, StringFormat='({0} items)', Mode=OneWay}"
+                          FontFamily="Segoe UI"
+                          FontSize="9"
+                          Foreground="#FF666666"
+                          Background="#FFFFFF"
+                          Padding="4,1"
+                          HorizontalAlignment="Left"
+                          VerticalAlignment="Top"
+                          Margin="-2,14,0,0"/>
+            </Grid>
+        </Border>
+    </DataTemplate>
+
 </ResourceDictionary>
