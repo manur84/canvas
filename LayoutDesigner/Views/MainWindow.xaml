@@ -170,18 +170,18 @@
             <StatusBarItem>
                 <TextBlock>
                     <Run Text="Position: " FontWeight="SemiBold"/>
-                    <Run Text="{Binding CanvasViewModel.SelectedElements[0].X, StringFormat={}{0:F0}, FallbackValue='-'}"/>
+                    <Run Text="{Binding CanvasViewModel.SelectedElementX, StringFormat={}{0:F0}, FallbackValue='-', TargetNullValue='-'}"/>
                     <Run Text=", "/>
-                    <Run Text="{Binding CanvasViewModel.SelectedElements[0].Y, StringFormat={}{0:F0}, FallbackValue='-'}"/>
+                    <Run Text="{Binding CanvasViewModel.SelectedElementY, StringFormat={}{0:F0}, FallbackValue='-', TargetNullValue='-'}"/>
                 </TextBlock>
             </StatusBarItem>
             <Separator/>
             <StatusBarItem>
                 <TextBlock>
                     <Run Text="Size: " FontWeight="SemiBold"/>
-                    <Run Text="{Binding CanvasViewModel.SelectedElements[0].Width, StringFormat={}{0:F0}, FallbackValue='-'}"/>
+                    <Run Text="{Binding CanvasViewModel.SelectedElementWidth, StringFormat={}{0:F0}, FallbackValue='-', TargetNullValue='-'}"/>
                     <Run Text=" × "/>
-                    <Run Text="{Binding CanvasViewModel.SelectedElements[0].Height, StringFormat={}{0:F0}, FallbackValue='-'}"/>
+                    <Run Text="{Binding CanvasViewModel.SelectedElementHeight, StringFormat={}{0:F0}, FallbackValue='-', TargetNullValue='-'}"/>
                 </TextBlock>
             </StatusBarItem>
             <Separator/>
