@@ -59,12 +59,13 @@ namespace LayoutDesigner.Helpers
         /// Returns adjusted position if snap occurred, original position otherwise
         /// </summary>
         public static (double x, double y, bool snapped) SnapToElements(
-            LayoutElementBase movingElement,
-            IEnumerable<LayoutElementBase> otherElements,
+            LayoutElementBase? movingElement,
+            IEnumerable<LayoutElementBase>? otherElements,
             double snapDistance = DefaultSnapDistance)
         {
-            if (movingElement == null || otherElements == null)
-                return (movingElement?.X ?? 0, movingElement?.Y ?? 0, false);
+            // Early return for null inputs
+            if (movingElement is null || otherElements is null)
+                return (0, 0, false);
 
             var x = movingElement.X;
             var y = movingElement.Y;
@@ -203,8 +204,11 @@ namespace LayoutDesigner.Helpers
         /// <summary>
         /// Gets bounding rectangle for an element
         /// </summary>
-        public static Rect GetBounds(LayoutElementBase element)
+        public static Rect GetBounds(LayoutElementBase? element)
         {
+            if (element is null)
+                return Rect.Empty;
+
             return new Rect(element.X, element.Y, element.Width, element.Height);
         }
 

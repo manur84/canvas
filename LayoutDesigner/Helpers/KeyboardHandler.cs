@@ -23,12 +23,12 @@ namespace LayoutDesigner.Helpers
         /// Processes keyboard input for element manipulation
         /// Returns true if the key was handled
         /// </summary>
-        public static bool HandleKeyDown(Key key, ModifierKeys modifiers, IEnumerable<LayoutElementBase> selectedElements,
+        public static bool HandleKeyDown(Key key, ModifierKeys modifiers, IEnumerable<LayoutElementBase>? selectedElements,
             out Action<LayoutElementBase>? action)
         {
             action = null;
 
-            if (selectedElements == null || !selectedElements.Any())
+            if (selectedElements is null || !selectedElements.Any())
                 return false;
 
             var shift = modifiers.HasFlag(ModifierKeys.Shift);
@@ -153,9 +153,9 @@ namespace LayoutDesigner.Helpers
         /// <summary>
         /// Applies the action to all selected elements
         /// </summary>
-        public static void ApplyToSelected(Action<LayoutElementBase> action, IEnumerable<LayoutElementBase> selectedElements)
+        public static void ApplyToSelected(Action<LayoutElementBase>? action, IEnumerable<LayoutElementBase>? selectedElements)
         {
-            if (action == null || selectedElements == null)
+            if (action is null || selectedElements is null)
                 return;
 
             foreach (var element in selectedElements.Where(e => !e.IsLocked))
