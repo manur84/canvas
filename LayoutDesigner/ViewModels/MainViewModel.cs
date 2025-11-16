@@ -1,3 +1,4 @@
+using LayoutDesigner.Events;
 using LayoutDesigner.Helpers;
 using LayoutDesigner.Services.Interfaces;
 using LayoutDesigner.ViewModels.Base;
@@ -15,6 +16,11 @@ namespace LayoutDesigner.ViewModels
         private readonly IUndoRedoService _undoRedoService;
         private string? _currentFilePath;
         private bool _isDirty;
+
+        /// <summary>
+        /// Event raised when export is requested
+        /// </summary>
+        public event EventHandler<ExportRequestedEventArgs>? ExportRequested;
 
         public MainViewModel()
         {
@@ -230,8 +236,26 @@ namespace LayoutDesigner.ViewModels
             if (filePath == null)
                 return;
 
-            // This will be implemented when we have the actual canvas control
-            MessageBox.Show("Export PNG - To be implemented with canvas control", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+            // Ensure .png extension
+            if (!filePath.EndsWith(".png", StringComparison.OrdinalIgnoreCase))
+            {
+                filePath += ".png";
+            }
+
+            // Raise event for view to handle
+            var args = new ExportRequestedEventArgs(filePath, ExportFormat.Png);
+            ExportRequested?.Invoke(this, args);
+
+            if (args.Success)
+            {
+                MessageBox.Show($"Layout exported successfully to:\n{filePath}", "Export Successful",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            else
+            {
+                MessageBox.Show("Failed to export layout. Please try again.", "Export Failed",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private async Task ExportJpgAsync()
@@ -240,8 +264,27 @@ namespace LayoutDesigner.ViewModels
             if (filePath == null)
                 return;
 
-            // This will be implemented when we have the actual canvas control
-            MessageBox.Show("Export JPG - To be implemented with canvas control", "Info", MessageBoxButton.OK, MessageBoxImage.Information);
+            // Ensure .jpg extension
+            if (!filePath.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase) &&
+                !filePath.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase))
+            {
+                filePath += ".jpg";
+            }
+
+            // Raise event for view to handle
+            var args = new ExportRequestedEventArgs(filePath, ExportFormat.Jpg);
+            ExportRequested?.Invoke(this, args);
+
+            if (args.Success)
+            {
+                MessageBox.Show($"Layout exported successfully to:\n{filePath}", "Export Successful",
+                    MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            else
+            {
+                MessageBox.Show("Failed to export layout. Please try again.", "Export Failed",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void OnUndoRedoStateChanged(object? sender, EventArgs e)

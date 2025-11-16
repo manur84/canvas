@@ -215,4 +215,5 @@ $RECYCLE.BIN/
 
 # Application specific
 *.layout
+!Examples/**/*.layout
 Assets/
