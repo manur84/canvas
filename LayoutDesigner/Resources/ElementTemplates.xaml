@@ -159,11 +159,13 @@
     </DataTemplate>
 
     <!-- QrCodeElement DataTemplate -->
-    <DataTemplate DataType="{x:Type models:QrCodeElement}">
+    <DataTemplate DataType="{x:Type models:QrCodeElement}" xmlns:controls="clr-namespace:LayoutDesigner.Controls">
         <Border Background="{Binding BackgroundColor, Converter={StaticResource ColorToBrushConverter}}"
+                BorderBrush="{Binding BorderColor, Converter={StaticResource ColorToBrushConverter}}"
+                BorderThickness="0"
                 Padding="4">
-            <Rectangle Fill="Gray" Width="100" Height="100"/>
-            <!-- Note: QR Code rendering would be handled by a specialized control -->
+            <!-- QR Code Control - renders actual QR code using QrCodeService -->
+            <controls:QrCodeControl />
         </Border>
     </DataTemplate>
 

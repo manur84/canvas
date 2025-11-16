@@ -34,6 +34,9 @@ namespace LayoutDesigner.ViewModels
             _document = new LayoutDocument();
             _selectedElements = new ObservableCollection<LayoutElementBase>();
 
+            // Subscribe to selection changes to update IsSelected property
+            _selectedElements.CollectionChanged += OnSelectedElementsChanged;
+
             // Commands
             AddTextCommand = new RelayCommand(AddText);
             AddImageCommand = new RelayCommand(AddImage);
@@ -880,6 +883,41 @@ namespace LayoutDesigner.ViewModels
             foreach (var element in SelectedElements)
             {
                 element.IsLocked = false;
+            }
+        }
+
+        /// <summary>
+        /// Handles changes to the SelectedElements collection
+        /// Updates IsSelected property on elements
+        /// </summary>
+        private void OnSelectedElementsChanged(object? sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            // Mark removed elements as not selected
+            if (e.OldItems != null)
+            {
+                foreach (LayoutElementBase element in e.OldItems)
+                {
+                    element.IsSelected = false;
+                }
+            }
+
+            // Mark added elements as selected
+            if (e.NewItems != null)
+            {
+                foreach (LayoutElementBase element in e.NewItems)
+                {
+                    element.IsSelected = true;
+                }
+            }
+
+            // Handle Reset action (e.g., when Clear() is called)
+            if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Reset)
+            {
+                // Deselect all elements
+                foreach (var element in Elements)
+                {
+                    element.IsSelected = false;
+                }
             }
         }
 

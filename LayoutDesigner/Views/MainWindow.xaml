@@ -8,6 +8,7 @@
         xmlns:controls="clr-namespace:LayoutDesigner.Controls"
         xmlns:models="clr-namespace:LayoutDesigner.Models"
         xmlns:converters="clr-namespace:LayoutDesigner.Converters"
+        xmlns:behaviors="clr-namespace:LayoutDesigner.Behaviors"
         mc:Ignorable="d"
         Title="{Binding Title}"
         Height="800" Width="1400"
@@ -248,6 +249,9 @@
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemContainerStyle>
                                 <Style TargetType="ContentPresenter" BasedOn="{StaticResource OptimizedCanvasElement}">
+                                    <!-- Enable SelectionAdorner behavior -->
+                                    <Setter Property="behaviors:SelectionBehavior.EnableSelectionAdorner" Value="True"/>
+
                                     <!-- Canvas positioning via attached properties -->
                                     <Setter Property="Canvas.Left" Value="{Binding X}"/>
                                     <Setter Property="Canvas.Top" Value="{Binding Y}"/>

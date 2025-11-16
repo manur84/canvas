@@ -6,6 +6,8 @@ using System.Windows.Media;
 using System.Windows.Media.Effects;
 using System.Windows.Shapes;
 using LayoutDesigner.Models.Base;
+using LayoutDesigner.Services.Interfaces;
+using LayoutDesigner.Models;
 
 namespace LayoutDesigner.Controls
 {
@@ -20,10 +22,19 @@ namespace LayoutDesigner.Controls
         private readonly List<Thumb> _resizeHandles;
         private readonly Thumb _rotateHandle;
         private readonly TextBlock _dimensionLabel;
+        private readonly IUndoRedoService? _undoRedoService;
+
+        // Store original values for undo/redo
+        private double _originalX;
+        private double _originalY;
+        private double _originalWidth;
+        private double _originalHeight;
+        private double _originalRotation;
 
         public SelectionAdorner(UIElement adornedElement) : base(adornedElement)
         {
             _visualChildren = new VisualCollection(this);
+            _undoRedoService = ServiceContainer.GetService<IUndoRedoService>();
             _resizeHandles = new List<Thumb>();
 
             // Shadow border (for depth effect)
@@ -181,7 +192,9 @@ namespace LayoutDesigner.Controls
                 thumb.Height = 10;
             };
 
+            thumb.DragStarted += OnResizeHandleDragStarted;
             thumb.DragDelta += OnResizeHandleDragDelta;
+            thumb.DragCompleted += OnResizeHandleDragCompleted;
             return thumb;
         }
 
@@ -218,7 +231,9 @@ namespace LayoutDesigner.Controls
                 thumb.Height = 12;
             };
 
+            thumb.DragStarted += OnRotateHandleDragStarted;
             thumb.DragDelta += OnRotateHandleDragDelta;
+            thumb.DragCompleted += OnRotateHandleDragCompleted;
             return thumb;
         }
 
@@ -232,6 +247,18 @@ namespace LayoutDesigner.Controls
                 HandlePosition.MiddleLeft or HandlePosition.MiddleRight => Cursors.SizeWE,
                 _ => Cursors.Arrow
             };
+        }
+
+        private void OnResizeHandleDragStarted(object sender, System.Windows.Controls.Primitives.DragStartedEventArgs e)
+        {
+            // Store original values for undo/redo
+            if (AdornedElement is FrameworkElement element && element.DataContext is LayoutElementBase layoutElement)
+            {
+                _originalX = layoutElement.X;
+                _originalY = layoutElement.Y;
+                _originalWidth = layoutElement.Width;
+                _originalHeight = layoutElement.Height;
+            }
         }
 
         private void OnResizeHandleDragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
@@ -291,6 +318,50 @@ namespace LayoutDesigner.Controls
             }
         }
 
+        private void OnResizeHandleDragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
+        {
+            if (_undoRedoService == null) return;
+            if (AdornedElement is not FrameworkElement element || element.DataContext is not LayoutElementBase layoutElement)
+                return;
+
+            // Only add undo action if something actually changed
+            if (layoutElement.X != _originalX || layoutElement.Y != _originalY ||
+                layoutElement.Width != _originalWidth || layoutElement.Height != _originalHeight)
+            {
+                var newX = layoutElement.X;
+                var newY = layoutElement.Y;
+                var newWidth = layoutElement.Width;
+                var newHeight = layoutElement.Height;
+
+                _undoRedoService.AddAction(new UndoRedoAction(
+                    undoAction: () =>
+                    {
+                        layoutElement.X = _originalX;
+                        layoutElement.Y = _originalY;
+                        layoutElement.Width = _originalWidth;
+                        layoutElement.Height = _originalHeight;
+                    },
+                    redoAction: () =>
+                    {
+                        layoutElement.X = newX;
+                        layoutElement.Y = newY;
+                        layoutElement.Width = newWidth;
+                        layoutElement.Height = newHeight;
+                    },
+                    description: $"Resize {layoutElement.Name}"
+                ));
+            }
+        }
+
+        private void OnRotateHandleDragStarted(object sender, System.Windows.Controls.Primitives.DragStartedEventArgs e)
+        {
+            // Store original rotation for undo/redo
+            if (AdornedElement is FrameworkElement element && element.DataContext is LayoutElementBase layoutElement)
+            {
+                _originalRotation = layoutElement.Rotation;
+            }
+        }
+
         private void OnRotateHandleDragDelta(object sender, System.Windows.Controls.Primitives.DragDeltaEventArgs e)
         {
             if (AdornedElement is FrameworkElement element && element.DataContext is LayoutElementBase layoutElement)
@@ -301,6 +372,31 @@ namespace LayoutDesigner.Controls
                 // Normalize angle to 0-360
                 layoutElement.Rotation = layoutElement.Rotation % 360;
                 if (layoutElement.Rotation < 0) layoutElement.Rotation += 360;
+            }
+        }
+
+        private void OnRotateHandleDragCompleted(object sender, System.Windows.Controls.Primitives.DragCompletedEventArgs e)
+        {
+            if (_undoRedoService == null) return;
+            if (AdornedElement is not FrameworkElement element || element.DataContext is not LayoutElementBase layoutElement)
+                return;
+
+            // Only add undo action if rotation actually changed
+            if (layoutElement.Rotation != _originalRotation)
+            {
+                var newRotation = layoutElement.Rotation;
+
+                _undoRedoService.AddAction(new UndoRedoAction(
+                    undoAction: () =>
+                    {
+                        layoutElement.Rotation = _originalRotation;
+                    },
+                    redoAction: () =>
+                    {
+                        layoutElement.Rotation = newRotation;
+                    },
+                    description: $"Rotate {layoutElement.Name}"
+                ));
             }
         }
 

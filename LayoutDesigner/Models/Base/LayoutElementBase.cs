@@ -22,6 +22,7 @@ namespace LayoutDesigner.Models.Base
         private double _opacity = 1.0;
         private bool _enableBitmapCache = false; // Performance: BitmapCache for complex elements
         private bool _useLayoutRounding = true; // Performance: Pixel-perfect rendering
+        private bool _isSelected = false; // Selection state
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -142,6 +143,17 @@ namespace LayoutDesigner.Models.Base
         {
             get => _useLayoutRounding;
             set => SetProperty(ref _useLayoutRounding, value);
+        }
+
+        /// <summary>
+        /// Whether the element is currently selected
+        /// Used to display SelectionAdorner with resize/rotate handles
+        /// </summary>
+        [JsonIgnore]
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set => SetProperty(ref _isSelected, value);
         }
 
         /// <summary>
