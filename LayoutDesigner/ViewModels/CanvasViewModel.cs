@@ -590,11 +590,22 @@ namespace LayoutDesigner.ViewModels
         {
             if (SelectedElements.Count < 2) return;
 
-            // Save original positions for undo
-            var originalPositions = SelectedElements.ToDictionary(e => e, e => e.X);
+            // Cache selected elements to avoid multiple enumerations
+            var elements = SelectedElements.ToList();
 
-            var minX = SelectedElements.Min(e => e.X);
-            foreach (var element in SelectedElements)
+            // Save original positions and find min in single pass
+            var originalPositions = new Dictionary<LayoutElementBase, double>(elements.Count);
+            var minX = double.MaxValue;
+
+            foreach (var element in elements)
+            {
+                originalPositions[element] = element.X;
+                if (element.X < minX)
+                    minX = element.X;
+            }
+
+            // Apply alignment
+            foreach (var element in elements)
             {
                 element.X = minX;
             }
@@ -615,7 +626,7 @@ namespace LayoutDesigner.ViewModels
                         element.X = minX;
                     }
                 },
-                description: $"Align Left {SelectedElements.Count} element(s)"
+                description: $"Align Left {elements.Count} element(s)"
             ));
         }
 
@@ -623,10 +634,23 @@ namespace LayoutDesigner.ViewModels
         {
             if (SelectedElements.Count < 2) return;
 
-            var originalPositions = SelectedElements.ToDictionary(e => e, e => e.X);
-            var centerX = SelectedElements.Average(e => e.X + e.Width / 2);
+            // Cache selected elements to avoid multiple enumerations
+            var elements = SelectedElements.ToList();
 
-            foreach (var element in SelectedElements)
+            // Save original positions and calculate center in single pass
+            var originalPositions = new Dictionary<LayoutElementBase, double>(elements.Count);
+            var sumCenterX = 0.0;
+
+            foreach (var element in elements)
+            {
+                originalPositions[element] = element.X;
+                sumCenterX += element.X + element.Width / 2;
+            }
+
+            var centerX = sumCenterX / elements.Count;
+
+            // Apply alignment
+            foreach (var element in elements)
             {
                 element.X = centerX - element.Width / 2;
             }
@@ -646,7 +670,7 @@ namespace LayoutDesigner.ViewModels
                         element.X = centerX - element.Width / 2;
                     }
                 },
-                description: $"Align Center {SelectedElements.Count} element(s)"
+                description: $"Align Center {elements.Count} element(s)"
             ));
         }
 
@@ -654,10 +678,23 @@ namespace LayoutDesigner.ViewModels
         {
             if (SelectedElements.Count < 2) return;
 
-            var originalPositions = SelectedElements.ToDictionary(e => e, e => e.X);
-            var maxX = SelectedElements.Max(e => e.X + e.Width);
+            // Cache selected elements to avoid multiple enumerations
+            var elements = SelectedElements.ToList();
 
-            foreach (var element in SelectedElements)
+            // Save original positions and find max right edge in single pass
+            var originalPositions = new Dictionary<LayoutElementBase, double>(elements.Count);
+            var maxX = double.MinValue;
+
+            foreach (var element in elements)
+            {
+                originalPositions[element] = element.X;
+                var rightEdge = element.X + element.Width;
+                if (rightEdge > maxX)
+                    maxX = rightEdge;
+            }
+
+            // Apply alignment
+            foreach (var element in elements)
             {
                 element.X = maxX - element.Width;
             }
@@ -677,7 +714,7 @@ namespace LayoutDesigner.ViewModels
                         element.X = maxX - element.Width;
                     }
                 },
-                description: $"Align Right {SelectedElements.Count} element(s)"
+                description: $"Align Right {elements.Count} element(s)"
             ));
         }
 
@@ -685,10 +722,22 @@ namespace LayoutDesigner.ViewModels
         {
             if (SelectedElements.Count < 2) return;
 
-            var originalPositions = SelectedElements.ToDictionary(e => e, e => e.Y);
-            var minY = SelectedElements.Min(e => e.Y);
+            // Cache selected elements to avoid multiple enumerations
+            var elements = SelectedElements.ToList();
 
-            foreach (var element in SelectedElements)
+            // Save original positions and find min in single pass
+            var originalPositions = new Dictionary<LayoutElementBase, double>(elements.Count);
+            var minY = double.MaxValue;
+
+            foreach (var element in elements)
+            {
+                originalPositions[element] = element.Y;
+                if (element.Y < minY)
+                    minY = element.Y;
+            }
+
+            // Apply alignment
+            foreach (var element in elements)
             {
                 element.Y = minY;
             }
@@ -708,7 +757,7 @@ namespace LayoutDesigner.ViewModels
                         element.Y = minY;
                     }
                 },
-                description: $"Align Top {SelectedElements.Count} element(s)"
+                description: $"Align Top {elements.Count} element(s)"
             ));
         }
 
@@ -716,10 +765,23 @@ namespace LayoutDesigner.ViewModels
         {
             if (SelectedElements.Count < 2) return;
 
-            var originalPositions = SelectedElements.ToDictionary(e => e, e => e.Y);
-            var centerY = SelectedElements.Average(e => e.Y + e.Height / 2);
+            // Cache selected elements to avoid multiple enumerations
+            var elements = SelectedElements.ToList();
 
-            foreach (var element in SelectedElements)
+            // Save original positions and calculate center in single pass
+            var originalPositions = new Dictionary<LayoutElementBase, double>(elements.Count);
+            var sumCenterY = 0.0;
+
+            foreach (var element in elements)
+            {
+                originalPositions[element] = element.Y;
+                sumCenterY += element.Y + element.Height / 2;
+            }
+
+            var centerY = sumCenterY / elements.Count;
+
+            // Apply alignment
+            foreach (var element in elements)
             {
                 element.Y = centerY - element.Height / 2;
             }
@@ -734,13 +796,12 @@ namespace LayoutDesigner.ViewModels
                 },
                 redoAction: () =>
                 {
-                    var redoCenterY = originalPositions.Keys.Average(e => e.Y + e.Height / 2);
                     foreach (var element in originalPositions.Keys)
                     {
-                        element.Y = redoCenterY - element.Height / 2;
+                        element.Y = centerY - element.Height / 2;
                     }
                 },
-                description: $"Align Middle {SelectedElements.Count} element(s)"
+                description: $"Align Middle {elements.Count} element(s)"
             ));
         }
 
@@ -748,10 +809,23 @@ namespace LayoutDesigner.ViewModels
         {
             if (SelectedElements.Count < 2) return;
 
-            var originalPositions = SelectedElements.ToDictionary(e => e, e => e.Y);
-            var maxY = SelectedElements.Max(e => e.Y + e.Height);
+            // Cache selected elements to avoid multiple enumerations
+            var elements = SelectedElements.ToList();
 
-            foreach (var element in SelectedElements)
+            // Save original positions and find max bottom edge in single pass
+            var originalPositions = new Dictionary<LayoutElementBase, double>(elements.Count);
+            var maxY = double.MinValue;
+
+            foreach (var element in elements)
+            {
+                originalPositions[element] = element.Y;
+                var bottomEdge = element.Y + element.Height;
+                if (bottomEdge > maxY)
+                    maxY = bottomEdge;
+            }
+
+            // Apply alignment
+            foreach (var element in elements)
             {
                 element.Y = maxY - element.Height;
             }
@@ -766,13 +840,12 @@ namespace LayoutDesigner.ViewModels
                 },
                 redoAction: () =>
                 {
-                    var redoMaxY = originalPositions.Keys.Max(e => e.Y + e.Height);
                     foreach (var element in originalPositions.Keys)
                     {
-                        element.Y = redoMaxY - element.Height;
+                        element.Y = maxY - element.Height;
                     }
                 },
-                description: $"Align Bottom {SelectedElements.Count} element(s)"
+                description: $"Align Bottom {elements.Count} element(s)"
             ));
         }
 
@@ -780,16 +853,30 @@ namespace LayoutDesigner.ViewModels
         {
             if (SelectedElements.Count < 3) return;
 
-            var originalPositions = SelectedElements.ToDictionary(e => e, e => e.X);
+            // Cache and sort selected elements by X position
             var sorted = SelectedElements.OrderBy(e => e.X).ToList();
-            var leftMost = sorted.First().X;
-            var rightMost = sorted.Last().X + sorted.Last().Width;
-            var totalWidth = sorted.Sum(e => e.Width);
-            var spacing = (rightMost - leftMost - totalWidth) / (sorted.Count - 1);
 
-            double currentX = leftMost;
+            // Save original positions and calculate distribution in single pass
+            var originalPositions = new Dictionary<LayoutElementBase, double>(sorted.Count);
+            var totalWidth = 0.0;
+
             foreach (var element in sorted)
             {
+                originalPositions[element] = element.X;
+                totalWidth += element.Width;
+            }
+
+            var leftMost = sorted[0].X;
+            var rightMost = sorted[^1].X + sorted[^1].Width;
+            var spacing = (rightMost - leftMost - totalWidth) / (sorted.Count - 1);
+
+            // Store new positions for redo
+            var newPositions = new Dictionary<LayoutElementBase, double>(sorted.Count);
+            var currentX = leftMost;
+
+            foreach (var element in sorted)
+            {
+                newPositions[element] = currentX;
                 element.X = currentX;
                 currentX += element.Width + spacing;
             }
@@ -804,20 +891,12 @@ namespace LayoutDesigner.ViewModels
                 },
                 redoAction: () =>
                 {
-                    var redoSorted = originalPositions.Keys.OrderBy(e => originalPositions[e]).ToList();
-                    var redoLeftMost = redoSorted.First().X;
-                    var redoRightMost = redoSorted.Last().X + redoSorted.Last().Width;
-                    var redoTotalWidth = redoSorted.Sum(e => e.Width);
-                    var redoSpacing = (redoRightMost - redoLeftMost - redoTotalWidth) / (redoSorted.Count - 1);
-
-                    double redoCurrentX = redoLeftMost;
-                    foreach (var element in redoSorted)
+                    foreach (var kvp in newPositions)
                     {
-                        element.X = redoCurrentX;
-                        redoCurrentX += element.Width + redoSpacing;
+                        kvp.Key.X = kvp.Value;
                     }
                 },
-                description: $"Distribute Horizontally {SelectedElements.Count} element(s)"
+                description: $"Distribute Horizontally {sorted.Count} element(s)"
             ));
         }
 
@@ -825,16 +904,30 @@ namespace LayoutDesigner.ViewModels
         {
             if (SelectedElements.Count < 3) return;
 
-            var originalPositions = SelectedElements.ToDictionary(e => e, e => e.Y);
+            // Cache and sort selected elements by Y position
             var sorted = SelectedElements.OrderBy(e => e.Y).ToList();
-            var topMost = sorted.First().Y;
-            var bottomMost = sorted.Last().Y + sorted.Last().Height;
-            var totalHeight = sorted.Sum(e => e.Height);
-            var spacing = (bottomMost - topMost - totalHeight) / (sorted.Count - 1);
 
-            double currentY = topMost;
+            // Save original positions and calculate distribution in single pass
+            var originalPositions = new Dictionary<LayoutElementBase, double>(sorted.Count);
+            var totalHeight = 0.0;
+
             foreach (var element in sorted)
             {
+                originalPositions[element] = element.Y;
+                totalHeight += element.Height;
+            }
+
+            var topMost = sorted[0].Y;
+            var bottomMost = sorted[^1].Y + sorted[^1].Height;
+            var spacing = (bottomMost - topMost - totalHeight) / (sorted.Count - 1);
+
+            // Store new positions for redo
+            var newPositions = new Dictionary<LayoutElementBase, double>(sorted.Count);
+            var currentY = topMost;
+
+            foreach (var element in sorted)
+            {
+                newPositions[element] = currentY;
                 element.Y = currentY;
                 currentY += element.Height + spacing;
             }
@@ -849,20 +942,12 @@ namespace LayoutDesigner.ViewModels
                 },
                 redoAction: () =>
                 {
-                    var redoSorted = originalPositions.Keys.OrderBy(e => originalPositions[e]).ToList();
-                    var redoTopMost = redoSorted.First().Y;
-                    var redoBottomMost = redoSorted.Last().Y + redoSorted.Last().Height;
-                    var redoTotalHeight = redoSorted.Sum(e => e.Height);
-                    var redoSpacing = (redoBottomMost - redoTopMost - redoTotalHeight) / (redoSorted.Count - 1);
-
-                    double redoCurrentY = redoTopMost;
-                    foreach (var element in redoSorted)
+                    foreach (var kvp in newPositions)
                     {
-                        element.Y = redoCurrentY;
-                        redoCurrentY += element.Height + redoSpacing;
+                        kvp.Key.Y = kvp.Value;
                     }
                 },
-                description: $"Distribute Vertically {SelectedElements.Count} element(s)"
+                description: $"Distribute Vertically {sorted.Count} element(s)"
             ));
         }
 
