@@ -282,6 +282,9 @@
                                     <!-- Enable Dirty Tracking for performance -->
                                     <Setter Property="behaviors:DirtyTrackingBehavior.EnableDirtyTracking" Value="True"/>
 
+                                    <!-- Enable Smart Caching for render performance -->
+                                    <Setter Property="behaviors:SmartCachingBehavior.EnableSmartCaching" Value="True"/>
+
                                     <!-- Canvas positioning via attached properties -->
                                     <Setter Property="Canvas.Left" Value="{Binding X}"/>
                                     <Setter Property="Canvas.Top" Value="{Binding Y}"/>
