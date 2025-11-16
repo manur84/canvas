@@ -340,5 +340,41 @@ namespace LayoutDesigner.Views
                 errorService?.HandleError(ex, "Failed to load template");
             }
         }
+
+        private void OnAssetSelected(object? sender, AssetSelectedEventArgs e)
+        {
+            if (DataContext is not MainViewModel viewModel)
+                return;
+
+            try
+            {
+                // Create an ImageElement at the center of the canvas
+                var imageElement = new LayoutDesigner.Models.ImageElement
+                {
+                    Name = $"Image {viewModel.CanvasViewModel.Elements.Count + 1}",
+                    X = 100,
+                    Y = 100,
+                    Width = 200,
+                    Height = 200,
+                    ImagePath = e.AssetPath,
+                    StretchMode = LayoutDesigner.Models.ImageStretchMode.Uniform
+                };
+
+                // Add to canvas
+                viewModel.CanvasViewModel.Elements.Add(imageElement);
+
+                // Select the new element
+                viewModel.CanvasViewModel.SelectedElements.Clear();
+                viewModel.CanvasViewModel.SelectedElements.Add(imageElement);
+
+                // Mark document as dirty
+                viewModel.IsDirty = true;
+            }
+            catch (Exception ex)
+            {
+                var errorService = ServiceContainer.GetService<Services.Interfaces.IErrorHandlingService>();
+                errorService?.HandleError(ex, "Failed to insert asset");
+            }
+        }
     }
 }

@@ -206,6 +206,9 @@
                 <TabItem Header="Templates">
                     <local:TemplateLibraryPanel x:Name="TemplateLibraryPanel" TemplateSelected="OnTemplateSelected"/>
                 </TabItem>
+                <TabItem Header="Assets">
+                    <local:AssetManagerPanel x:Name="AssetManagerPanel" AssetSelected="OnAssetSelected"/>
+                </TabItem>
             </TabControl>
 
             <!-- Canvas -->
