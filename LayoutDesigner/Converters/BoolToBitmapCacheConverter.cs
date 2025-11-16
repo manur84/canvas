@@ -12,17 +12,20 @@ namespace LayoutDesigner.Converters
     /// </summary>
     public class BoolToBitmapCacheConverter : IValueConverter
     {
+        // Static instance to avoid creating new BitmapCache objects repeatedly
+        // Best Practice: Reuse BitmapCache instances for better memory efficiency
+        private static readonly BitmapCache _cachedInstance = new()
+        {
+            RenderAtScale = 1.0,
+            SnapsToDevicePixels = true,
+            EnableClearType = true  // Better text rendering
+        };
+
         public object? Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is bool enableCache && enableCache)
             {
-                // Best Practice: RenderAtScale = 1.0 for crisp rendering
-                // Can be adjusted to 2.0 for high-DPI displays
-                return new BitmapCache
-                {
-                    RenderAtScale = 1.0,
-                    SnapsToDevicePixels = true
-                };
+                return _cachedInstance;
             }
             return null;
         }

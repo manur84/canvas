@@ -136,35 +136,47 @@ namespace LayoutDesigner.Controls
 
         private void OnMouseMove(object sender, MouseEventArgs e)
         {
-            if (_dragStartPoint.HasValue && e.LeftButton == MouseButtonState.Pressed)
-            {
-                var currentPoint = e.GetPosition(this);
-                var delta = currentPoint - _dragStartPoint.Value;
+            // Performance optimization: Early return if not in drag mode
+            if (!_dragStartPoint.HasValue || e.LeftButton != MouseButtonState.Pressed)
+                return;
 
-                // Start dragging if moved more than 3 pixels
-                if (!_isDragging && (Math.Abs(delta.X) > 3 || Math.Abs(delta.Y) > 3))
+            var currentPoint = e.GetPosition(this);
+            var delta = currentPoint - _dragStartPoint.Value;
+
+            // Start dragging if moved more than 3 pixels (dead zone to avoid accidental drags)
+            if (!_isDragging)
+            {
+                if (Math.Abs(delta.X) > 3 || Math.Abs(delta.Y) > 3)
                 {
                     _isDragging = true;
                 }
-
-                if (_isDragging && e.Source is FrameworkElement element && element.DataContext is LayoutElementBase layoutElement)
+                else
                 {
-                    var newX = layoutElement.X + delta.X;
-                    var newY = layoutElement.Y + delta.Y;
-
-                    if (SnapToGrid)
-                    {
-                        newX = SnapHelper.SnapToGrid(newX, GridSize);
-                        newY = SnapHelper.SnapToGrid(newY, GridSize);
-                    }
-
-                    layoutElement.X = Math.Max(0, newX);
-                    layoutElement.Y = Math.Max(0, newY);
-
-                    _dragStartPoint = currentPoint;
-                    e.Handled = true;
+                    return; // Still in dead zone
                 }
             }
+
+            // Performance: Only process if we have valid element
+            if (e.Source is not FrameworkElement element || element.DataContext is not LayoutElementBase layoutElement)
+                return;
+
+            // Calculate new position
+            var newX = layoutElement.X + delta.X;
+            var newY = layoutElement.Y + delta.Y;
+
+            // Snap to grid if enabled (cached property access)
+            if (SnapToGrid)
+            {
+                newX = SnapHelper.SnapToGrid(newX, GridSize);
+                newY = SnapHelper.SnapToGrid(newY, GridSize);
+            }
+
+            // Update position with bounds check
+            layoutElement.X = Math.Max(0, newX);
+            layoutElement.Y = Math.Max(0, newY);
+
+            _dragStartPoint = currentPoint;
+            e.Handled = true;
         }
 
         private void OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)

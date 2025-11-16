@@ -10,32 +10,27 @@
 
     <!-- TextElement DataTemplate -->
     <DataTemplate DataType="{x:Type models:TextElement}">
-        <Border Background="{Binding BackgroundColor, Converter={StaticResource ColorToBrushConverter}}"
-                BorderBrush="{Binding BorderColor, Converter={StaticResource ColorToBrushConverter}}"
-                BorderThickness="{Binding BorderThickness}"
-                CornerRadius="{Binding CornerRadius}"
-                Padding="{Binding Padding}"
-                Visibility="{Binding HasBorder, Converter={StaticResource BoolToVisibilityConverter}}">
+        <!-- Best Practice: Explicit Mode=OneWay for read-only bindings to improve performance -->
+        <Border Background="{Binding BackgroundColor, Mode=OneWay, Converter={StaticResource ColorToBrushConverter}}"
+                BorderBrush="{Binding BorderColor, Mode=OneWay, Converter={StaticResource ColorToBrushConverter}}"
+                BorderThickness="{Binding BorderThickness, Mode=OneWay}"
+                CornerRadius="{Binding CornerRadius, Mode=OneWay}"
+                Padding="{Binding Padding, Mode=OneWay}"
+                Visibility="{Binding HasBorder, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
             <!-- Best Practice: Effects can be expensive, only apply when needed -->
-            <Border.Effect>
-                <DropShadowEffect BlurRadius="{Binding ShadowBlur}"
-                                ShadowDepth="0"
-                                Color="{Binding ShadowColor, Converter={StaticResource ColorToBrushConverter}}"
-                                Opacity="1"
-                                Direction="0"
-                                RenderingBias="Performance"/>
-            </Border.Effect>
             <Border.Style>
                 <Style TargetType="Border">
                     <Setter Property="Effect" Value="{x:Null}"/>
                     <Style.Triggers>
-                        <DataTrigger Binding="{Binding HasShadow}" Value="True">
+                        <DataTrigger Binding="{Binding HasShadow, Mode=OneWay}" Value="True">
                             <Setter Property="Effect">
                                 <Setter.Value>
-                                    <DropShadowEffect BlurRadius="{Binding ShadowBlur}"
+                                    <!-- Performance: RenderingBias=Performance for better frame rate -->
+                                    <DropShadowEffect BlurRadius="{Binding ShadowBlur, Mode=OneWay}"
                                                     ShadowDepth="5"
                                                     Color="Black"
-                                                    Opacity="0.5"/>
+                                                    Opacity="0.5"
+                                                    RenderingBias="Performance"/>
                                 </Setter.Value>
                             </Setter>
                         </DataTrigger>
@@ -43,16 +38,16 @@
                 </Style>
             </Border.Style>
 
-            <TextBlock Text="{Binding Text}"
-                      FontFamily="{Binding FontFamily}"
-                      FontSize="{Binding FontSize}"
-                      FontWeight="{Binding IsBold, Converter={StaticResource BoolToFontWeight}}"
-                      FontStyle="{Binding IsItalic, Converter={StaticResource BoolToFontStyle}}"
-                      Foreground="{Binding ForegroundColor, Converter={StaticResource ColorToBrushConverter}}"
-                      TextAlignment="{Binding TextAlignment}"
-                      VerticalAlignment="{Binding VerticalAlignment}"
+            <TextBlock Text="{Binding Text, Mode=OneWay}"
+                      FontFamily="{Binding FontFamily, Mode=OneWay}"
+                      FontSize="{Binding FontSize, Mode=OneWay}"
+                      FontWeight="{Binding IsBold, Mode=OneWay, Converter={StaticResource BoolToFontWeight}}"
+                      FontStyle="{Binding IsItalic, Mode=OneWay, Converter={StaticResource BoolToFontStyle}}"
+                      Foreground="{Binding ForegroundColor, Mode=OneWay, Converter={StaticResource ColorToBrushConverter}}"
+                      TextAlignment="{Binding TextAlignment, Mode=OneWay}"
+                      VerticalAlignment="{Binding VerticalAlignment, Mode=OneWay}"
                       TextWrapping="Wrap"
-                      LineHeight="{Binding LineHeight}"
+                      LineHeight="{Binding LineHeight, Mode=OneWay}"
                       TextOptions.TextFormattingMode="Display"
                       TextOptions.TextRenderingMode="Auto"/>
         </Border>
