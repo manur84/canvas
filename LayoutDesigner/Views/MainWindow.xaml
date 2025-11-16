@@ -198,8 +198,15 @@
                 <ColumnDefinition Width="280"/>
             </Grid.ColumnDefinitions>
 
-            <!-- Toolbox Panel -->
-            <local:ToolboxPanel Grid.Column="0" DataContext="{Binding CanvasViewModel}"/>
+            <!-- Left Panel with Tabs -->
+            <TabControl Grid.Column="0" Background="{StaticResource BackgroundBrush}" BorderThickness="0">
+                <TabItem Header="Toolbox">
+                    <local:ToolboxPanel DataContext="{Binding CanvasViewModel}"/>
+                </TabItem>
+                <TabItem Header="Templates">
+                    <local:TemplateLibraryPanel x:Name="TemplateLibraryPanel" TemplateSelected="OnTemplateSelected"/>
+                </TabItem>
+            </TabControl>
 
             <!-- Canvas -->
             <Border Grid.Column="1" Background="{Binding CanvasViewModel.Document.BackgroundColor, Converter={StaticResource ColorToBrushConverter}}" BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,0">

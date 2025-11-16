@@ -1,0 +1,102 @@
+<UserControl x:Class="LayoutDesigner.Views.TemplateLibraryPanel"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="250"
+             Background="{StaticResource BackgroundBrush}">
+
+    <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="0,0,1,0">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <Border Grid.Row="0" Background="{StaticResource PrimaryBrush}" Padding="12,8">
+                <TextBlock Text="Template Library"
+                          FontSize="16"
+                          FontWeight="Bold"
+                          Foreground="White"/>
+            </Border>
+
+            <!-- Category Filter -->
+            <StackPanel Grid.Row="1" Margin="12,8">
+                <Label Content="Category:" FontWeight="SemiBold" Padding="0,0,0,4"/>
+                <ComboBox x:Name="CategoryComboBox"
+                         SelectedItem="{Binding SelectedCategory, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource ModernComboBox}"
+                         SelectionChanged="OnCategoryChanged"/>
+            </StackPanel>
+
+            <!-- Template List -->
+            <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+                <ItemsControl x:Name="TemplatesList" Margin="8">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Background="White"
+                                   BorderBrush="{StaticResource BorderBrush}"
+                                   BorderThickness="1"
+                                   CornerRadius="4"
+                                   Margin="4"
+                                   Padding="8"
+                                   Cursor="Hand"
+                                   MouseLeftButtonDown="OnTemplateClick"
+                                   ToolTip="{Binding Description}">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Style.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter Property="Background" Value="#FFF5F5F5"/>
+                                                <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}"/>
+                                            </Trigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+
+                                    <!-- Template Name -->
+                                    <TextBlock Grid.Row="0"
+                                             Text="{Binding Name}"
+                                             FontWeight="SemiBold"
+                                             FontSize="13"
+                                             TextWrapping="Wrap"
+                                             Foreground="{StaticResource TextBrush}"/>
+
+                                    <!-- Template Size -->
+                                    <TextBlock Grid.Row="1"
+                                             Margin="0,4,0,0"
+                                             FontSize="10"
+                                             Foreground="{StaticResource SecondaryBrush}">
+                                        <Run Text="{Binding Width, StringFormat={}{0:F0}}"/>
+                                        <Run Text="×"/>
+                                        <Run Text="{Binding Height, StringFormat={}{0:F0}}"/>
+                                        <Run Text="px"/>
+                                    </TextBlock>
+
+                                    <!-- Elements Count -->
+                                    <TextBlock Grid.Row="2"
+                                             Margin="0,2,0,0"
+                                             FontSize="10"
+                                             Foreground="{StaticResource SecondaryBrush}">
+                                        <Run Text="{Binding Elements.Count}"/>
+                                        <Run Text="elements"/>
+                                    </TextBlock>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Grid>
+    </Border>
+</UserControl>

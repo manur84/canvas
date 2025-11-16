@@ -30,6 +30,7 @@ namespace LayoutDesigner
             Services.Register<IQrCodeService, QrCodeService>();
             Services.Register<IExportService, ExportService>();
             Services.Register<IAssetService, AssetService>();
+            Services.Register<ITemplateService, TemplateService>();
         }
     }
 

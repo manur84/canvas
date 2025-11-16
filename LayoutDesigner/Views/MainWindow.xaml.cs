@@ -307,5 +307,38 @@ namespace LayoutDesigner.Views
                 e.Success = false;
             }
         }
+
+        private void OnTemplateSelected(object? sender, TemplateSelectedEventArgs e)
+        {
+            if (DataContext is not MainViewModel viewModel)
+                return;
+
+            try
+            {
+                // Instantiate template elements with small offset from origin
+                var templateElements = e.Template.InstantiateElements(offsetX: 50, offsetY: 50);
+
+                // Add all elements to the canvas
+                foreach (var element in templateElements)
+                {
+                    viewModel.CanvasViewModel.Elements.Add(element);
+                }
+
+                // Select the newly added elements
+                viewModel.CanvasViewModel.SelectedElements.Clear();
+                foreach (var element in templateElements)
+                {
+                    viewModel.CanvasViewModel.SelectedElements.Add(element);
+                }
+
+                // Mark document as dirty
+                viewModel.IsDirty = true;
+            }
+            catch (Exception ex)
+            {
+                var errorService = ServiceContainer.GetService<Services.Interfaces.IErrorHandlingService>();
+                errorService?.HandleError(ex, "Failed to load template");
+            }
+        }
     }
 }
