@@ -15,6 +15,7 @@ namespace LayoutDesigner.ViewModels
     {
         private readonly ILayoutStorageService _storageService;
         private readonly IUndoRedoService _undoRedoService;
+        private readonly IErrorHandlingService _errorHandler;
         private string? _currentFilePath;
         private bool _isDirty;
 
@@ -27,6 +28,7 @@ namespace LayoutDesigner.ViewModels
         {
             _storageService = App.Services.Resolve<ILayoutStorageService>();
             _undoRedoService = App.Services.Resolve<IUndoRedoService>();
+            _errorHandler = App.Services.Resolve<IErrorHandlingService>();
 
             CanvasViewModel = new CanvasViewModel();
             PropertyPanelViewModel = new PropertyPanelViewModel(CanvasViewModel);
@@ -142,16 +144,25 @@ namespace LayoutDesigner.ViewModels
             if (filePath == null)
                 return;
 
-            var document = await _storageService.LoadLayoutAsync(filePath);
-            if (document != null)
+            try
             {
-                CanvasViewModel.LoadDocument(document);
-                CurrentFilePath = filePath;
-                IsDirty = false;
+                var document = await _storageService.LoadLayoutAsync(filePath);
+                if (document != null)
+                {
+                    CanvasViewModel.LoadDocument(document);
+                    CurrentFilePath = filePath;
+                    IsDirty = false;
+                }
+                else
+                {
+                    _errorHandler.HandleError(
+                        new InvalidOperationException("Document loaded as null"),
+                        "Failed to load layout file.");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("Failed to load layout file.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _errorHandler.HandleError(ex, "Failed to load layout file.");
             }
         }
 
@@ -178,15 +189,24 @@ namespace LayoutDesigner.ViewModels
 
         private async Task SaveToFileAsync(string filePath)
         {
-            var success = await _storageService.SaveLayoutAsync(CanvasViewModel.Document, filePath);
-            if (success)
+            try
             {
-                CurrentFilePath = filePath;
-                IsDirty = false;
+                var success = await _storageService.SaveLayoutAsync(CanvasViewModel.Document, filePath);
+                if (success)
+                {
+                    CurrentFilePath = filePath;
+                    IsDirty = false;
+                }
+                else
+                {
+                    _errorHandler.HandleError(
+                        new InvalidOperationException("Save operation returned false"),
+                        "Failed to save layout file.");
+                }
             }
-            else
+            catch (Exception ex)
             {
-                MessageBox.Show("Failed to save layout file.", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                _errorHandler.HandleError(ex, "Failed to save layout file.");
             }
         }
 
@@ -203,19 +223,17 @@ namespace LayoutDesigner.ViewModels
             if (!IsDirty)
                 return true;
 
-            var result = MessageBox.Show(
-                "Do you want to save changes?",
-                "Unsaved Changes",
-                MessageBoxButton.YesNoCancel,
-                MessageBoxImage.Question);
+            // Note: Confirm returns true for Yes, false for No
+            // We need 3-way logic, so we use the error handler's Confirm as Yes/No only
+            var shouldSave = _errorHandler.Confirm("Do you want to save changes?", "Unsaved Changes");
 
-            if (result == MessageBoxResult.Yes)
+            if (shouldSave)
             {
                 await SaveAsync();
                 return !IsDirty; // Return false if save failed
             }
 
-            return result != MessageBoxResult.Cancel;
+            return true; // User chose "No" - continue without saving
         }
 
         private void ZoomIn()
@@ -253,13 +271,13 @@ namespace LayoutDesigner.ViewModels
 
             if (args.Success)
             {
-                MessageBox.Show($"Layout exported successfully to:\n{filePath}", "Export Successful",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
+                _errorHandler.HandleInfo($"Layout exported successfully to:\n{filePath}", "Export Successful");
             }
             else
             {
-                MessageBox.Show("Failed to export layout. Please try again.", "Export Failed",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                _errorHandler.HandleError(
+                    new InvalidOperationException("Export operation failed"),
+                    "Failed to export layout. Please try again.");
             }
         }
 
@@ -282,13 +300,13 @@ namespace LayoutDesigner.ViewModels
 
             if (args.Success)
             {
-                MessageBox.Show($"Layout exported successfully to:\n{filePath}", "Export Successful",
-                    MessageBoxButton.OK, MessageBoxImage.Information);
+                _errorHandler.HandleInfo($"Layout exported successfully to:\n{filePath}", "Export Successful");
             }
             else
             {
-                MessageBox.Show("Failed to export layout. Please try again.", "Export Failed",
-                    MessageBoxButton.OK, MessageBoxImage.Error);
+                _errorHandler.HandleError(
+                    new InvalidOperationException("Export operation failed"),
+                    "Failed to export layout. Please try again.");
             }
         }
 

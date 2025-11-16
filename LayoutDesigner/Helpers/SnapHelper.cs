@@ -1,5 +1,6 @@
 using System.Windows;
 using LayoutDesigner.Models.Base;
+using LayoutDesigner.Constants;
 
 namespace LayoutDesigner.Helpers
 {
@@ -12,7 +13,7 @@ namespace LayoutDesigner.Helpers
         /// <summary>
         /// Default snap distance in pixels for element-to-element snapping
         /// </summary>
-        public const double DefaultSnapDistance = 8;
+        public const double DefaultSnapDistance = UIConstants.DefaultSnapDistance;
 
         #region Grid Snapping
 

@@ -35,6 +35,7 @@ namespace LayoutDesigner.Controls
 
             Loaded += OnLoaded;
             DataContextChanged += OnDataContextChanged;
+            Unloaded += OnUnloaded;
         }
 
         protected override int VisualChildrenCount => 1;
@@ -76,6 +77,15 @@ namespace LayoutDesigner.Controls
             {
                 newElement.PropertyChanged += OnElementPropertyChanged;
                 UpdateQrCode();
+            }
+        }
+
+        private void OnUnloaded(object sender, RoutedEventArgs e)
+        {
+            // Cleanup: Unsubscribe from PropertyChanged to prevent memory leaks
+            if (DataContext is QrCodeElement element)
+            {
+                element.PropertyChanged -= OnElementPropertyChanged;
             }
         }
 

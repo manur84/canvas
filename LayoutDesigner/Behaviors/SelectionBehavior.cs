@@ -1,5 +1,7 @@
 using System.Windows;
 using System.Windows.Documents;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using LayoutDesigner.Controls;
 using LayoutDesigner.Models.Base;
 
@@ -10,6 +12,9 @@ namespace LayoutDesigner.Behaviors
     /// </summary>
     public static class SelectionBehavior
     {
+        // Store PropertyChanged handlers for cleanup to prevent memory leaks
+        private static readonly ConditionalWeakTable<FrameworkElement, PropertyChangedEventHandler> _propertyHandlers = new();
+
         /// <summary>
         /// Attached property to enable selection adorner behavior
         /// </summary>
@@ -40,12 +45,15 @@ namespace LayoutDesigner.Behaviors
                 // Subscribe to DataContext changes
                 element.DataContextChanged += OnDataContextChanged;
                 element.Loaded += OnElementLoaded;
+                element.Unloaded += OnElementUnloaded;
             }
             else
             {
                 // Unsubscribe
                 element.DataContextChanged -= OnDataContextChanged;
                 element.Loaded -= OnElementLoaded;
+                element.Unloaded -= OnElementUnloaded;
+                CleanupPropertyHandler(element);
             }
         }
 
@@ -53,17 +61,19 @@ namespace LayoutDesigner.Behaviors
         {
             if (sender is FrameworkElement element && element.DataContext is LayoutElementBase layoutElement)
             {
-                // Subscribe to IsSelected changes
-                layoutElement.PropertyChanged += (s, args) =>
-                {
-                    if (args.PropertyName == nameof(LayoutElementBase.IsSelected))
-                    {
-                        UpdateAdorner(element, layoutElement.IsSelected);
-                    }
-                };
+                // Subscribe to IsSelected changes with named handler for proper cleanup
+                SubscribeToPropertyChanged(element, layoutElement);
 
                 // Update adorner based on current selection state
                 UpdateAdorner(element, layoutElement.IsSelected);
+            }
+        }
+
+        private static void OnElementUnloaded(object sender, RoutedEventArgs e)
+        {
+            if (sender is FrameworkElement element)
+            {
+                CleanupPropertyHandler(element);
             }
         }
 
@@ -72,24 +82,62 @@ namespace LayoutDesigner.Behaviors
             if (sender is not FrameworkElement element)
                 return;
 
+            // Cleanup old handler if DataContext is changing
+            if (e.OldValue is LayoutElementBase oldElement)
+            {
+                CleanupPropertyHandler(element);
+            }
+
             // When DataContext changes, update adorner
             if (e.NewValue is LayoutElementBase layoutElement)
             {
                 UpdateAdorner(element, layoutElement.IsSelected);
 
-                // Subscribe to IsSelected changes
-                layoutElement.PropertyChanged += (s, args) =>
-                {
-                    if (args.PropertyName == nameof(LayoutElementBase.IsSelected))
-                    {
-                        UpdateAdorner(element, layoutElement.IsSelected);
-                    }
-                };
+                // Subscribe to IsSelected changes with named handler for proper cleanup
+                SubscribeToPropertyChanged(element, layoutElement);
             }
             else
             {
                 // Remove adorner if DataContext is not a LayoutElementBase
                 RemoveAdorner(element);
+            }
+        }
+
+        /// <summary>
+        /// Subscribes to PropertyChanged events with a named handler for proper cleanup
+        /// </summary>
+        private static void SubscribeToPropertyChanged(FrameworkElement element, LayoutElementBase layoutElement)
+        {
+            // Create named handler instead of lambda to enable unsubscription
+            PropertyChangedEventHandler handler = (s, args) =>
+            {
+                if (args.PropertyName == nameof(LayoutElementBase.IsSelected))
+                {
+                    UpdateAdorner(element, layoutElement.IsSelected);
+                }
+            };
+
+            // Store handler for cleanup
+            _propertyHandlers.AddOrUpdate(element, handler);
+
+            // Subscribe
+            layoutElement.PropertyChanged += handler;
+        }
+
+        /// <summary>
+        /// Cleans up PropertyChanged handler to prevent memory leaks
+        /// </summary>
+        private static void CleanupPropertyHandler(FrameworkElement element)
+        {
+            if (_propertyHandlers.TryGetValue(element, out var handler))
+            {
+                // Find the LayoutElementBase and unsubscribe
+                if (element.DataContext is LayoutElementBase layoutElement)
+                {
+                    layoutElement.PropertyChanged -= handler;
+                }
+
+                _propertyHandlers.Remove(element);
             }
         }
 

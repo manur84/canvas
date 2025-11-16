@@ -18,7 +18,6 @@ namespace LayoutDesigner.Controls
         private Point? _dragStartPoint;
         private bool _isDragging;
         private bool _isRectangleSelecting;
-        private readonly List<UIElement> _selectedElements = new();
         private Pen? _gridPen; // Cached pen for grid rendering
 
         // Adorners for visual feedback
@@ -448,28 +447,6 @@ namespace LayoutDesigner.Controls
                 if (Math.Abs(movingBottom - otherY) < snapDistance) // Bottom to Top
                     _snapLinesAdorner.ShowHorizontalLine(otherY, 0, ActualWidth);
             }
-        }
-
-        #endregion
-
-        #region Public Methods
-
-        public void ClearSelection()
-        {
-            _selectedElements.Clear();
-        }
-
-        public void SelectElement(UIElement element)
-        {
-            if (!_selectedElements.Contains(element))
-            {
-                _selectedElements.Add(element);
-            }
-        }
-
-        public void DeselectElement(UIElement element)
-        {
-            _selectedElements.Remove(element);
         }
 
         #endregion
