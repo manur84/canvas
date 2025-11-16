@@ -60,8 +60,16 @@ namespace LayoutDesigner.Services
 
         public bool AssetExists(string relativePath)
         {
-            var fullPath = GetAssetPath(relativePath);
-            return File.Exists(fullPath);
+            try
+            {
+                var fullPath = GetAssetPath(relativePath);
+                return File.Exists(fullPath);
+            }
+            catch (Exception ex)
+            {
+                _errorHandlingService.HandleError(ex, $"Error checking if asset exists: {relativePath}", showMessageBox: false);
+                return false;
+            }
         }
 
         public List<string> GetAllAssets()

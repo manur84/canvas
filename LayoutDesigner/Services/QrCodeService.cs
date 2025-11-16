@@ -94,11 +94,12 @@ namespace LayoutDesigner.Services
                     return Color.FromArgb(a, r, g, b);
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // Fallback to black
+                _errorHandlingService.HandleError(ex, $"Invalid color format: {hex}", showMessageBox: false);
             }
 
+            // Fallback to black for invalid colors
             return Colors.Black;
         }
 
