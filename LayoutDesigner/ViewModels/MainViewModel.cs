@@ -18,6 +18,7 @@ namespace LayoutDesigner.ViewModels
         private readonly IErrorHandlingService _errorHandler;
         private string? _currentFilePath;
         private bool _isDirty;
+        private List<string> _recentFiles;
 
         /// <summary>
         /// Event raised when export is requested
@@ -29,6 +30,7 @@ namespace LayoutDesigner.ViewModels
             _storageService = App.Services.Resolve<ILayoutStorageService>();
             _undoRedoService = App.Services.Resolve<IUndoRedoService>();
             _errorHandler = App.Services.Resolve<IErrorHandlingService>();
+            _recentFiles = new List<string>();
 
             CanvasViewModel = new CanvasViewModel();
             PropertyPanelViewModel = new PropertyPanelViewModel(CanvasViewModel);
@@ -43,6 +45,7 @@ namespace LayoutDesigner.ViewModels
             SaveCommand = new RelayCommand(async () => await SaveAsync(), () => CanvasViewModel.Elements.Count > 0);
             SaveAsCommand = new RelayCommand(async () => await SaveAsAsync(), () => CanvasViewModel.Elements.Count > 0);
             ExitCommand = new RelayCommand(async () => await ExitAsync());
+            OpenRecentCommand = new RelayCommand<string>(async (path) => await OpenRecentAsync(path));
 
             UndoCommand = new RelayCommand(() => _undoRedoService.Undo(), () => _undoRedoService.CanUndo);
             RedoCommand = new RelayCommand(() => _undoRedoService.Redo(), () => _undoRedoService.CanRedo);
@@ -53,6 +56,9 @@ namespace LayoutDesigner.ViewModels
 
             ExportPngCommand = new RelayCommand(async () => await ExportPngAsync(), () => CanvasViewModel.Elements.Count > 0);
             ExportJpgCommand = new RelayCommand(async () => await ExportJpgAsync(), () => CanvasViewModel.Elements.Count > 0);
+
+            // Load recent files
+            LoadRecentFiles();
         }
 
         #region Properties
@@ -101,6 +107,12 @@ namespace LayoutDesigner.ViewModels
         public int RedoCount => _undoRedoService.RedoHistory.Count;
         public string UndoRedoStatus => $"Undo: {UndoCount} | Redo: {RedoCount}";
 
+        public List<string> RecentFiles
+        {
+            get => _recentFiles;
+            private set => SetProperty(ref _recentFiles, value);
+        }
+
         #endregion
 
         #region Commands
@@ -110,6 +122,7 @@ namespace LayoutDesigner.ViewModels
         public ICommand SaveCommand { get; }
         public ICommand SaveAsCommand { get; }
         public ICommand ExitCommand { get; }
+        public ICommand OpenRecentCommand { get; }
 
         public ICommand UndoCommand { get; }
         public ICommand RedoCommand { get; }
@@ -152,6 +165,9 @@ namespace LayoutDesigner.ViewModels
                     CanvasViewModel.LoadDocument(document);
                     CurrentFilePath = filePath;
                     IsDirty = false;
+
+                    // Refresh recent files list
+                    LoadRecentFiles();
                 }
                 else
                 {
@@ -196,6 +212,9 @@ namespace LayoutDesigner.ViewModels
                 {
                     CurrentFilePath = filePath;
                     IsDirty = false;
+
+                    // Refresh recent files list
+                    LoadRecentFiles();
                 }
                 else
                 {
@@ -317,6 +336,53 @@ namespace LayoutDesigner.ViewModels
             OnPropertyChanged(nameof(UndoCount));
             OnPropertyChanged(nameof(RedoCount));
             OnPropertyChanged(nameof(UndoRedoStatus));
+        }
+
+        private void LoadRecentFiles()
+        {
+            var files = _storageService.GetRecentFiles();
+            RecentFiles = files;
+        }
+
+        private async Task OpenRecentAsync(string? filePath)
+        {
+            if (string.IsNullOrEmpty(filePath))
+                return;
+
+            if (!await CheckSaveChangesAsync())
+                return;
+
+            try
+            {
+                var document = await _storageService.LoadLayoutAsync(filePath);
+                if (document != null)
+                {
+                    CanvasViewModel.LoadDocument(document);
+                    CurrentFilePath = filePath;
+                    IsDirty = false;
+
+                    // Refresh recent files list
+                    LoadRecentFiles();
+                }
+                else
+                {
+                    _errorHandler.HandleError(
+                        new InvalidOperationException("Document loaded as null"),
+                        "Failed to load recent file.");
+
+                    // Remove invalid file from recent list
+                    var updatedFiles = RecentFiles.Where(f => f != filePath).ToList();
+                    RecentFiles = updatedFiles;
+                }
+            }
+            catch (Exception ex)
+            {
+                _errorHandler.HandleError(ex, "Failed to load recent file.");
+
+                // Remove invalid file from recent list
+                var updatedFiles = RecentFiles.Where(f => f != filePath).ToList();
+                RecentFiles = updatedFiles;
+            }
         }
 
         #endregion

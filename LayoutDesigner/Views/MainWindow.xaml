@@ -53,6 +53,16 @@
                 <MenuItem Header="_Save" Command="{Binding SaveCommand}" InputGestureText="Ctrl+S"/>
                 <MenuItem Header="Save _As..." Command="{Binding SaveAsCommand}"/>
                 <Separator/>
+                <MenuItem Header="Recent _Files" ItemsSource="{Binding RecentFiles}">
+                    <MenuItem.ItemContainerStyle>
+                        <Style TargetType="MenuItem">
+                            <Setter Property="Header" Value="{Binding}"/>
+                            <Setter Property="Command" Value="{Binding DataContext.OpenRecentCommand, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                            <Setter Property="CommandParameter" Value="{Binding}"/>
+                        </Style>
+                    </MenuItem.ItemContainerStyle>
+                </MenuItem>
+                <Separator/>
                 <MenuItem Header="E_xport">
                     <MenuItem Header="Export as _PNG..." Command="{Binding ExportPngCommand}"/>
                     <MenuItem Header="Export as _JPG..." Command="{Binding ExportJpgCommand}"/>
