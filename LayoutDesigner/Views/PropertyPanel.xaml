@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:models="clr-namespace:LayoutDesigner.Models"
+             xmlns:controls="clr-namespace:LayoutDesigner.Controls"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="280"
              Background="{StaticResource BackgroundBrush}">
@@ -42,12 +43,7 @@
                     <GroupBox Header="Canvas Appearance" Style="{StaticResource PropertyGroup}">
                         <StackPanel>
                             <Label Content="Background Color:" Style="{StaticResource PropertyLabel}"/>
-                            <TextBox Text="{Binding BackgroundColor, UpdateSourceTrigger=PropertyChanged}"
-                                   Style="{StaticResource ModernTextBox}"/>
-                            <TextBlock Text="Format: #RRGGBB or #AARRGGBB"
-                                     FontSize="10"
-                                     Foreground="{StaticResource SecondaryBrush}"
-                                     Margin="0,2,0,0"/>
+                            <controls:ColorInputControl ColorValue="{Binding BackgroundColor, UpdateSourceTrigger=PropertyChanged}"/>
                         </StackPanel>
                     </GroupBox>
                 </StackPanel>
@@ -134,12 +130,10 @@
                             </StackPanel>
 
                             <Label Content="Foreground Color:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                            <TextBox Text="{Binding ForegroundColor, UpdateSourceTrigger=PropertyChanged}"
-                                   Style="{StaticResource ModernTextBox}"/>
+                            <controls:ColorInputControl ColorValue="{Binding ForegroundColor, UpdateSourceTrigger=PropertyChanged}"/>
 
                             <Label Content="Background Color:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                            <TextBox Text="{Binding BackgroundColor, UpdateSourceTrigger=PropertyChanged}"
-                                   Style="{StaticResource ModernTextBox}"/>
+                            <controls:ColorInputControl ColorValue="{Binding BackgroundColor, UpdateSourceTrigger=PropertyChanged}" ShowTransparencyPattern="True"/>
                         </StackPanel>
                     </GroupBox>
 
@@ -179,12 +173,10 @@
                             </ComboBox>
 
                             <Label Content="Fill Color:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                            <TextBox Text="{Binding FillColor, UpdateSourceTrigger=PropertyChanged}"
-                                   Style="{StaticResource ModernTextBox}"/>
+                            <controls:ColorInputControl ColorValue="{Binding FillColor, UpdateSourceTrigger=PropertyChanged}" ShowTransparencyPattern="True"/>
 
                             <Label Content="Stroke Color:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                            <TextBox Text="{Binding StrokeColor, UpdateSourceTrigger=PropertyChanged}"
-                                   Style="{StaticResource ModernTextBox}"/>
+                            <controls:ColorInputControl ColorValue="{Binding StrokeColor, UpdateSourceTrigger=PropertyChanged}"/>
 
                             <Label Content="Stroke Thickness:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
                             <TextBox Text="{Binding StrokeThickness, UpdateSourceTrigger=PropertyChanged}"
@@ -206,12 +198,10 @@
                                    Style="{StaticResource ModernTextBox}"/>
 
                             <Label Content="Foreground Color:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                            <TextBox Text="{Binding ForegroundColor, UpdateSourceTrigger=PropertyChanged}"
-                                   Style="{StaticResource ModernTextBox}"/>
+                            <controls:ColorInputControl ColorValue="{Binding ForegroundColor, UpdateSourceTrigger=PropertyChanged}"/>
 
                             <Label Content="Background Color:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                            <TextBox Text="{Binding BackgroundColor, UpdateSourceTrigger=PropertyChanged}"
-                                   Style="{StaticResource ModernTextBox}"/>
+                            <controls:ColorInputControl ColorValue="{Binding BackgroundColor, UpdateSourceTrigger=PropertyChanged}" ShowTransparencyPattern="True"/>
 
                             <Label Content="Error Correction Level:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
                             <Slider Value="{Binding ErrorCorrectionLevel}" Minimum="0" Maximum="3"
