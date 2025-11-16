@@ -74,28 +74,7 @@
             <Image Source="{Binding ImagePath, Converter={StaticResource ImagePathConverter}}"
                    Stretch="{Binding StretchMode, Converter={StaticResource ImageStretchConverter}}"
                    RenderOptions.BitmapScalingMode="HighQuality"
-                   RenderOptions.EdgeMode="Unspecified">
-                <!-- Image Effects: Brightness, Contrast, Saturation, Blur, Grayscale -->
-                <Image.Style>
-                    <Style TargetType="Image">
-                        <Style.Triggers>
-                            <!-- Grayscale Effect -->
-                            <DataTrigger Binding="{Binding Grayscale}" Value="True">
-                                <Setter Property="Effect">
-                                    <Setter.Value>
-                                        <FormatConvertedBitmap DestinationFormat="Gray32Float"/>
-                                    </Setter.Value>
-                                </Setter>
-                            </DataTrigger>
-
-                            <!-- Blur Effect -->
-                            <DataTrigger Binding="{Binding Blur}" Value="0">
-                                <Setter Property="Effect" Value="{x:Null}"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Image.Style>
-            </Image>
+                   RenderOptions.EdgeMode="Unspecified"/>
         </Border>
     </DataTemplate>
 
