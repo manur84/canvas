@@ -1,3 +1,4 @@
+using System;
 using LayoutDesigner.Services.Interfaces;
 using QRCoder;
 using System.Windows.Media;

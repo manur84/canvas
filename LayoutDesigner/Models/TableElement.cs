@@ -1,3 +1,4 @@
+using System;
 using LayoutDesigner.Models.Base;
 
 namespace LayoutDesigner.Models
@@ -24,9 +25,10 @@ namespace LayoutDesigner.Models
         private bool _showBorder = true;
         private bool _alternateRows = true;
 
+        public override string ElementType => "Table";
+
         public TableElement()
         {
-            ElementType = "Table";
             Width = 400;
             Height = 200;
         }

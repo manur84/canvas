@@ -1,3 +1,4 @@
+using System;
 using LayoutDesigner.Models.Base;
 
 namespace LayoutDesigner.Models
@@ -22,9 +23,10 @@ namespace LayoutDesigner.Models
         private string _icon = "";
         private string _iconPosition = "Left";
 
+        public override string ElementType => "Button";
+
         public ButtonElement()
         {
-            ElementType = "Button";
             Width = 120;
             Height = 40;
         }

@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using LayoutDesigner.Models.Base;
 using System.Collections.ObjectModel;
 
@@ -12,9 +15,10 @@ namespace LayoutDesigner.Models
         private ObservableCollection<LayoutElementBase> _children = new();
         private bool _isExpanded = true;
 
+        public override string ElementType => "Group";
+
         public ElementGroup()
         {
-            ElementType = "Group";
             Name = "Group";
         }
 

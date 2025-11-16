@@ -1,3 +1,4 @@
+using System;
 using LayoutDesigner.Models.Base;
 
 namespace LayoutDesigner.Models
@@ -15,10 +16,7 @@ namespace LayoutDesigner.Models
         private string _startCap = "None";
         private string _endCap = "None";
 
-        public LineElement()
-        {
-            ElementType = "Line";
-        }
+        public override string ElementType => "Line";
 
         /// <summary>
         /// End X coordinate
