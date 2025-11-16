@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
+using System.Windows.Media;
 
 namespace LayoutDesigner.Validation
 {
@@ -222,11 +223,14 @@ namespace LayoutDesigner.Validation
             if (string.IsNullOrWhiteSpace(fontFamily))
                 return false;
 
-            // Check if font exists in system
+            // Check if font exists in system using WPF Fonts
             try
             {
-                var fonts = System.Drawing.FontFamily.Families;
-                return fonts.Any(f => f.Name.Equals(fontFamily, StringComparison.OrdinalIgnoreCase));
+                // Get all system font families
+                var systemFonts = Fonts.SystemFontFamilies;
+                return systemFonts.Any(f =>
+                    f.Source.Equals(fontFamily, StringComparison.OrdinalIgnoreCase) ||
+                    f.FamilyNames.Values.Any(name => name.Equals(fontFamily, StringComparison.OrdinalIgnoreCase)));
             }
             catch
             {

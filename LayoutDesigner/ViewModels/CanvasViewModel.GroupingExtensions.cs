@@ -1,6 +1,7 @@
 using System.Linq;
 using LayoutDesigner.Models;
 using LayoutDesigner.Models.Base;
+using LayoutDesigner.ViewModels.Base;
 using System.Windows.Input;
 
 namespace LayoutDesigner.ViewModels

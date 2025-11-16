@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using LayoutDesigner.Helpers;
+using LayoutDesigner.Models;
 using LayoutDesigner.Models.Base;
 using System.Windows.Input;
 
