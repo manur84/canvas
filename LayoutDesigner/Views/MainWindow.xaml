@@ -163,6 +163,10 @@
                     <Run Text="{Binding CanvasViewModel.SelectedElements[0].Height, StringFormat={}{0:F0}, FallbackValue='-'}"/>
                 </TextBlock>
             </StatusBarItem>
+            <Separator/>
+            <StatusBarItem>
+                <TextBlock Text="{Binding UndoRedoStatus}" FontWeight="SemiBold"/>
+            </StatusBarItem>
         </StatusBar>
 
         <!-- Main Content -->
@@ -205,6 +209,10 @@
                                     <MenuItem Header="Bring Forward" Command="{Binding CanvasViewModel.BringForwardCommand}"/>
                                     <MenuItem Header="Send Backward" Command="{Binding CanvasViewModel.SendBackwardCommand}"/>
                                 </MenuItem>
+                                <Separator/>
+                                <MenuItem Header="Lock" Command="{Binding CanvasViewModel.LockCommand}"/>
+                                <MenuItem Header="Unlock" Command="{Binding CanvasViewModel.UnlockCommand}"/>
+                                <Separator/>
                                 <MenuItem Header="Align">
                                     <MenuItem Header="Align Left" Command="{Binding CanvasViewModel.AlignLeftCommand}" InputGestureText="Ctrl+Shift+L"/>
                                     <MenuItem Header="Align Center" Command="{Binding CanvasViewModel.AlignCenterCommand}" InputGestureText="Ctrl+Shift+C"/>

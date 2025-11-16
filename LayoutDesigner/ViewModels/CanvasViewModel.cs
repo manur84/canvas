@@ -54,6 +54,8 @@ namespace LayoutDesigner.ViewModels
             AlignBottomCommand = new RelayCommand(AlignBottom, () => SelectedElements.Count >= 2);
             DistributeHorizontallyCommand = new RelayCommand(DistributeHorizontally, () => SelectedElements.Count >= 3);
             DistributeVerticallyCommand = new RelayCommand(DistributeVertically, () => SelectedElements.Count >= 3);
+            LockCommand = new RelayCommand(LockElements, () => SelectedElements.Count > 0);
+            UnlockCommand = new RelayCommand(UnlockElements, () => SelectedElements.Count > 0);
         }
 
         #region Properties
@@ -179,6 +181,8 @@ namespace LayoutDesigner.ViewModels
         public ICommand AlignBottomCommand { get; }
         public ICommand DistributeHorizontallyCommand { get; }
         public ICommand DistributeVerticallyCommand { get; }
+        public ICommand LockCommand { get; }
+        public ICommand UnlockCommand { get; }
 
         #endregion
 
@@ -618,6 +622,26 @@ namespace LayoutDesigner.ViewModels
             {
                 element.Y = currentY;
                 currentY += element.Height + spacing;
+            }
+        }
+
+        private void LockElements()
+        {
+            if (SelectedElements.Count == 0) return;
+
+            foreach (var element in SelectedElements)
+            {
+                element.IsLocked = true;
+            }
+        }
+
+        private void UnlockElements()
+        {
+            if (SelectedElements.Count == 0) return;
+
+            foreach (var element in SelectedElements)
+            {
+                element.IsLocked = false;
             }
         }
 

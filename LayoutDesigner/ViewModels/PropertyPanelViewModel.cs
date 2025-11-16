@@ -28,6 +28,67 @@ namespace LayoutDesigner.ViewModels
 
         public bool HasMultipleSelection => _canvasViewModel.SelectedElements.Count > 1;
 
+        // Canvas properties (exposed for editing when no element is selected)
+        public double CanvasWidth
+        {
+            get => _canvasViewModel.CanvasWidth;
+            set
+            {
+                _canvasViewModel.CanvasWidth = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public double CanvasHeight
+        {
+            get => _canvasViewModel.CanvasHeight;
+            set
+            {
+                _canvasViewModel.CanvasHeight = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public double GridSize
+        {
+            get => _canvasViewModel.GridSize;
+            set
+            {
+                _canvasViewModel.GridSize = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool ShowGrid
+        {
+            get => _canvasViewModel.ShowGrid;
+            set
+            {
+                _canvasViewModel.ShowGrid = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool SnapToGrid
+        {
+            get => _canvasViewModel.SnapToGrid;
+            set
+            {
+                _canvasViewModel.SnapToGrid = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string BackgroundColor
+        {
+            get => _canvasViewModel.Document.BackgroundColor;
+            set
+            {
+                _canvasViewModel.Document.BackgroundColor = value;
+                OnPropertyChanged();
+            }
+        }
+
         private void OnSelectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
             SelectedElement = _canvasViewModel.SelectedElements.Count == 1

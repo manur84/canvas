@@ -11,13 +11,46 @@
     <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,0,0,0">
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <StackPanel Margin="8">
-                <!-- No Selection Message -->
-                <TextBlock Text="No element selected"
-                          Visibility="{Binding HasSelection, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}"
-                          FontSize="14"
-                          Foreground="{StaticResource SecondaryBrush}"
-                          HorizontalAlignment="Center"
-                          Margin="0,20"/>
+                <!-- Canvas Properties (when no element selected) -->
+                <StackPanel Visibility="{Binding HasSelection, Converter={StaticResource BoolToVisibilityConverter}, ConverterParameter=Invert}">
+                    <TextBlock Text="Canvas Properties"
+                              FontSize="16"
+                              FontWeight="Bold"
+                              Margin="0,0,0,12"/>
+
+                    <GroupBox Header="Canvas Settings" Style="{StaticResource PropertyGroup}">
+                        <StackPanel>
+                            <Label Content="Canvas Width:" Style="{StaticResource PropertyLabel}"/>
+                            <TextBox Text="{Binding CanvasWidth, UpdateSourceTrigger=PropertyChanged}"
+                                   Style="{StaticResource ModernTextBox}"/>
+
+                            <Label Content="Canvas Height:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
+                            <TextBox Text="{Binding CanvasHeight, UpdateSourceTrigger=PropertyChanged}"
+                                   Style="{StaticResource ModernTextBox}"/>
+
+                            <Label Content="Grid Size:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
+                            <TextBox Text="{Binding GridSize, UpdateSourceTrigger=PropertyChanged}"
+                                   Style="{StaticResource ModernTextBox}"/>
+
+                            <CheckBox Content="Show Grid" IsChecked="{Binding ShowGrid}"
+                                    Style="{StaticResource ModernCheckBox}" Margin="0,8,0,0"/>
+                            <CheckBox Content="Snap to Grid" IsChecked="{Binding SnapToGrid}"
+                                    Style="{StaticResource ModernCheckBox}"/>
+                        </StackPanel>
+                    </GroupBox>
+
+                    <GroupBox Header="Canvas Appearance" Style="{StaticResource PropertyGroup}">
+                        <StackPanel>
+                            <Label Content="Background Color:" Style="{StaticResource PropertyLabel}"/>
+                            <TextBox Text="{Binding BackgroundColor, UpdateSourceTrigger=PropertyChanged}"
+                                   Style="{StaticResource ModernTextBox}"/>
+                            <TextBlock Text="Format: #RRGGBB or #AARRGGBB"
+                                     FontSize="10"
+                                     Foreground="{StaticResource SecondaryBrush}"
+                                     Margin="0,2,0,0"/>
+                        </StackPanel>
+                    </GroupBox>
+                </StackPanel>
 
                 <!-- Multiple Selection Message -->
                 <TextBlock Text="Multiple elements selected"

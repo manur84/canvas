@@ -94,6 +94,10 @@ namespace LayoutDesigner.ViewModels
             }
         }
 
+        public int UndoCount => _undoRedoService.UndoHistory.Count;
+        public int RedoCount => _undoRedoService.RedoHistory.Count;
+        public string UndoRedoStatus => $"Undo: {UndoCount} | Redo: {RedoCount}";
+
         #endregion
 
         #region Commands
@@ -291,6 +295,9 @@ namespace LayoutDesigner.ViewModels
         {
             OnPropertyChanged(nameof(UndoCommand));
             OnPropertyChanged(nameof(RedoCommand));
+            OnPropertyChanged(nameof(UndoCount));
+            OnPropertyChanged(nameof(RedoCount));
+            OnPropertyChanged(nameof(UndoRedoStatus));
         }
 
         #endregion
