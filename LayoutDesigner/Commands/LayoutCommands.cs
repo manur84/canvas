@@ -32,7 +32,7 @@ namespace LayoutDesigner.Commands
             typeof(LayoutCommands),
             new InputGestureCollection
             {
-                new KeyGesture(Key.BracketRight, ModifierKeys.Control)
+                new KeyGesture(Key.OemCloseBrackets, ModifierKeys.Control)
             });
 
         public static readonly RoutedUICommand SendToBack = new RoutedUICommand(
@@ -41,7 +41,7 @@ namespace LayoutDesigner.Commands
             typeof(LayoutCommands),
             new InputGestureCollection
             {
-                new KeyGesture(Key.BracketLeft, ModifierKeys.Control)
+                new KeyGesture(Key.OemOpenBrackets, ModifierKeys.Control)
             });
 
         public static readonly RoutedUICommand BringForward = new RoutedUICommand(
@@ -50,7 +50,7 @@ namespace LayoutDesigner.Commands
             typeof(LayoutCommands),
             new InputGestureCollection
             {
-                new KeyGesture(Key.BracketRight, ModifierKeys.Control | ModifierKeys.Shift)
+                new KeyGesture(Key.OemCloseBrackets, ModifierKeys.Control | ModifierKeys.Shift)
             });
 
         public static readonly RoutedUICommand SendBackward = new RoutedUICommand(
@@ -59,7 +59,7 @@ namespace LayoutDesigner.Commands
             typeof(LayoutCommands),
             new InputGestureCollection
             {
-                new KeyGesture(Key.BracketLeft, ModifierKeys.Control | ModifierKeys.Shift)
+                new KeyGesture(Key.OemOpenBrackets, ModifierKeys.Control | ModifierKeys.Shift)
             });
 
         // Alignment commands

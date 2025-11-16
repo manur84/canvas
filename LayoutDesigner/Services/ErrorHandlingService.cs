@@ -1,21 +1,10 @@
 using System;
 using System.IO;
 using System.Windows;
+using LayoutDesigner.Services.Interfaces;
 
 namespace LayoutDesigner.Services
 {
-    /// <summary>
-    /// Centralized error handling service
-    /// Best Practice: Consistent error handling and user feedback
-    /// </summary>
-    public interface IErrorHandlingService
-    {
-        void HandleError(Exception exception, string? userMessage = null, bool showDialog = true);
-        void HandleWarning(string message, string? title = null);
-        void HandleInfo(string message, string? title = null);
-        bool Confirm(string message, string? title = null);
-    }
-
     /// <summary>
     /// Implementation of error handling service
     /// </summary>
