@@ -70,6 +70,11 @@ Layout Designer ist ein eigenständiges Windows-Anwendungstool, das eine intuiti
   - Sichtbares Raster (ein-/ausschaltbar)
   - Snap-to-Grid (ein-/ausschaltbar)
   - Konfigurierbare Rastergröße
+- **Ausrichtungs-Tools** ✨ NEU:
+  - Align Left/Center/Right (horizontal)
+  - Align Top/Middle/Bottom (vertikal)
+  - Distribute Horizontally/Vertically
+  - Automatische Ausrichtung mehrerer Elemente
 - **Tastenkombinationen**:
   - `Strg+N`: Neues Layout
   - `Strg+O`: Layout öffnen
@@ -80,6 +85,8 @@ Layout Designer ist ein eigenständiges Windows-Anwendungstool, das eine intuiti
   - `Strg+A`: Alle auswählen
   - `Entf`: Löschen
   - `Strg +/-/0`: Zoom In/Out/Reset
+  - `Strg+]`: Bring to Front
+  - `Strg+[`: Send to Back
 
 ## 🏗️ Architektur
 
@@ -103,6 +110,40 @@ Einfaches Service-Container-System für:
 - `IExportService` - Bild-Export
 - `IAssetService` - Asset-Verwaltung
 - `IUndoRedoService` - Undo/Redo-Verwaltung
+
+## 📚 Beispiel-Layouts
+
+Das Projekt enthält fertige Beispiel-Layouts zum Erkunden und Lernen:
+
+### `Examples/WelcomeLayout.layout`
+- Professionelles Welcome-Layout
+- Zeigt alle 5 Element-Typen
+- Feature-Boxen mit Beschreibungen
+- QR-Code und Datum/Zeit-Anzeige
+- **Perfekt zum Einstieg!**
+
+### `Examples/MeetingRoomSign.layout` ✨ NEU
+- Konferenzraum-Beschilderung
+- Status-Anzeige (Verfügbar/Belegt)
+- Aktuelle Uhrzeit
+- Raum-Informationen
+- QR-Code für Raumbuchung
+- **4K-optimiert (1920x1080)**
+
+### `Examples/InformationDashboard.layout` ✨ NEU
+- Großes Informations-Dashboard
+- Multiple Content-Cards
+- Firmen-News, Events, Metriken
+- WiFi-Informationen mit QR-Code
+- Dynamische Datum/Zeit-Anzeige
+- **Ultra HD (3840x2160)**
+
+**Verwendung**:
+1. Anwendung starten
+2. `Datei` → `Öffnen` (Strg+O)
+3. Navigieren zu `Examples/` Ordner
+4. Layout auswählen und öffnen
+5. Erkunden, bearbeiten, als Basis verwenden!
 
 ## 🚀 Installation & Build
 
@@ -298,10 +339,18 @@ Dieses Projekt ist lizenziert unter der MIT-Lizenz.
 
 Layout Designer Team
 
+## 📖 Weitere Dokumentation
+
+- **[QUICKSTART.md](QUICKSTART.md)** - 5-Minuten-Schnelleinstieg für Anfänger
+- **[FEATURES.md](FEATURES.md)** ✨ NEU - Vollständige Feature-Dokumentation mit allen Details
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Technische Architektur-Dokumentation für Entwickler
+- **[CHANGELOG.md](CHANGELOG.md)** - Versionshistorie und Änderungen
+
 ## 📞 Support
 
 Bei Fragen oder Problemen:
 - Erstellen Sie ein Issue auf GitHub
+- Konsultieren Sie die [FEATURES.md](FEATURES.md) für detaillierte Anleitungen
 - Kontaktieren Sie den Entwickler
 
 ---

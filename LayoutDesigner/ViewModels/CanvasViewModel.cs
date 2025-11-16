@@ -402,6 +402,112 @@ namespace LayoutDesigner.ViewModels
             _undoRedoService.Clear();
         }
 
+        #region Alignment Methods
+
+        public void AlignLeft()
+        {
+            if (SelectedElements.Count < 2) return;
+
+            var minX = SelectedElements.Min(e => e.X);
+            foreach (var element in SelectedElements)
+            {
+                element.X = minX;
+            }
+        }
+
+        public void AlignCenter()
+        {
+            if (SelectedElements.Count < 2) return;
+
+            var centerX = SelectedElements.Average(e => e.X + e.Width / 2);
+            foreach (var element in SelectedElements)
+            {
+                element.X = centerX - element.Width / 2;
+            }
+        }
+
+        public void AlignRight()
+        {
+            if (SelectedElements.Count < 2) return;
+
+            var maxX = SelectedElements.Max(e => e.X + e.Width);
+            foreach (var element in SelectedElements)
+            {
+                element.X = maxX - element.Width;
+            }
+        }
+
+        public void AlignTop()
+        {
+            if (SelectedElements.Count < 2) return;
+
+            var minY = SelectedElements.Min(e => e.Y);
+            foreach (var element in SelectedElements)
+            {
+                element.Y = minY;
+            }
+        }
+
+        public void AlignMiddle()
+        {
+            if (SelectedElements.Count < 2) return;
+
+            var centerY = SelectedElements.Average(e => e.Y + e.Height / 2);
+            foreach (var element in SelectedElements)
+            {
+                element.Y = centerY - element.Height / 2;
+            }
+        }
+
+        public void AlignBottom()
+        {
+            if (SelectedElements.Count < 2) return;
+
+            var maxY = SelectedElements.Max(e => e.Y + e.Height);
+            foreach (var element in SelectedElements)
+            {
+                element.Y = maxY - element.Height;
+            }
+        }
+
+        public void DistributeHorizontally()
+        {
+            if (SelectedElements.Count < 3) return;
+
+            var sorted = SelectedElements.OrderBy(e => e.X).ToList();
+            var leftMost = sorted.First().X;
+            var rightMost = sorted.Last().X + sorted.Last().Width;
+            var totalWidth = sorted.Sum(e => e.Width);
+            var spacing = (rightMost - leftMost - totalWidth) / (sorted.Count - 1);
+
+            double currentX = leftMost;
+            foreach (var element in sorted)
+            {
+                element.X = currentX;
+                currentX += element.Width + spacing;
+            }
+        }
+
+        public void DistributeVertically()
+        {
+            if (SelectedElements.Count < 3) return;
+
+            var sorted = SelectedElements.OrderBy(e => e.Y).ToList();
+            var topMost = sorted.First().Y;
+            var bottomMost = sorted.Last().Y + sorted.Last().Height;
+            var totalHeight = sorted.Sum(e => e.Height);
+            var spacing = (bottomMost - topMost - totalHeight) / (sorted.Count - 1);
+
+            double currentY = topMost;
+            foreach (var element in sorted)
+            {
+                element.Y = currentY;
+                currentY += element.Height + spacing;
+            }
+        }
+
+        #endregion
+
         #endregion
     }
 }
