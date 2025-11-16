@@ -17,6 +17,7 @@ namespace LayoutDesigner.Controls
     {
         private Point? _dragStartPoint;
         private bool _isDragging;
+        private bool _isRectangleSelecting;
         private readonly List<UIElement> _selectedElements = new();
         private Pen? _gridPen; // Cached pen for grid rendering
 
@@ -109,6 +110,10 @@ namespace LayoutDesigner.Controls
             DependencyProperty.Register(nameof(Elements), typeof(System.Collections.IEnumerable), typeof(DesignCanvas),
                 new FrameworkPropertyMetadata(null));
 
+        public static readonly DependencyProperty CanvasViewModelProperty =
+            DependencyProperty.Register(nameof(CanvasViewModel), typeof(object), typeof(DesignCanvas),
+                new FrameworkPropertyMetadata(null));
+
         public double GridSize
         {
             get => (double)GetValue(GridSizeProperty);
@@ -137,6 +142,12 @@ namespace LayoutDesigner.Controls
         {
             get => (System.Collections.IEnumerable?)GetValue(ElementsProperty);
             set => SetValue(ElementsProperty, value);
+        }
+
+        public object? CanvasViewModel
+        {
+            get => GetValue(CanvasViewModelProperty);
+            set => SetValue(CanvasViewModelProperty, value);
         }
 
         #endregion
@@ -196,9 +207,20 @@ namespace LayoutDesigner.Controls
         {
             if (e.Source is FrameworkElement element && element.DataContext is LayoutElementBase)
             {
+                // Dragging an element
                 _dragStartPoint = e.GetPosition(this);
                 _isDragging = false;
+                _isRectangleSelecting = false;
                 element.CaptureMouse();
+                e.Handled = true;
+            }
+            else if (e.Source == this)
+            {
+                // Click on empty canvas - start rectangle selection
+                _dragStartPoint = e.GetPosition(this);
+                _isDragging = false;
+                _isRectangleSelecting = false;
+                CaptureMouse();
                 e.Handled = true;
             }
         }
@@ -212,12 +234,21 @@ namespace LayoutDesigner.Controls
             var currentPoint = e.GetPosition(this);
             var delta = currentPoint - _dragStartPoint.Value;
 
-            // Start dragging if moved more than dead zone threshold (to avoid accidental drags)
-            if (!_isDragging)
+            // Start dragging/selecting if moved more than dead zone threshold
+            if (!_isDragging && !_isRectangleSelecting)
             {
                 if (Math.Abs(delta.X) > UIConstants.DragDeadZonePixels || Math.Abs(delta.Y) > UIConstants.DragDeadZonePixels)
                 {
-                    _isDragging = true;
+                    // Check if we're dragging an element or doing rectangle selection
+                    if (e.Source is FrameworkElement elem && elem.DataContext is LayoutElementBase)
+                    {
+                        _isDragging = true;
+                    }
+                    else
+                    {
+                        _isRectangleSelecting = true;
+                        _selectionAdorner?.StartSelection(_dragStartPoint.Value);
+                    }
                 }
                 else
                 {
@@ -225,7 +256,15 @@ namespace LayoutDesigner.Controls
                 }
             }
 
-            // Performance: Only process if we have valid element
+            // Handle rectangle selection
+            if (_isRectangleSelecting)
+            {
+                _selectionAdorner?.UpdateSelection(currentPoint);
+                e.Handled = true;
+                return;
+            }
+
+            // Performance: Only process if we have valid element for dragging
             if (e.Source is not FrameworkElement element || element.DataContext is not LayoutElementBase layoutElement)
                 return;
 
@@ -283,7 +322,14 @@ namespace LayoutDesigner.Controls
         {
             if (_dragStartPoint.HasValue)
             {
-                if (e.Source is FrameworkElement element)
+                // Handle rectangle selection end
+                if (_isRectangleSelecting && _selectionAdorner != null)
+                {
+                    var selectionRect = _selectionAdorner.EndSelection();
+                    SelectElementsInRectangle(selectionRect);
+                    ReleaseMouseCapture();
+                }
+                else if (e.Source is FrameworkElement element)
                 {
                     element.ReleaseMouseCapture();
                 }
@@ -293,6 +339,7 @@ namespace LayoutDesigner.Controls
 
                 _dragStartPoint = null;
                 _isDragging = false;
+                _isRectangleSelecting = false;
                 e.Handled = true;
             }
         }
@@ -300,6 +347,45 @@ namespace LayoutDesigner.Controls
         #endregion
 
         #region Private Helper Methods
+
+        /// <summary>
+        /// Selects all elements within the given rectangle
+        /// </summary>
+        private void SelectElementsInRectangle(Rect selectionRect)
+        {
+            if (Elements == null || CanvasViewModel == null)
+                return;
+
+            // Use reflection to access SelectedElements
+            var canvasVmType = CanvasViewModel.GetType();
+            var selectedElementsProperty = canvasVmType.GetProperty("SelectedElements");
+            if (selectedElementsProperty == null)
+                return;
+
+            var selectedElements = selectedElementsProperty.GetValue(CanvasViewModel) as System.Collections.IList;
+            if (selectedElements == null)
+                return;
+
+            // Clear current selection (unless Ctrl is held for additive selection)
+            if (!Keyboard.IsKeyDown(Key.LeftCtrl) && !Keyboard.IsKeyDown(Key.RightCtrl))
+            {
+                selectedElements.Clear();
+            }
+
+            // Select elements that intersect with selection rectangle
+            foreach (var element in Elements.OfType<LayoutElementBase>())
+            {
+                var elementRect = new Rect(element.X, element.Y, element.Width, element.Height);
+
+                if (selectionRect.IntersectsWith(elementRect))
+                {
+                    if (!selectedElements.Contains(element))
+                    {
+                        selectedElements.Add(element);
+                    }
+                }
+            }
+        }
 
         /// <summary>
         /// Shows snap lines for the currently dragged element

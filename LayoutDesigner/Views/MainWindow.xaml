@@ -201,7 +201,8 @@
                                           GridSize="{Binding CanvasViewModel.GridSize}"
                                           SnapToGrid="{Binding CanvasViewModel.SnapToGrid}"
                                           SnapToElements="True"
-                                          Elements="{Binding CanvasViewModel.Elements}">
+                                          Elements="{Binding CanvasViewModel.Elements}"
+                                          CanvasViewModel="{Binding CanvasViewModel}">
                         <controls:DesignCanvas.LayoutTransform>
                             <ScaleTransform ScaleX="{Binding CanvasViewModel.Zoom}" ScaleY="{Binding CanvasViewModel.Zoom}"/>
                         </controls:DesignCanvas.LayoutTransform>
