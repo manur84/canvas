@@ -144,6 +144,12 @@ namespace LayoutDesigner.ViewModels
             }
         }
 
+        // Safe properties for selected element position and size (avoid index out of range)
+        public double? SelectedElementX => SelectedElements.Count > 0 ? SelectedElements[0].X : null;
+        public double? SelectedElementY => SelectedElements.Count > 0 ? SelectedElements[0].Y : null;
+        public double? SelectedElementWidth => SelectedElements.Count > 0 ? SelectedElements[0].Width : null;
+        public double? SelectedElementHeight => SelectedElements.Count > 0 ? SelectedElements[0].Height : null;
+
         public double CanvasWidth
         {
             get => Document.CanvasWidth;
@@ -1007,6 +1013,12 @@ namespace LayoutDesigner.ViewModels
                     element.IsSelected = false;
                 }
             }
+
+            // Notify changes to selected element properties for status bar
+            OnPropertyChanged(nameof(SelectedElementX));
+            OnPropertyChanged(nameof(SelectedElementY));
+            OnPropertyChanged(nameof(SelectedElementWidth));
+            OnPropertyChanged(nameof(SelectedElementHeight));
         }
 
         #endregion
