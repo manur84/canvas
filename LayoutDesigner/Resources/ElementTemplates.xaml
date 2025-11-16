@@ -133,7 +133,7 @@
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding ShapeType}" Value="Ellipse">
                                 <Setter Property="Visibility" Value="Visible"/>
-                            </Setter>
+                            </DataTrigger>
                         </Style.Triggers>
                     </Style>
                 </Ellipse.Style>
