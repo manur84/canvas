@@ -11,16 +11,19 @@ namespace LayoutDesigner.ViewModels
     {
         #region Grouping Commands
 
-        public ICommand? GroupCommand { get; private set; }
-        public ICommand? UngroupCommand { get; private set; }
+        private ICommand? _groupCommand;
+        private ICommand? _ungroupCommand;
+
+        public ICommand? GroupCommand => _groupCommand;
+        public ICommand? UngroupCommand => _ungroupCommand;
 
         /// <summary>
         /// Initializes grouping commands (call from constructor)
         /// </summary>
         partial void InitializeGroupingCommands()
         {
-            GroupCommand = new RelayCommand(GroupSelected, () => SelectedElements.Count >= 2);
-            UngroupCommand = new RelayCommand(UngroupSelected, () => SelectedElements.Count == 1 && SelectedElements[0] is ElementGroup);
+            _groupCommand = new RelayCommand(GroupSelected, () => SelectedElements.Count >= 2);
+            _ungroupCommand = new RelayCommand(UngroupSelected, () => SelectedElements.Count == 1 && SelectedElements[0] is ElementGroup);
         }
 
         #endregion

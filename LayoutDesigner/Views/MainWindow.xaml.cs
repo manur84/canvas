@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using LayoutDesigner.ViewModels;
 using LayoutDesigner.Events;
+using LayoutDesigner.Commands;
 
 namespace LayoutDesigner.Views
 {
@@ -48,6 +49,106 @@ namespace LayoutDesigner.Views
 
             // Add keyboard shortcut support
             PreviewKeyDown += OnPreviewKeyDown;
+
+            // Clean up event handlers when window is unloaded
+            Unloaded += OnWindowUnloaded;
+
+            // Bind RoutedUICommands to ViewModel commands
+            BindRoutedCommands();
+        }
+
+        private void BindRoutedCommands()
+        {
+            // Bind LayoutCommands to CanvasViewModel commands
+            CommandBindings.Add(new CommandBinding(LayoutCommands.Duplicate,
+                (s, e) => ExecuteCanvasCommand(vm => vm.DuplicateSelectedCommand),
+                (s, e) => e.CanExecute = CanExecuteCanvasCommand(vm => vm.DuplicateSelectedCommand)));
+
+            CommandBindings.Add(new CommandBinding(LayoutCommands.Delete,
+                (s, e) => ExecuteCanvasCommand(vm => vm.DeleteSelectedCommand),
+                (s, e) => e.CanExecute = CanExecuteCanvasCommand(vm => vm.DeleteSelectedCommand)));
+
+            CommandBindings.Add(new CommandBinding(LayoutCommands.BringToFront,
+                (s, e) => ExecuteCanvasCommand(vm => vm.BringToFrontCommand),
+                (s, e) => e.CanExecute = CanExecuteCanvasCommand(vm => vm.BringToFrontCommand)));
+
+            CommandBindings.Add(new CommandBinding(LayoutCommands.SendToBack,
+                (s, e) => ExecuteCanvasCommand(vm => vm.SendToBackCommand),
+                (s, e) => e.CanExecute = CanExecuteCanvasCommand(vm => vm.SendToBackCommand)));
+
+            CommandBindings.Add(new CommandBinding(LayoutCommands.BringForward,
+                (s, e) => ExecuteCanvasCommand(vm => vm.BringForwardCommand),
+                (s, e) => e.CanExecute = CanExecuteCanvasCommand(vm => vm.BringForwardCommand)));
+
+            CommandBindings.Add(new CommandBinding(LayoutCommands.SendBackward,
+                (s, e) => ExecuteCanvasCommand(vm => vm.SendBackwardCommand),
+                (s, e) => e.CanExecute = CanExecuteCanvasCommand(vm => vm.SendBackwardCommand)));
+
+            CommandBindings.Add(new CommandBinding(LayoutCommands.AlignLeft,
+                (s, e) => ExecuteCanvasCommand(vm => vm.AlignLeftCommand),
+                (s, e) => e.CanExecute = CanExecuteCanvasCommand(vm => vm.AlignLeftCommand)));
+
+            CommandBindings.Add(new CommandBinding(LayoutCommands.AlignCenter,
+                (s, e) => ExecuteCanvasCommand(vm => vm.AlignCenterCommand),
+                (s, e) => e.CanExecute = CanExecuteCanvasCommand(vm => vm.AlignCenterCommand)));
+
+            CommandBindings.Add(new CommandBinding(LayoutCommands.AlignRight,
+                (s, e) => ExecuteCanvasCommand(vm => vm.AlignRightCommand),
+                (s, e) => e.CanExecute = CanExecuteCanvasCommand(vm => vm.AlignRightCommand)));
+
+            CommandBindings.Add(new CommandBinding(LayoutCommands.AlignTop,
+                (s, e) => ExecuteCanvasCommand(vm => vm.AlignTopCommand),
+                (s, e) => e.CanExecute = CanExecuteCanvasCommand(vm => vm.AlignTopCommand)));
+
+            CommandBindings.Add(new CommandBinding(LayoutCommands.AlignMiddle,
+                (s, e) => ExecuteCanvasCommand(vm => vm.AlignMiddleCommand),
+                (s, e) => e.CanExecute = CanExecuteCanvasCommand(vm => vm.AlignMiddleCommand)));
+
+            CommandBindings.Add(new CommandBinding(LayoutCommands.AlignBottom,
+                (s, e) => ExecuteCanvasCommand(vm => vm.AlignBottomCommand),
+                (s, e) => e.CanExecute = CanExecuteCanvasCommand(vm => vm.AlignBottomCommand)));
+
+            CommandBindings.Add(new CommandBinding(LayoutCommands.DistributeHorizontally,
+                (s, e) => ExecuteCanvasCommand(vm => vm.DistributeHorizontallyCommand),
+                (s, e) => e.CanExecute = CanExecuteCanvasCommand(vm => vm.DistributeHorizontallyCommand)));
+
+            CommandBindings.Add(new CommandBinding(LayoutCommands.DistributeVertically,
+                (s, e) => ExecuteCanvasCommand(vm => vm.DistributeVerticallyCommand),
+                (s, e) => e.CanExecute = CanExecuteCanvasCommand(vm => vm.DistributeVerticallyCommand)));
+        }
+
+        private void ExecuteCanvasCommand(Func<CanvasViewModel, ICommand> commandSelector)
+        {
+            if (DataContext is MainViewModel viewModel)
+            {
+                var command = commandSelector(viewModel.CanvasViewModel);
+                if (command.CanExecute(null))
+                {
+                    command.Execute(null);
+                }
+            }
+        }
+
+        private bool CanExecuteCanvasCommand(Func<CanvasViewModel, ICommand> commandSelector)
+        {
+            if (DataContext is MainViewModel viewModel)
+            {
+                var command = commandSelector(viewModel.CanvasViewModel);
+                return command.CanExecute(null);
+            }
+            return false;
+        }
+
+        private void OnWindowUnloaded(object sender, RoutedEventArgs e)
+        {
+            // Unsubscribe from all event handlers to prevent memory leaks
+            DesignCanvas.MouseWheel -= OnCanvasMouseWheel;
+            DesignCanvas.DragEnter -= OnCanvasDragEnter;
+            DesignCanvas.Drop -= OnCanvasDrop;
+            PreviewKeyDown -= OnPreviewKeyDown;
+            Unloaded -= OnWindowUnloaded;
+
+            // DataContext change handler will automatically clean up ExportRequested
         }
 
         private void OnPreviewKeyDown(object sender, KeyEventArgs e)

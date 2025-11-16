@@ -35,11 +35,11 @@ namespace LayoutDesigner.ViewModels
             _undoRedoService.StateChanged += OnUndoRedoStateChanged;
 
             // Commands
-            NewCommand = new RelayCommand(New);
+            NewCommand = new RelayCommand(async () => await NewAsync());
             OpenCommand = new RelayCommand(async () => await OpenAsync());
             SaveCommand = new RelayCommand(async () => await SaveAsync(), () => CanvasViewModel.Elements.Count > 0);
             SaveAsCommand = new RelayCommand(async () => await SaveAsAsync(), () => CanvasViewModel.Elements.Count > 0);
-            ExitCommand = new RelayCommand(Exit);
+            ExitCommand = new RelayCommand(async () => await ExitAsync());
 
             UndoCommand = new RelayCommand(() => _undoRedoService.Undo(), () => _undoRedoService.CanUndo);
             RedoCommand = new RelayCommand(() => _undoRedoService.Redo(), () => _undoRedoService.CanRedo);
@@ -122,9 +122,9 @@ namespace LayoutDesigner.ViewModels
 
         #region Methods
 
-        private void New()
+        private async Task NewAsync()
         {
-            if (!CheckSaveChanges())
+            if (!await CheckSaveChangesAsync())
                 return;
 
             CanvasViewModel.NewDocument();
@@ -134,7 +134,7 @@ namespace LayoutDesigner.ViewModels
 
         private async Task OpenAsync()
         {
-            if (!CheckSaveChanges())
+            if (!await CheckSaveChangesAsync())
                 return;
 
             var filePath = FileDialogHelper.ShowOpenLayoutDialog();
@@ -189,15 +189,15 @@ namespace LayoutDesigner.ViewModels
             }
         }
 
-        private void Exit()
+        private async Task ExitAsync()
         {
-            if (CheckSaveChanges())
+            if (await CheckSaveChangesAsync())
             {
                 Application.Current.Shutdown();
             }
         }
 
-        private bool CheckSaveChanges()
+        private async Task<bool> CheckSaveChangesAsync()
         {
             if (!IsDirty)
                 return true;
@@ -210,7 +210,7 @@ namespace LayoutDesigner.ViewModels
 
             if (result == MessageBoxResult.Yes)
             {
-                SaveAsync().Wait();
+                await SaveAsync();
                 return !IsDirty; // Return false if save failed
             }
 
