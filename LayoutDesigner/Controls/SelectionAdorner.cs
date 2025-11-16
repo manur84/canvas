@@ -1,7 +1,9 @@
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Effects;
 using System.Windows.Shapes;
 using LayoutDesigner.Models.Base;
 
@@ -14,23 +16,46 @@ namespace LayoutDesigner.Controls
     {
         private readonly VisualCollection _visualChildren;
         private readonly Rectangle _border;
+        private readonly Rectangle _shadowBorder;
         private readonly List<Thumb> _resizeHandles;
         private readonly Thumb _rotateHandle;
+        private readonly TextBlock _dimensionLabel;
 
         public SelectionAdorner(UIElement adornedElement) : base(adornedElement)
         {
             _visualChildren = new VisualCollection(this);
             _resizeHandles = new List<Thumb>();
 
+            // Shadow border (for depth effect)
+            _shadowBorder = new Rectangle
+            {
+                Stroke = new SolidColorBrush(Color.FromArgb(60, 0, 120, 215)),
+                StrokeThickness = 4,
+                Fill = Brushes.Transparent,
+                Effect = new BlurEffect { Radius = 3 }
+            };
+            _visualChildren.Add(_shadowBorder);
+
             // Border
             _border = new Rectangle
             {
                 Stroke = Brushes.DodgerBlue,
                 StrokeThickness = 2,
-                StrokeDashArray = new DoubleCollection { 4, 2 },
+                StrokeDashArray = new DoubleCollection { 5, 3 },
                 Fill = Brushes.Transparent
             };
             _visualChildren.Add(_border);
+
+            // Dimension label
+            _dimensionLabel = new TextBlock
+            {
+                Background = new SolidColorBrush(Color.FromArgb(220, 0, 120, 215)),
+                Foreground = Brushes.White,
+                Padding = new Thickness(4, 2, 4, 2),
+                FontSize = 10,
+                FontWeight = FontWeights.Bold
+            };
+            _visualChildren.Add(_dimensionLabel);
 
             // Resize handles (8 positions)
             var positions = new[]
@@ -68,11 +93,27 @@ namespace LayoutDesigner.Controls
 
             var rect = new Rect(0, 0, element.ActualWidth, element.ActualHeight);
 
+            // Arrange shadow border
+            _shadowBorder.Arrange(rect);
+
             // Arrange border
             _border.Arrange(rect);
 
+            // Update and arrange dimension label
+            if (element.DataContext is LayoutElementBase layoutElement)
+            {
+                _dimensionLabel.Text = $"{layoutElement.Width:F0} × {layoutElement.Height:F0}";
+                _dimensionLabel.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
+                var labelRect = new Rect(
+                    rect.Right + 5,
+                    rect.Bottom + 5,
+                    _dimensionLabel.DesiredSize.Width,
+                    _dimensionLabel.DesiredSize.Height);
+                _dimensionLabel.Arrange(labelRect);
+            }
+
             // Arrange resize handles
-            double handleSize = 8;
+            double handleSize = 10; // Increased from 8 for better visibility
             double halfSize = handleSize / 2;
 
             for (int i = 0; i < _resizeHandles.Count; i++)
@@ -110,13 +151,34 @@ namespace LayoutDesigner.Controls
         {
             var thumb = new Thumb
             {
-                Width = 8,
-                Height = 8,
+                Width = 10,
+                Height = 10,
                 Background = Brushes.White,
                 BorderBrush = Brushes.DodgerBlue,
                 BorderThickness = new Thickness(2),
                 Tag = position,
-                Cursor = GetCursor(position)
+                Cursor = GetCursor(position),
+                Effect = new DropShadowEffect
+                {
+                    Color = Colors.Black,
+                    BlurRadius = 4,
+                    ShadowDepth = 2,
+                    Opacity = 0.4
+                }
+            };
+
+            // Add hover effect
+            thumb.MouseEnter += (s, e) =>
+            {
+                thumb.Background = new SolidColorBrush(Color.FromRgb(135, 206, 250)); // LightSkyBlue
+                thumb.Width = 12;
+                thumb.Height = 12;
+            };
+            thumb.MouseLeave += (s, e) =>
+            {
+                thumb.Background = Brushes.White;
+                thumb.Width = 10;
+                thumb.Height = 10;
             };
 
             thumb.DragDelta += OnResizeHandleDragDelta;
@@ -127,12 +189,33 @@ namespace LayoutDesigner.Controls
         {
             var thumb = new Thumb
             {
-                Width = 8,
-                Height = 8,
-                Background = Brushes.LightGreen,
-                BorderBrush = Brushes.Green,
+                Width = 12,
+                Height = 12,
+                Background = new SolidColorBrush(Color.FromRgb(144, 238, 144)), // LightGreen
+                BorderBrush = new SolidColorBrush(Color.FromRgb(34, 139, 34)), // ForestGreen
                 BorderThickness = new Thickness(2),
-                Cursor = Cursors.Hand
+                Cursor = Cursors.Hand,
+                Effect = new DropShadowEffect
+                {
+                    Color = Colors.Black,
+                    BlurRadius = 4,
+                    ShadowDepth = 2,
+                    Opacity = 0.4
+                }
+            };
+
+            // Add hover effect
+            thumb.MouseEnter += (s, e) =>
+            {
+                thumb.Background = new SolidColorBrush(Color.FromRgb(50, 205, 50)); // LimeGreen
+                thumb.Width = 14;
+                thumb.Height = 14;
+            };
+            thumb.MouseLeave += (s, e) =>
+            {
+                thumb.Background = new SolidColorBrush(Color.FromRgb(144, 238, 144)); // LightGreen
+                thumb.Width = 12;
+                thumb.Height = 12;
             };
 
             thumb.DragDelta += OnRotateHandleDragDelta;

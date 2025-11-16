@@ -22,6 +22,7 @@ namespace LayoutDesigner.ViewModels
         private bool _showGrid = true;
         private double _gridSize = 20;
         private bool _snapToGrid = true;
+        private List<LayoutElementBase> _clipboard = new();
 
         public CanvasViewModel()
         {
@@ -37,11 +38,22 @@ namespace LayoutDesigner.ViewModels
             AddDynamicFieldCommand = new RelayCommand(AddDynamicField);
             DeleteSelectedCommand = new RelayCommand(DeleteSelected, () => SelectedElements.Count > 0);
             DuplicateSelectedCommand = new RelayCommand(DuplicateSelected, () => SelectedElements.Count > 0);
+            CopyCommand = new RelayCommand(Copy, () => SelectedElements.Count > 0);
+            CutCommand = new RelayCommand(Cut, () => SelectedElements.Count > 0);
+            PasteCommand = new RelayCommand(Paste, () => _clipboard.Count > 0);
             SelectAllCommand = new RelayCommand(SelectAll);
             BringToFrontCommand = new RelayCommand(BringToFront, () => SelectedElements.Count > 0);
             SendToBackCommand = new RelayCommand(SendToBack, () => SelectedElements.Count > 0);
             BringForwardCommand = new RelayCommand(BringForward, () => SelectedElements.Count > 0);
             SendBackwardCommand = new RelayCommand(SendBackward, () => SelectedElements.Count > 0);
+            AlignLeftCommand = new RelayCommand(AlignLeft, () => SelectedElements.Count >= 2);
+            AlignCenterCommand = new RelayCommand(AlignCenter, () => SelectedElements.Count >= 2);
+            AlignRightCommand = new RelayCommand(AlignRight, () => SelectedElements.Count >= 2);
+            AlignTopCommand = new RelayCommand(AlignTop, () => SelectedElements.Count >= 2);
+            AlignMiddleCommand = new RelayCommand(AlignMiddle, () => SelectedElements.Count >= 2);
+            AlignBottomCommand = new RelayCommand(AlignBottom, () => SelectedElements.Count >= 2);
+            DistributeHorizontallyCommand = new RelayCommand(DistributeHorizontally, () => SelectedElements.Count >= 3);
+            DistributeVerticallyCommand = new RelayCommand(DistributeVertically, () => SelectedElements.Count >= 3);
         }
 
         #region Properties
@@ -151,11 +163,22 @@ namespace LayoutDesigner.ViewModels
         public ICommand AddDynamicFieldCommand { get; }
         public ICommand DeleteSelectedCommand { get; }
         public ICommand DuplicateSelectedCommand { get; }
+        public ICommand CopyCommand { get; }
+        public ICommand CutCommand { get; }
+        public ICommand PasteCommand { get; }
         public ICommand SelectAllCommand { get; }
         public ICommand BringToFrontCommand { get; }
         public ICommand SendToBackCommand { get; }
         public ICommand BringForwardCommand { get; }
         public ICommand SendBackwardCommand { get; }
+        public ICommand AlignLeftCommand { get; }
+        public ICommand AlignCenterCommand { get; }
+        public ICommand AlignRightCommand { get; }
+        public ICommand AlignTopCommand { get; }
+        public ICommand AlignMiddleCommand { get; }
+        public ICommand AlignBottomCommand { get; }
+        public ICommand DistributeHorizontallyCommand { get; }
+        public ICommand DistributeVerticallyCommand { get; }
 
         #endregion
 
@@ -332,6 +355,98 @@ namespace LayoutDesigner.ViewModels
         {
             SelectedElements.Clear();
             foreach (var element in Elements)
+            {
+                SelectedElements.Add(element);
+            }
+        }
+
+        private void Copy()
+        {
+            if (SelectedElements.Count == 0) return;
+
+            _clipboard.Clear();
+            foreach (var element in SelectedElements)
+            {
+                _clipboard.Add(element.Clone());
+            }
+        }
+
+        private void Cut()
+        {
+            if (SelectedElements.Count == 0) return;
+
+            // Copy to clipboard
+            _clipboard.Clear();
+            foreach (var element in SelectedElements)
+            {
+                _clipboard.Add(element.Clone());
+            }
+
+            // Delete selected elements
+            var elementsToDelete = SelectedElements.ToList();
+            foreach (var element in elementsToDelete)
+            {
+                Elements.Remove(element);
+            }
+
+            _undoRedoService.AddAction(new UndoRedoAction(
+                undoAction: () =>
+                {
+                    foreach (var element in elementsToDelete)
+                    {
+                        Elements.Add(element);
+                    }
+                },
+                redoAction: () =>
+                {
+                    foreach (var element in elementsToDelete)
+                    {
+                        Elements.Remove(element);
+                    }
+                },
+                description: $"Cut {elementsToDelete.Count} element(s)"
+            ));
+
+            SelectedElements.Clear();
+        }
+
+        private void Paste()
+        {
+            if (_clipboard.Count == 0) return;
+
+            var newElements = new List<LayoutElementBase>();
+
+            foreach (var element in _clipboard)
+            {
+                var clone = element.Clone();
+                // Offset the pasted element to make it visible
+                clone.X += 20;
+                clone.Y += 20;
+                newElements.Add(clone);
+                Elements.Add(clone);
+            }
+
+            _undoRedoService.AddAction(new UndoRedoAction(
+                undoAction: () =>
+                {
+                    foreach (var element in newElements)
+                    {
+                        Elements.Remove(element);
+                    }
+                },
+                redoAction: () =>
+                {
+                    foreach (var element in newElements)
+                    {
+                        Elements.Add(element);
+                    }
+                },
+                description: $"Paste {newElements.Count} element(s)"
+            ));
+
+            // Select the newly pasted elements
+            SelectedElements.Clear();
+            foreach (var element in newElements)
             {
                 SelectedElements.Add(element);
             }

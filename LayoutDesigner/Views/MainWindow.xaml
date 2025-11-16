@@ -22,6 +22,17 @@
         <KeyBinding Key="S" Modifiers="Ctrl" Command="{Binding SaveCommand}"/>
         <KeyBinding Key="Z" Modifiers="Ctrl" Command="{Binding UndoCommand}"/>
         <KeyBinding Key="Y" Modifiers="Ctrl" Command="{Binding RedoCommand}"/>
+        <KeyBinding Key="C" Modifiers="Ctrl" Command="{Binding CanvasViewModel.CopyCommand}"/>
+        <KeyBinding Key="X" Modifiers="Ctrl" Command="{Binding CanvasViewModel.CutCommand}"/>
+        <KeyBinding Key="V" Modifiers="Ctrl" Command="{Binding CanvasViewModel.PasteCommand}"/>
+        <KeyBinding Key="L" Modifiers="Ctrl+Shift" Command="{Binding CanvasViewModel.AlignLeftCommand}"/>
+        <KeyBinding Key="C" Modifiers="Ctrl+Shift" Command="{Binding CanvasViewModel.AlignCenterCommand}"/>
+        <KeyBinding Key="R" Modifiers="Ctrl+Shift" Command="{Binding CanvasViewModel.AlignRightCommand}"/>
+        <KeyBinding Key="T" Modifiers="Ctrl+Shift" Command="{Binding CanvasViewModel.AlignTopCommand}"/>
+        <KeyBinding Key="M" Modifiers="Ctrl+Shift" Command="{Binding CanvasViewModel.AlignMiddleCommand}"/>
+        <KeyBinding Key="B" Modifiers="Ctrl+Shift" Command="{Binding CanvasViewModel.AlignBottomCommand}"/>
+        <KeyBinding Key="H" Modifiers="Ctrl+Shift" Command="{Binding CanvasViewModel.DistributeHorizontallyCommand}"/>
+        <KeyBinding Key="V" Modifiers="Ctrl+Shift" Command="{Binding CanvasViewModel.DistributeVerticallyCommand}"/>
         <KeyBinding Key="Add" Modifiers="Ctrl" Command="{Binding ZoomInCommand}"/>
         <KeyBinding Key="Subtract" Modifiers="Ctrl" Command="{Binding ZoomOutCommand}"/>
         <KeyBinding Key="D0" Modifiers="Ctrl" Command="{Binding ZoomResetCommand}"/>
@@ -48,6 +59,10 @@
                 <MenuItem Header="_Undo" Command="{Binding UndoCommand}" InputGestureText="Ctrl+Z"/>
                 <MenuItem Header="_Redo" Command="{Binding RedoCommand}" InputGestureText="Ctrl+Y"/>
                 <Separator/>
+                <MenuItem Header="_Copy" Command="{Binding CanvasViewModel.CopyCommand}" InputGestureText="Ctrl+C"/>
+                <MenuItem Header="Cu_t" Command="{Binding CanvasViewModel.CutCommand}" InputGestureText="Ctrl+X"/>
+                <MenuItem Header="_Paste" Command="{Binding CanvasViewModel.PasteCommand}" InputGestureText="Ctrl+V"/>
+                <Separator/>
                 <MenuItem Header="_Delete" Command="{Binding CanvasViewModel.DeleteSelectedCommand}" InputGestureText="Del"/>
                 <MenuItem Header="Du_plicate" Command="{Binding CanvasViewModel.DuplicateSelectedCommand}" InputGestureText="Ctrl+D"/>
                 <MenuItem Header="Select _All" Command="{Binding CanvasViewModel.SelectAllCommand}" InputGestureText="Ctrl+A"/>
@@ -67,6 +82,17 @@
                 <MenuItem Header="Send to _Back" Command="{Binding CanvasViewModel.SendToBackCommand}"/>
                 <MenuItem Header="Bring _Forward" Command="{Binding CanvasViewModel.BringForwardCommand}"/>
                 <MenuItem Header="Send Back_ward" Command="{Binding CanvasViewModel.SendBackwardCommand}"/>
+                <Separator/>
+                <MenuItem Header="Align _Left" Command="{Binding CanvasViewModel.AlignLeftCommand}" InputGestureText="Ctrl+Shift+L"/>
+                <MenuItem Header="Align _Center" Command="{Binding CanvasViewModel.AlignCenterCommand}" InputGestureText="Ctrl+Shift+C"/>
+                <MenuItem Header="Align _Right" Command="{Binding CanvasViewModel.AlignRightCommand}" InputGestureText="Ctrl+Shift+R"/>
+                <Separator/>
+                <MenuItem Header="Align _Top" Command="{Binding CanvasViewModel.AlignTopCommand}" InputGestureText="Ctrl+Shift+T"/>
+                <MenuItem Header="Align _Middle" Command="{Binding CanvasViewModel.AlignMiddleCommand}" InputGestureText="Ctrl+Shift+M"/>
+                <MenuItem Header="Align _Bottom" Command="{Binding CanvasViewModel.AlignBottomCommand}" InputGestureText="Ctrl+Shift+B"/>
+                <Separator/>
+                <MenuItem Header="Distribute _Horizontally" Command="{Binding CanvasViewModel.DistributeHorizontallyCommand}" InputGestureText="Ctrl+Shift+H"/>
+                <MenuItem Header="Distribute _Vertically" Command="{Binding CanvasViewModel.DistributeVerticallyCommand}" InputGestureText="Ctrl+Shift+V"/>
             </MenuItem>
         </Menu>
 
@@ -79,27 +105,62 @@
             <Button Content="Undo" Command="{Binding UndoCommand}" Style="{StaticResource IconButton}" Padding="8,4" Margin="2"/>
             <Button Content="Redo" Command="{Binding RedoCommand}" Style="{StaticResource IconButton}" Padding="8,4" Margin="2"/>
             <Separator/>
+            <Button Content="Copy" Command="{Binding CanvasViewModel.CopyCommand}" Style="{StaticResource IconButton}" Padding="8,4" Margin="2"/>
+            <Button Content="Cut" Command="{Binding CanvasViewModel.CutCommand}" Style="{StaticResource IconButton}" Padding="8,4" Margin="2"/>
+            <Button Content="Paste" Command="{Binding CanvasViewModel.PasteCommand}" Style="{StaticResource IconButton}" Padding="8,4" Margin="2"/>
+            <Separator/>
             <Button Content="Zoom +" Command="{Binding ZoomInCommand}" Style="{StaticResource IconButton}" Padding="8,4" Margin="2"/>
             <Button Content="Zoom -" Command="{Binding ZoomOutCommand}" Style="{StaticResource IconButton}" Padding="8,4" Margin="2"/>
             <TextBlock Text="{Binding CanvasViewModel.Zoom, StringFormat={}{0:P0}}" VerticalAlignment="Center" Margin="4,0"/>
         </ToolBar>
 
         <!-- Status Bar -->
-        <StatusBar DockPanel.Dock="Bottom" Height="24">
+        <StatusBar DockPanel.Dock="Bottom" Height="26">
             <StatusBarItem>
-                <TextBlock Text="{Binding CanvasViewModel.Elements.Count, StringFormat=Elements: {0}}"/>
+                <TextBlock Text="{Binding CanvasViewModel.Elements.Count, StringFormat=Elements: {0}}" FontWeight="SemiBold"/>
             </StatusBarItem>
             <Separator/>
             <StatusBarItem>
-                <TextBlock Text="{Binding CanvasViewModel.SelectedElements.Count, StringFormat=Selected: {0}}"/>
+                <TextBlock Text="{Binding CanvasViewModel.SelectedElements.Count, StringFormat=Selected: {0}}" FontWeight="SemiBold"/>
             </StatusBarItem>
             <Separator/>
             <StatusBarItem>
                 <TextBlock>
-                    <Run Text="Size: "/>
+                    <Run Text="Canvas: " FontWeight="SemiBold"/>
                     <Run Text="{Binding CanvasViewModel.CanvasWidth, StringFormat={}{0:F0}}"/>
-                    <Run Text=" x "/>
+                    <Run Text=" × "/>
                     <Run Text="{Binding CanvasViewModel.CanvasHeight, StringFormat={}{0:F0}}"/>
+                </TextBlock>
+            </StatusBarItem>
+            <Separator/>
+            <StatusBarItem>
+                <TextBlock Text="{Binding CanvasViewModel.Zoom, StringFormat=Zoom: {0:P0}}" FontWeight="SemiBold"/>
+            </StatusBarItem>
+            <Separator/>
+            <StatusBarItem>
+                <TextBlock>
+                    <Run Text="Grid: " FontWeight="SemiBold"/>
+                    <Run Text="{Binding CanvasViewModel.ShowGrid, Converter={StaticResource BoolToYesNoConverter}}"/>
+                    <Run Text=" | Snap: "/>
+                    <Run Text="{Binding CanvasViewModel.SnapToGrid, Converter={StaticResource BoolToYesNoConverter}}"/>
+                </TextBlock>
+            </StatusBarItem>
+            <Separator/>
+            <StatusBarItem>
+                <TextBlock>
+                    <Run Text="Position: " FontWeight="SemiBold"/>
+                    <Run Text="{Binding CanvasViewModel.SelectedElements[0].X, StringFormat={}{0:F0}, FallbackValue='-'}"/>
+                    <Run Text=", "/>
+                    <Run Text="{Binding CanvasViewModel.SelectedElements[0].Y, StringFormat={}{0:F0}, FallbackValue='-'}"/>
+                </TextBlock>
+            </StatusBarItem>
+            <Separator/>
+            <StatusBarItem>
+                <TextBlock>
+                    <Run Text="Size: " FontWeight="SemiBold"/>
+                    <Run Text="{Binding CanvasViewModel.SelectedElements[0].Width, StringFormat={}{0:F0}, FallbackValue='-'}"/>
+                    <Run Text=" × "/>
+                    <Run Text="{Binding CanvasViewModel.SelectedElements[0].Height, StringFormat={}{0:F0}, FallbackValue='-'}"/>
                 </TextBlock>
             </StatusBarItem>
         </StatusBar>
@@ -127,6 +188,37 @@
                         <controls:DesignCanvas.LayoutTransform>
                             <ScaleTransform ScaleX="{Binding CanvasViewModel.Zoom}" ScaleY="{Binding CanvasViewModel.Zoom}"/>
                         </controls:DesignCanvas.LayoutTransform>
+
+                        <controls:DesignCanvas.ContextMenu>
+                            <ContextMenu>
+                                <MenuItem Header="Copy" Command="{Binding CanvasViewModel.CopyCommand}" InputGestureText="Ctrl+C"/>
+                                <MenuItem Header="Cut" Command="{Binding CanvasViewModel.CutCommand}" InputGestureText="Ctrl+X"/>
+                                <MenuItem Header="Paste" Command="{Binding CanvasViewModel.PasteCommand}" InputGestureText="Ctrl+V"/>
+                                <Separator/>
+                                <MenuItem Header="Delete" Command="{Binding CanvasViewModel.DeleteSelectedCommand}" InputGestureText="Del"/>
+                                <MenuItem Header="Duplicate" Command="{Binding CanvasViewModel.DuplicateSelectedCommand}" InputGestureText="Ctrl+D"/>
+                                <MenuItem Header="Select All" Command="{Binding CanvasViewModel.SelectAllCommand}" InputGestureText="Ctrl+A"/>
+                                <Separator/>
+                                <MenuItem Header="Arrange">
+                                    <MenuItem Header="Bring to Front" Command="{Binding CanvasViewModel.BringToFrontCommand}"/>
+                                    <MenuItem Header="Send to Back" Command="{Binding CanvasViewModel.SendToBackCommand}"/>
+                                    <MenuItem Header="Bring Forward" Command="{Binding CanvasViewModel.BringForwardCommand}"/>
+                                    <MenuItem Header="Send Backward" Command="{Binding CanvasViewModel.SendBackwardCommand}"/>
+                                </MenuItem>
+                                <MenuItem Header="Align">
+                                    <MenuItem Header="Align Left" Command="{Binding CanvasViewModel.AlignLeftCommand}" InputGestureText="Ctrl+Shift+L"/>
+                                    <MenuItem Header="Align Center" Command="{Binding CanvasViewModel.AlignCenterCommand}" InputGestureText="Ctrl+Shift+C"/>
+                                    <MenuItem Header="Align Right" Command="{Binding CanvasViewModel.AlignRightCommand}" InputGestureText="Ctrl+Shift+R"/>
+                                    <Separator/>
+                                    <MenuItem Header="Align Top" Command="{Binding CanvasViewModel.AlignTopCommand}" InputGestureText="Ctrl+Shift+T"/>
+                                    <MenuItem Header="Align Middle" Command="{Binding CanvasViewModel.AlignMiddleCommand}" InputGestureText="Ctrl+Shift+M"/>
+                                    <MenuItem Header="Align Bottom" Command="{Binding CanvasViewModel.AlignBottomCommand}" InputGestureText="Ctrl+Shift+B"/>
+                                    <Separator/>
+                                    <MenuItem Header="Distribute Horizontally" Command="{Binding CanvasViewModel.DistributeHorizontallyCommand}" InputGestureText="Ctrl+Shift+H"/>
+                                    <MenuItem Header="Distribute Vertically" Command="{Binding CanvasViewModel.DistributeVerticallyCommand}" InputGestureText="Ctrl+Shift+V"/>
+                                </MenuItem>
+                            </ContextMenu>
+                        </controls:DesignCanvas.ContextMenu>
 
                         <controls:DesignCanvas.Resources>
                             <!-- DataTemplates for different element types -->

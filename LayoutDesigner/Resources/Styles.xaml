@@ -10,6 +10,7 @@
     <converters:BoolToFontStyleConverter x:Key="BoolToFontStyle"/>
     <converters:TypeToVisibilityConverter x:Key="TypeToVisibility"/>
     <converters:ShapeTypeToVisibilityConverter x:Key="ShapeTypeToVisibility"/>
+    <converters:BoolToYesNoConverter x:Key="BoolToYesNoConverter"/>
 
     <!-- Colors -->
     <SolidColorBrush x:Key="PrimaryBrush" Color="#FF0078D7"/>
