@@ -302,7 +302,8 @@ namespace LayoutDesigner.Views
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Export failed: {ex.Message}");
+                var errorService = ServiceContainer.GetService<Services.Interfaces.IErrorHandlingService>();
+                errorService?.HandleError(ex, "Export failed", showMessageBox: false);
                 e.Success = false;
             }
         }

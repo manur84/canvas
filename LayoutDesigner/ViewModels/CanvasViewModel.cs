@@ -587,72 +587,197 @@ namespace LayoutDesigner.ViewModels
         {
             if (SelectedElements.Count < 2) return;
 
+            // Save original positions for undo
+            var originalPositions = SelectedElements.ToDictionary(e => e, e => e.X);
+
             var minX = SelectedElements.Min(e => e.X);
             foreach (var element in SelectedElements)
             {
                 element.X = minX;
             }
+
+            // Add undo/redo action
+            _undoRedoService.AddAction(new UndoRedoAction(
+                undoAction: () =>
+                {
+                    foreach (var kvp in originalPositions)
+                    {
+                        kvp.Key.X = kvp.Value;
+                    }
+                },
+                redoAction: () =>
+                {
+                    foreach (var element in originalPositions.Keys)
+                    {
+                        element.X = minX;
+                    }
+                },
+                description: $"Align Left {SelectedElements.Count} element(s)"
+            ));
         }
 
         public void AlignCenter()
         {
             if (SelectedElements.Count < 2) return;
 
+            var originalPositions = SelectedElements.ToDictionary(e => e, e => e.X);
             var centerX = SelectedElements.Average(e => e.X + e.Width / 2);
+
             foreach (var element in SelectedElements)
             {
                 element.X = centerX - element.Width / 2;
             }
+
+            _undoRedoService.AddAction(new UndoRedoAction(
+                undoAction: () =>
+                {
+                    foreach (var kvp in originalPositions)
+                    {
+                        kvp.Key.X = kvp.Value;
+                    }
+                },
+                redoAction: () =>
+                {
+                    foreach (var element in originalPositions.Keys)
+                    {
+                        element.X = centerX - element.Width / 2;
+                    }
+                },
+                description: $"Align Center {SelectedElements.Count} element(s)"
+            ));
         }
 
         public void AlignRight()
         {
             if (SelectedElements.Count < 2) return;
 
+            var originalPositions = SelectedElements.ToDictionary(e => e, e => e.X);
             var maxX = SelectedElements.Max(e => e.X + e.Width);
+
             foreach (var element in SelectedElements)
             {
                 element.X = maxX - element.Width;
             }
+
+            _undoRedoService.AddAction(new UndoRedoAction(
+                undoAction: () =>
+                {
+                    foreach (var kvp in originalPositions)
+                    {
+                        kvp.Key.X = kvp.Value;
+                    }
+                },
+                redoAction: () =>
+                {
+                    foreach (var element in originalPositions.Keys)
+                    {
+                        element.X = maxX - element.Width;
+                    }
+                },
+                description: $"Align Right {SelectedElements.Count} element(s)"
+            ));
         }
 
         public void AlignTop()
         {
             if (SelectedElements.Count < 2) return;
 
+            var originalPositions = SelectedElements.ToDictionary(e => e, e => e.Y);
             var minY = SelectedElements.Min(e => e.Y);
+
             foreach (var element in SelectedElements)
             {
                 element.Y = minY;
             }
+
+            _undoRedoService.AddAction(new UndoRedoAction(
+                undoAction: () =>
+                {
+                    foreach (var kvp in originalPositions)
+                    {
+                        kvp.Key.Y = kvp.Value;
+                    }
+                },
+                redoAction: () =>
+                {
+                    foreach (var element in originalPositions.Keys)
+                    {
+                        element.Y = minY;
+                    }
+                },
+                description: $"Align Top {SelectedElements.Count} element(s)"
+            ));
         }
 
         public void AlignMiddle()
         {
             if (SelectedElements.Count < 2) return;
 
+            var originalPositions = SelectedElements.ToDictionary(e => e, e => e.Y);
             var centerY = SelectedElements.Average(e => e.Y + e.Height / 2);
+
             foreach (var element in SelectedElements)
             {
                 element.Y = centerY - element.Height / 2;
             }
+
+            _undoRedoService.AddAction(new UndoRedoAction(
+                undoAction: () =>
+                {
+                    foreach (var kvp in originalPositions)
+                    {
+                        kvp.Key.Y = kvp.Value;
+                    }
+                },
+                redoAction: () =>
+                {
+                    var redoCenterY = originalPositions.Keys.Average(e => e.Y + e.Height / 2);
+                    foreach (var element in originalPositions.Keys)
+                    {
+                        element.Y = redoCenterY - element.Height / 2;
+                    }
+                },
+                description: $"Align Middle {SelectedElements.Count} element(s)"
+            ));
         }
 
         public void AlignBottom()
         {
             if (SelectedElements.Count < 2) return;
 
+            var originalPositions = SelectedElements.ToDictionary(e => e, e => e.Y);
             var maxY = SelectedElements.Max(e => e.Y + e.Height);
+
             foreach (var element in SelectedElements)
             {
                 element.Y = maxY - element.Height;
             }
+
+            _undoRedoService.AddAction(new UndoRedoAction(
+                undoAction: () =>
+                {
+                    foreach (var kvp in originalPositions)
+                    {
+                        kvp.Key.Y = kvp.Value;
+                    }
+                },
+                redoAction: () =>
+                {
+                    var redoMaxY = originalPositions.Keys.Max(e => e.Y + e.Height);
+                    foreach (var element in originalPositions.Keys)
+                    {
+                        element.Y = redoMaxY - element.Height;
+                    }
+                },
+                description: $"Align Bottom {SelectedElements.Count} element(s)"
+            ));
         }
 
         public void DistributeHorizontally()
         {
             if (SelectedElements.Count < 3) return;
 
+            var originalPositions = SelectedElements.ToDictionary(e => e, e => e.X);
             var sorted = SelectedElements.OrderBy(e => e.X).ToList();
             var leftMost = sorted.First().X;
             var rightMost = sorted.Last().X + sorted.Last().Width;
@@ -665,12 +790,39 @@ namespace LayoutDesigner.ViewModels
                 element.X = currentX;
                 currentX += element.Width + spacing;
             }
+
+            _undoRedoService.AddAction(new UndoRedoAction(
+                undoAction: () =>
+                {
+                    foreach (var kvp in originalPositions)
+                    {
+                        kvp.Key.X = kvp.Value;
+                    }
+                },
+                redoAction: () =>
+                {
+                    var redoSorted = originalPositions.Keys.OrderBy(e => originalPositions[e]).ToList();
+                    var redoLeftMost = redoSorted.First().X;
+                    var redoRightMost = redoSorted.Last().X + redoSorted.Last().Width;
+                    var redoTotalWidth = redoSorted.Sum(e => e.Width);
+                    var redoSpacing = (redoRightMost - redoLeftMost - redoTotalWidth) / (redoSorted.Count - 1);
+
+                    double redoCurrentX = redoLeftMost;
+                    foreach (var element in redoSorted)
+                    {
+                        element.X = redoCurrentX;
+                        redoCurrentX += element.Width + redoSpacing;
+                    }
+                },
+                description: $"Distribute Horizontally {SelectedElements.Count} element(s)"
+            ));
         }
 
         public void DistributeVertically()
         {
             if (SelectedElements.Count < 3) return;
 
+            var originalPositions = SelectedElements.ToDictionary(e => e, e => e.Y);
             var sorted = SelectedElements.OrderBy(e => e.Y).ToList();
             var topMost = sorted.First().Y;
             var bottomMost = sorted.Last().Y + sorted.Last().Height;
@@ -683,6 +835,32 @@ namespace LayoutDesigner.ViewModels
                 element.Y = currentY;
                 currentY += element.Height + spacing;
             }
+
+            _undoRedoService.AddAction(new UndoRedoAction(
+                undoAction: () =>
+                {
+                    foreach (var kvp in originalPositions)
+                    {
+                        kvp.Key.Y = kvp.Value;
+                    }
+                },
+                redoAction: () =>
+                {
+                    var redoSorted = originalPositions.Keys.OrderBy(e => originalPositions[e]).ToList();
+                    var redoTopMost = redoSorted.First().Y;
+                    var redoBottomMost = redoSorted.Last().Y + redoSorted.Last().Height;
+                    var redoTotalHeight = redoSorted.Sum(e => e.Height);
+                    var redoSpacing = (redoBottomMost - redoTopMost - redoTotalHeight) / (redoSorted.Count - 1);
+
+                    double redoCurrentY = redoTopMost;
+                    foreach (var element in redoSorted)
+                    {
+                        element.Y = redoCurrentY;
+                        redoCurrentY += element.Height + redoSpacing;
+                    }
+                },
+                description: $"Distribute Vertically {SelectedElements.Count} element(s)"
+            ));
         }
 
         private void LockElements()

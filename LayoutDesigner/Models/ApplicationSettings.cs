@@ -266,7 +266,8 @@ namespace LayoutDesigner.Models
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Failed to save settings: {ex.Message}");
+                var errorService = ServiceContainer.GetService<Services.Interfaces.IErrorHandlingService>();
+                errorService?.HandleError(ex, "Failed to save settings", showMessageBox: false);
             }
         }
 
@@ -289,7 +290,8 @@ namespace LayoutDesigner.Models
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Failed to load settings: {ex.Message}");
+                var errorService = ServiceContainer.GetService<Services.Interfaces.IErrorHandlingService>();
+                errorService?.HandleError(ex, "Failed to load settings", showMessageBox: false);
             }
 
             return new ApplicationSettings();

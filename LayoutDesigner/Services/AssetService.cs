@@ -9,9 +9,11 @@ namespace LayoutDesigner.Services
     public class AssetService : IAssetService
     {
         private readonly string _assetsFolderPath;
+        private readonly IErrorHandlingService _errorHandlingService;
 
-        public AssetService()
+        public AssetService(IErrorHandlingService errorHandlingService)
         {
+            _errorHandlingService = errorHandlingService;
             _assetsFolderPath = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                 "LayoutDesigner",
@@ -51,7 +53,7 @@ namespace LayoutDesigner.Services
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error importing asset: {ex.Message}");
+                _errorHandlingService.HandleError(ex, "Error importing asset", showMessageBox: false);
                 return null;
             }
         }
@@ -78,7 +80,7 @@ namespace LayoutDesigner.Services
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error getting assets: {ex.Message}");
+                _errorHandlingService.HandleError(ex, "Error getting assets", showMessageBox: false);
                 return new List<string>();
             }
         }

@@ -43,7 +43,9 @@ namespace LayoutDesigner.ViewModels
             get => _canvasViewModel.CanvasWidth;
             set
             {
-                _canvasViewModel.CanvasWidth = value;
+                // Validation: Canvas width must be between 100 and 10000 pixels
+                var validatedValue = Math.Clamp(value, 100, 10000);
+                _canvasViewModel.CanvasWidth = validatedValue;
                 OnPropertyChanged();
             }
         }
@@ -53,7 +55,9 @@ namespace LayoutDesigner.ViewModels
             get => _canvasViewModel.CanvasHeight;
             set
             {
-                _canvasViewModel.CanvasHeight = value;
+                // Validation: Canvas height must be between 100 and 10000 pixels
+                var validatedValue = Math.Clamp(value, 100, 10000);
+                _canvasViewModel.CanvasHeight = validatedValue;
                 OnPropertyChanged();
             }
         }
@@ -63,7 +67,9 @@ namespace LayoutDesigner.ViewModels
             get => _canvasViewModel.GridSize;
             set
             {
-                _canvasViewModel.GridSize = value;
+                // Validation: Grid size must be between 5 and 100 pixels
+                var validatedValue = Math.Clamp(value, 5, 100);
+                _canvasViewModel.GridSize = validatedValue;
                 OnPropertyChanged();
             }
         }

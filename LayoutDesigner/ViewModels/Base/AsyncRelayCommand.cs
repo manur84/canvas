@@ -60,8 +60,9 @@ namespace LayoutDesigner.ViewModels.Base
             }
             catch (Exception ex)
             {
-                // Log error - in production, use proper logging framework
-                System.Diagnostics.Debug.WriteLine($"AsyncRelayCommand error: {ex.Message}");
+                // Log error using ErrorHandlingService
+                var errorService = ServiceContainer.GetService<Services.Interfaces.IErrorHandlingService>();
+                errorService?.HandleError(ex, "AsyncRelayCommand error", showMessageBox: false);
                 throw; // Re-throw to allow handling at higher level
             }
             finally
@@ -139,7 +140,8 @@ namespace LayoutDesigner.ViewModels.Base
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"AsyncRelayCommand<{typeof(T).Name}> error: {ex.Message}");
+                var errorService = ServiceContainer.GetService<Services.Interfaces.IErrorHandlingService>();
+                errorService?.HandleError(ex, $"AsyncRelayCommand<{typeof(T).Name}> error", showMessageBox: false);
                 throw;
             }
             finally

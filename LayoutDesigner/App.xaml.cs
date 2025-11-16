@@ -23,12 +23,13 @@ namespace LayoutDesigner
 
         private void RegisterServices()
         {
+            // Register ErrorHandlingService first since other services depend on it
+            Services.Register<IErrorHandlingService, ErrorHandlingService>();
+            Services.Register<IUndoRedoService, UndoRedoService>();
             Services.Register<ILayoutStorageService, LayoutStorageService>();
             Services.Register<IQrCodeService, QrCodeService>();
             Services.Register<IExportService, ExportService>();
             Services.Register<IAssetService, AssetService>();
-            Services.Register<IUndoRedoService, UndoRedoService>();
-            Services.Register<IErrorHandlingService, ErrorHandlingService>();
         }
     }
 
@@ -57,7 +58,30 @@ namespace LayoutDesigner
             if (_serviceTypes.ContainsKey(interfaceType))
             {
                 var implementationType = _serviceTypes[interfaceType];
-                var instance = Activator.CreateInstance(implementationType);
+
+                // Get constructor with parameters
+                var constructor = implementationType.GetConstructors().FirstOrDefault();
+
+                if (constructor == null)
+                {
+                    throw new InvalidOperationException($"No public constructor found for {implementationType.Name}");
+                }
+
+                // Resolve constructor parameters
+                var parameters = constructor.GetParameters();
+                var parameterInstances = new object[parameters.Length];
+
+                for (int i = 0; i < parameters.Length; i++)
+                {
+                    var parameterType = parameters[i].ParameterType;
+
+                    // Recursively resolve dependencies
+                    var resolveMethod = typeof(ServiceContainer).GetMethod(nameof(Resolve))!.MakeGenericMethod(parameterType);
+                    parameterInstances[i] = resolveMethod.Invoke(this, null)!;
+                }
+
+                // Create instance with resolved parameters
+                var instance = Activator.CreateInstance(implementationType, parameterInstances);
 
                 if (instance != null)
                 {
@@ -67,6 +91,19 @@ namespace LayoutDesigner
             }
 
             throw new InvalidOperationException($"Service of type {interfaceType.Name} is not registered.");
+        }
+
+        public static T? GetService<T>() where T : class
+        {
+            var app = Application.Current as App;
+            try
+            {
+                return app?.Services.Resolve<T>();
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }

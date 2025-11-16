@@ -10,6 +10,12 @@ namespace LayoutDesigner.Services
     /// </summary>
     public class QrCodeService : IQrCodeService
     {
+        private readonly IErrorHandlingService _errorHandlingService;
+
+        public QrCodeService(IErrorHandlingService errorHandlingService)
+        {
+            _errorHandlingService = errorHandlingService;
+        }
         public BitmapSource GenerateQrCode(
             string content,
             int pixelsPerModule = 10,
@@ -61,7 +67,7 @@ namespace LayoutDesigner.Services
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error generating QR code: {ex.Message}");
+                _errorHandlingService.HandleError(ex, "Error generating QR code", showMessageBox: false);
 
                 // Return a simple error placeholder
                 return CreateErrorBitmap();

@@ -11,6 +11,12 @@ namespace LayoutDesigner.Services
     /// </summary>
     public class ExportService : IExportService
     {
+        private readonly IErrorHandlingService _errorHandlingService;
+
+        public ExportService(IErrorHandlingService errorHandlingService)
+        {
+            _errorHandlingService = errorHandlingService;
+        }
         public async Task<bool> ExportToPngAsync(UIElement element, string filePath, double width, double height)
         {
             try
@@ -27,7 +33,7 @@ namespace LayoutDesigner.Services
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error exporting to PNG: {ex.Message}");
+                _errorHandlingService.HandleError(ex, "Error exporting to PNG", showMessageBox: false);
                 return false;
             }
         }
@@ -51,7 +57,7 @@ namespace LayoutDesigner.Services
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error exporting to JPG: {ex.Message}");
+                _errorHandlingService.HandleError(ex, "Error exporting to JPG", showMessageBox: false);
                 return false;
             }
         }

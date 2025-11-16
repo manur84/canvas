@@ -16,9 +16,11 @@ namespace LayoutDesigner.Services
         private const int MaxRecentFiles = 10;
         private readonly string _appDataPath;
         private readonly JsonSerializerOptions _jsonOptions;
+        private readonly IErrorHandlingService _errorHandlingService;
 
-        public LayoutStorageService()
+        public LayoutStorageService(IErrorHandlingService errorHandlingService)
         {
+            _errorHandlingService = errorHandlingService;
             _appDataPath = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                 "LayoutDesigner");
@@ -47,7 +49,7 @@ namespace LayoutDesigner.Services
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error saving layout: {ex.Message}");
+                _errorHandlingService.HandleError(ex, "Error saving layout", showMessageBox: false);
                 return false;
             }
         }
@@ -71,7 +73,7 @@ namespace LayoutDesigner.Services
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error loading layout: {ex.Message}");
+                _errorHandlingService.HandleError(ex, "Error loading layout", showMessageBox: false);
                 return null;
             }
         }
@@ -95,7 +97,7 @@ namespace LayoutDesigner.Services
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error loading recent files: {ex.Message}");
+                _errorHandlingService.HandleError(ex, "Error loading recent files", showMessageBox: false);
             }
 
             return new List<string>();
@@ -131,7 +133,7 @@ namespace LayoutDesigner.Services
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error adding recent file: {ex.Message}");
+                _errorHandlingService.HandleError(ex, "Error adding recent file", showMessageBox: false);
             }
         }
     }
