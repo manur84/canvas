@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Windows;
 using LayoutDesigner.Services;
 using LayoutDesigner.Services.Interfaces;

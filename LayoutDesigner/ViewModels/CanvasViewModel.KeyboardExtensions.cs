@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using LayoutDesigner.Helpers;
 using LayoutDesigner.Models.Base;
 using System.Windows.Input;

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Windows;
 using LayoutDesigner.Models.Base;
 using LayoutDesigner.Constants;
