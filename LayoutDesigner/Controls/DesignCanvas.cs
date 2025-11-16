@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -284,7 +285,6 @@ namespace LayoutDesigner.Controls
             }
 
             // Snap to elements if enabled
-            bool snappedToElement = false;
             if (SnapToElements && Elements != null)
             {
                 // Temporarily update position for snap calculation
@@ -300,7 +300,6 @@ namespace LayoutDesigner.Controls
                 {
                     newX = snapX;
                     newY = snapY;
-                    snappedToElement = true;
 
                     // Show snap lines
                     ShowSnapLines(layoutElement, otherElements);

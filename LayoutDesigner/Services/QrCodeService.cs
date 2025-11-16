@@ -106,27 +106,30 @@ namespace LayoutDesigner.Services
 
         private BitmapSource CreateErrorBitmap()
         {
-            var bitmap = new WriteableBitmap(100, 100, 96, 96, PixelFormats.Bgra32, null);
-            bitmap.Lock();
+            const int width = 100;
+            const int height = 100;
+            const int bytesPerPixel = 4;
+            int stride = width * bytesPerPixel;
 
-            unsafe
+            // Create red error bitmap using byte array (safe alternative to unsafe code)
+            byte[] pixelData = new byte[height * stride];
+            for (int i = 0; i < pixelData.Length; i += bytesPerPixel)
             {
-                var backBuffer = (int*)bitmap.BackBuffer.ToPointer();
-                int stride = bitmap.BackBufferStride / 4;
-
-                for (int y = 0; y < 100; y++)
-                {
-                    for (int x = 0; x < 100; x++)
-                    {
-                        backBuffer[y * stride + x] = unchecked((int)0xFFFF0000); // Red
-                    }
-                }
+                pixelData[i] = 0;      // Blue
+                pixelData[i + 1] = 0;  // Green
+                pixelData[i + 2] = 255; // Red
+                pixelData[i + 3] = 255; // Alpha
             }
 
-            bitmap.AddDirtyRect(new System.Windows.Int32Rect(0, 0, 100, 100));
-            bitmap.Unlock();
-            bitmap.Freeze();
+            var bitmap = BitmapSource.Create(
+                width, height,
+                96, 96,
+                PixelFormats.Bgra32,
+                null,
+                pixelData,
+                stride);
 
+            bitmap.Freeze();
             return bitmap;
         }
     }

@@ -242,7 +242,7 @@ namespace LayoutDesigner.Views
                             Width = 200,
                             Height = 200,
                             ImagePath = file,
-                            StretchMode = "Uniform"
+                            StretchMode = LayoutDesigner.Models.ImageStretchMode.Uniform
                         };
 
                         viewModel.CanvasViewModel.Elements.Add(imageElement);

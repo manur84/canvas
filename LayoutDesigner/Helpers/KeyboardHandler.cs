@@ -43,21 +43,13 @@ namespace LayoutDesigner.Helpers
 
             switch (key)
             {
-                // Arrow keys for movement
-                case Key.Left:
-                    action = element => element.X -= nudgeDistance;
+                // Opacity (Ctrl + Shift + Arrow) - most specific, check first
+                case Key.Up when ctrl && shift:
+                    action = element => element.Opacity = Math.Min(1.0, element.Opacity + 0.05);
                     return true;
 
-                case Key.Right:
-                    action = element => element.X += nudgeDistance;
-                    return true;
-
-                case Key.Up:
-                    action = element => element.Y -= nudgeDistance;
-                    return true;
-
-                case Key.Down:
-                    action = element => element.Y += nudgeDistance;
+                case Key.Down when ctrl && shift:
+                    action = element => element.Opacity = Math.Max(0.0, element.Opacity - 0.05);
                     return true;
 
                 // Size manipulation (Ctrl + Arrow)
@@ -86,13 +78,21 @@ namespace LayoutDesigner.Helpers
                     action = element => element.Rotation = (element.Rotation + 1) % 360;
                     return true;
 
-                // Opacity (Ctrl + Shift + Arrow)
-                case Key.Up when ctrl && shift:
-                    action = element => element.Opacity = Math.Min(1.0, element.Opacity + 0.05);
+                // Arrow keys for movement (least specific, check last)
+                case Key.Left:
+                    action = element => element.X -= nudgeDistance;
                     return true;
 
-                case Key.Down when ctrl && shift:
-                    action = element => element.Opacity = Math.Max(0.0, element.Opacity - 0.05);
+                case Key.Right:
+                    action = element => element.X += nudgeDistance;
+                    return true;
+
+                case Key.Up:
+                    action = element => element.Y -= nudgeDistance;
+                    return true;
+
+                case Key.Down:
+                    action = element => element.Y += nudgeDistance;
                     return true;
 
                 // Z-Index (Page Up/Down)

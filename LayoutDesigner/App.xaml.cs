@@ -100,10 +100,9 @@ namespace LayoutDesigner
 
         public static T? GetService<T>() where T : class
         {
-            var app = Application.Current as App;
             try
             {
-                return app?.Services.Resolve<T>();
+                return App.Services.Resolve<T>();
             }
             catch
             {
