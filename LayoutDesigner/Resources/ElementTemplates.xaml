@@ -12,16 +12,20 @@
     <DataTemplate DataType="{x:Type models:TextElement}">
         <!-- Best Practice: Explicit Mode=OneWay for read-only bindings to improve performance -->
         <Border Background="{Binding BackgroundColor, Mode=OneWay, Converter={StaticResource ColorToBrushConverter}}"
-                BorderBrush="{Binding BorderColor, Mode=OneWay, Converter={StaticResource ColorToBrushConverter}}"
-                BorderThickness="{Binding BorderThickness, Mode=OneWay}"
                 CornerRadius="{Binding CornerRadius, Mode=OneWay}"
-                Padding="{Binding Padding, Mode=OneWay}"
-                Visibility="{Binding HasBorder, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-            <!-- Best Practice: Effects can be expensive, only apply when needed -->
+                Padding="{Binding Padding, Mode=OneWay}">
+            <!-- Border style - only show border if HasBorder is true -->
             <Border.Style>
                 <Style TargetType="Border">
+                    <Setter Property="BorderThickness" Value="0"/>
                     <Setter Property="Effect" Value="{x:Null}"/>
                     <Style.Triggers>
+                        <!-- Show border when HasBorder is true -->
+                        <DataTrigger Binding="{Binding HasBorder, Mode=OneWay}" Value="True">
+                            <Setter Property="BorderBrush" Value="{Binding BorderColor, Mode=OneWay, Converter={StaticResource ColorToBrushConverter}}"/>
+                            <Setter Property="BorderThickness" Value="{Binding BorderThickness, Mode=OneWay}"/>
+                        </DataTrigger>
+                        <!-- Apply shadow effect when HasShadow is true -->
                         <DataTrigger Binding="{Binding HasShadow, Mode=OneWay}" Value="True">
                             <Setter Property="Effect">
                                 <Setter.Value>
