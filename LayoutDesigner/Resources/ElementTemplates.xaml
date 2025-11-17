@@ -238,17 +238,22 @@
                 </Style>
             </Border.Style>
 
-            <!-- Grid of cells -->
-            <ItemsControl ItemsSource="{Binding Cells}">
+            <!-- Grid of cells with AlternationCount for alternating rows -->
+            <ItemsControl ItemsSource="{Binding Cells}" AlternationCount="2">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel Orientation="Vertical"/>
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="ContentPresenter">
+                        <Setter Property="Tag" Value="{Binding RelativeSource={RelativeSource Self}, Path=(ItemsControl.AlternationIndex)}"/>
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <!-- Each row -->
-                        <ItemsControl ItemsSource="{Binding}" x:Name="RowItemsControl">
+                        <ItemsControl ItemsSource="{Binding}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <StackPanel Orientation="Horizontal"/>
@@ -288,6 +293,36 @@
                                                             </Setter.Value>
                                                         </Setter>
                                                     </DataTrigger>
+
+                                                    <!-- Alternate row background color (for odd rows when AlternateRows is true) -->
+                                                    <MultiDataTrigger>
+                                                        <MultiDataTrigger.Conditions>
+                                                            <Condition Binding="{Binding DataContext.AlternateRows, RelativeSource={RelativeSource AncestorType=ItemsControl, AncestorLevel=2}}" Value="True"/>
+                                                            <Condition Binding="{Binding Tag, RelativeSource={RelativeSource AncestorType=ContentPresenter}}" Value="1"/>
+                                                        </MultiDataTrigger.Conditions>
+                                                        <Setter Property="Background">
+                                                            <Setter.Value>
+                                                                <Binding Path="DataContext.AlternateRowBackgroundColor"
+                                                                        RelativeSource="{RelativeSource AncestorType=ItemsControl, AncestorLevel=2}"
+                                                                        Converter="{StaticResource ColorToBrushConverter}"/>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </MultiDataTrigger>
+
+                                                    <!-- Header row styling (first row when ShowHeader is true) -->
+                                                    <MultiDataTrigger>
+                                                        <MultiDataTrigger.Conditions>
+                                                            <Condition Binding="{Binding DataContext.ShowHeader, RelativeSource={RelativeSource AncestorType=ItemsControl, AncestorLevel=2}}" Value="True"/>
+                                                            <Condition Binding="{Binding Tag, RelativeSource={RelativeSource AncestorType=ContentPresenter}}" Value="0"/>
+                                                        </MultiDataTrigger.Conditions>
+                                                        <Setter Property="Background">
+                                                            <Setter.Value>
+                                                                <Binding Path="DataContext.HeaderBackgroundColor"
+                                                                        RelativeSource="{RelativeSource AncestorType=ItemsControl, AncestorLevel=2}"
+                                                                        Converter="{StaticResource ColorToBrushConverter}"/>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </MultiDataTrigger>
                                                 </Style.Triggers>
                                             </Style>
                                         </Border.Style>
@@ -319,6 +354,38 @@
                                                         </Setter.Value>
                                                     </Setter>
                                                     <Setter Property="FontWeight" Value="Normal"/>
+                                                    <Style.Triggers>
+                                                        <!-- Header row text styling (first row when ShowHeader is true) -->
+                                                        <MultiDataTrigger>
+                                                            <MultiDataTrigger.Conditions>
+                                                                <Condition Binding="{Binding DataContext.ShowHeader, RelativeSource={RelativeSource AncestorType=ItemsControl, AncestorLevel=2}}" Value="True"/>
+                                                                <Condition Binding="{Binding Tag, RelativeSource={RelativeSource AncestorType=ContentPresenter}}" Value="0"/>
+                                                            </MultiDataTrigger.Conditions>
+                                                            <Setter Property="FontSize">
+                                                                <Setter.Value>
+                                                                    <Binding Path="DataContext.HeaderFontSize"
+                                                                            RelativeSource="{RelativeSource AncestorType=ItemsControl, AncestorLevel=2}"/>
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                            <Setter Property="Foreground">
+                                                                <Setter.Value>
+                                                                    <Binding Path="DataContext.HeaderForegroundColor"
+                                                                            RelativeSource="{RelativeSource AncestorType=ItemsControl, AncestorLevel=2}"
+                                                                            Converter="{StaticResource ColorToBrushConverter}"/>
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                        </MultiDataTrigger>
+
+                                                        <!-- Header bold (when ShowHeader is true and HeaderBold is true) -->
+                                                        <MultiDataTrigger>
+                                                            <MultiDataTrigger.Conditions>
+                                                                <Condition Binding="{Binding DataContext.ShowHeader, RelativeSource={RelativeSource AncestorType=ItemsControl, AncestorLevel=2}}" Value="True"/>
+                                                                <Condition Binding="{Binding DataContext.HeaderBold, RelativeSource={RelativeSource AncestorType=ItemsControl, AncestorLevel=2}}" Value="True"/>
+                                                                <Condition Binding="{Binding Tag, RelativeSource={RelativeSource AncestorType=ContentPresenter}}" Value="0"/>
+                                                            </MultiDataTrigger.Conditions>
+                                                            <Setter Property="FontWeight" Value="Bold"/>
+                                                        </MultiDataTrigger>
+                                                    </Style.Triggers>
                                                 </Style>
                                             </TextBox.Style>
                                         </TextBox>
