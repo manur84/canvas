@@ -202,8 +202,17 @@
 
     <!-- TableElement DataTemplate -->
     <DataTemplate DataType="{x:Type models:TableElement}">
-        <Border BorderBrush="{Binding BorderColor, Converter={StaticResource ColorToBrushConverter}}"
-                BorderThickness="{Binding ShowBorder, Converter={StaticResource BoolToDouble}, ConverterParameter=1}">
+        <Border BorderBrush="{Binding BorderColor, Converter={StaticResource ColorToBrushConverter}}">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="BorderThickness" Value="0"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding ShowBorder}" Value="True">
+                            <Setter Property="BorderThickness" Value="1"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
             <!-- 2D Grid of editable cells -->
             <ItemsControl ItemsSource="{Binding Cells}">
                 <ItemsControl.ItemsPanel>
