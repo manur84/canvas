@@ -24,9 +24,6 @@ namespace LayoutDesigner.ViewModels
         private double _zoom = 1.0;
         private double _panX;
         private double _panY;
-        private bool _showGrid = true;
-        private double _gridSize = 20;
-        private bool _snapToGrid = true;
         private List<LayoutElementBase> _clipboard = new();
 
         // Partial method for grouping commands initialization
@@ -113,36 +110,39 @@ namespace LayoutDesigner.ViewModels
 
         public bool ShowGrid
         {
-            get => _showGrid;
+            get => Document.ShowGrid;
             set
             {
-                if (SetProperty(ref _showGrid, value))
+                if (Document.ShowGrid != value)
                 {
                     Document.ShowGrid = value;
+                    OnPropertyChanged();
                 }
             }
         }
 
         public double GridSize
         {
-            get => _gridSize;
+            get => Document.GridSize;
             set
             {
-                if (SetProperty(ref _gridSize, value))
+                if (Document.GridSize != value)
                 {
                     Document.GridSize = value;
+                    OnPropertyChanged();
                 }
             }
         }
 
         public bool SnapToGrid
         {
-            get => _snapToGrid;
+            get => Document.SnapToGrid;
             set
             {
-                if (SetProperty(ref _snapToGrid, value))
+                if (Document.SnapToGrid != value)
                 {
                     Document.SnapToGrid = value;
+                    OnPropertyChanged();
                 }
             }
         }
@@ -600,14 +600,14 @@ namespace LayoutDesigner.ViewModels
             Zoom = 1.0;
             PanX = 0;
             PanY = 0;
-            ShowGrid = document.ShowGrid;
-            GridSize = document.GridSize;
-            SnapToGrid = document.SnapToGrid;
 
-            // Notify UI that Elements collection has changed
+            // Notify UI that all document properties have changed
             OnPropertyChanged(nameof(Elements));
             OnPropertyChanged(nameof(CanvasWidth));
             OnPropertyChanged(nameof(CanvasHeight));
+            OnPropertyChanged(nameof(ShowGrid));
+            OnPropertyChanged(nameof(GridSize));
+            OnPropertyChanged(nameof(SnapToGrid));
         }
 
         public void NewDocument()
