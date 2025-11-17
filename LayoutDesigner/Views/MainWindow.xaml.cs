@@ -9,6 +9,7 @@ using LayoutDesigner.ViewModels;
 using LayoutDesigner.Events;
 using LayoutDesigner.Commands;
 using LayoutDesigner.Constants;
+using LayoutDesigner.Services.Interfaces;
 
 namespace LayoutDesigner.Views
 {
@@ -259,6 +260,7 @@ namespace LayoutDesigner.Views
 
         private async void OnExportRequested(object? sender, ExportRequestedEventArgs e)
         {
+            var logger = ServiceContainer.GetService<IAppLogger>();
             try
             {
                 // Get the canvas element
@@ -266,6 +268,7 @@ namespace LayoutDesigner.Views
                 if (canvas == null)
                 {
                     e.Success = false;
+                    logger?.LogWarning("Export failed: Canvas element not found");
                     return;
                 }
 
@@ -300,11 +303,13 @@ namespace LayoutDesigner.Views
                 }
 
                 e.Success = true;
+                logger?.LogInfo($"Export completed successfully: {e.FilePath}");
             }
             catch (Exception ex)
             {
+                logger?.LogError(ex, $"Export failed to {e.FilePath}");
                 var errorService = ServiceContainer.GetService<Services.Interfaces.IErrorHandlingService>();
-                errorService?.HandleError(ex, "Export failed", showDialog: false);
+                errorService?.HandleError(ex, "Export failed");
                 e.Success = false;
             }
         }
@@ -314,6 +319,7 @@ namespace LayoutDesigner.Views
             if (DataContext is not MainViewModel viewModel)
                 return;
 
+            var logger = ServiceContainer.GetService<IAppLogger>();
             try
             {
                 // Instantiate template elements with small offset from origin
@@ -334,9 +340,11 @@ namespace LayoutDesigner.Views
 
                 // Mark document as dirty
                 viewModel.IsDirty = true;
+                logger?.LogInfo($"Template loaded successfully: {e.Template.Name}");
             }
             catch (Exception ex)
             {
+                logger?.LogError(ex, "Failed to load template");
                 var errorService = ServiceContainer.GetService<Services.Interfaces.IErrorHandlingService>();
                 errorService?.HandleError(ex, "Failed to load template");
             }
@@ -347,6 +355,7 @@ namespace LayoutDesigner.Views
             if (DataContext is not MainViewModel viewModel)
                 return;
 
+            var logger = ServiceContainer.GetService<IAppLogger>();
             try
             {
                 // Create an ImageElement at the center of the canvas
@@ -370,9 +379,11 @@ namespace LayoutDesigner.Views
 
                 // Mark document as dirty
                 viewModel.IsDirty = true;
+                logger?.LogInfo($"Asset inserted successfully: {e.AssetPath}");
             }
             catch (Exception ex)
             {
+                logger?.LogError(ex, "Failed to insert asset");
                 var errorService = ServiceContainer.GetService<Services.Interfaces.IErrorHandlingService>();
                 errorService?.HandleError(ex, "Failed to insert asset");
             }
