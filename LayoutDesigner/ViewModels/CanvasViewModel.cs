@@ -587,7 +587,6 @@ namespace LayoutDesigner.ViewModels
             OnPropertyChanged(nameof(Elements));
             OnPropertyChanged(nameof(CanvasWidth));
             OnPropertyChanged(nameof(CanvasHeight));
-            OnPropertyChanged(nameof(BackgroundColor));
         }
 
         public void NewDocument()
