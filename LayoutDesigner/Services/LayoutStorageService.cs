@@ -45,6 +45,9 @@ namespace LayoutDesigner.Services
             {
                 document.ModifiedDate = DateTime.Now;
 
+                // Embed images as Base64 before saving
+                await EmbedImagesAsync(document);
+
                 var json = JsonSerializer.Serialize(document, _jsonOptions);
                 await File.WriteAllTextAsync(filePath, json);
 
@@ -55,6 +58,34 @@ namespace LayoutDesigner.Services
             {
                 _errorHandlingService.HandleError(ex, "Error saving layout", showDialog: false);
                 return false;
+            }
+        }
+
+        /// <summary>
+        /// Embeds all images from ImageElements as Base64 data
+        /// </summary>
+        private async Task EmbedImagesAsync(LayoutDocument document)
+        {
+            foreach (var element in document.Elements.OfType<ImageElement>())
+            {
+                // Only embed if we have a valid ImagePath and no ImageData yet
+                if (!string.IsNullOrWhiteSpace(element.ImagePath) &&
+                    File.Exists(element.ImagePath))
+                {
+                    try
+                    {
+                        // Read image file and convert to Base64
+                        var imageBytes = await File.ReadAllBytesAsync(element.ImagePath);
+                        element.ImageData = Convert.ToBase64String(imageBytes);
+                    }
+                    catch (Exception ex)
+                    {
+                        // If embedding fails, just skip this image (it will use the path instead)
+                        _errorHandlingService.HandleError(ex,
+                            $"Could not embed image: {element.ImagePath}",
+                            showDialog: false);
+                    }
+                }
             }
         }
 

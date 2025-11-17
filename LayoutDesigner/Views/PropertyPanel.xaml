@@ -71,23 +71,43 @@
 
         <!-- Image Element Properties Template -->
         <DataTemplate x:Key="ImageElementPropertiesTemplate" DataType="{x:Type models:ImageElement}">
-            <GroupBox Header="Image Properties" Style="{StaticResource PropertyGroup}">
-                <StackPanel>
-                    <Label Content="Image Path:" Style="{StaticResource PropertyLabel}"/>
-                    <TextBox Text="{Binding ImagePath}"
-                           Style="{StaticResource ModernTextBox}"/>
-                    <Button Content="Browse..." Margin="0,4,0,0" Style="{StaticResource ModernButton}"
-                            Command="{Binding DataContext.BrowseImageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+            <StackPanel>
+                <GroupBox Header="Image Properties" Style="{StaticResource PropertyGroup}">
+                    <StackPanel>
+                        <Label Content="Image Path:" Style="{StaticResource PropertyLabel}"/>
+                        <TextBox Text="{Binding ImagePath}"
+                               Style="{StaticResource ModernTextBox}"/>
+                        <Button Content="Browse..." Margin="0,4,0,0" Style="{StaticResource ModernButton}"
+                                Command="{Binding DataContext.BrowseImageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
 
-                    <Label Content="Stretch Mode:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                    <ComboBox ItemsSource="{Binding Source={StaticResource ImageStretchModeValues}}"
-                              SelectedItem="{Binding StretchMode}"
-                              Style="{StaticResource ModernComboBox}"/>
+                        <Label Content="Stretch Mode:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
+                        <ComboBox ItemsSource="{Binding Source={StaticResource ImageStretchModeValues}}"
+                                  SelectedItem="{Binding StretchMode}"
+                                  Style="{StaticResource ModernComboBox}"/>
 
-                    <CheckBox Content="Maintain Aspect Ratio" IsChecked="{Binding MaintainAspectRatio}"
-                            Style="{StaticResource ModernCheckBox}" Margin="0,8,0,0"/>
-                </StackPanel>
-            </GroupBox>
+                        <CheckBox Content="Maintain Aspect Ratio" IsChecked="{Binding MaintainAspectRatio}"
+                                Style="{StaticResource ModernCheckBox}" Margin="0,8,0,0"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox Header="Border Settings" Style="{StaticResource PropertyGroup}">
+                    <StackPanel>
+                        <CheckBox Content="Show Border" IsChecked="{Binding HasBorder}"
+                                Style="{StaticResource ModernCheckBox}"/>
+
+                        <Label Content="Border Color:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
+                        <controls:ColorInputControl ColorValue="{Binding BorderColor}"/>
+
+                        <Label Content="Border Thickness:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
+                        <TextBox Text="{Binding BorderThickness}"
+                               Style="{StaticResource ModernTextBox}"/>
+
+                        <Label Content="Corner Radius:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
+                        <TextBox Text="{Binding CornerRadius}"
+                               Style="{StaticResource ModernTextBox}"/>
+                    </StackPanel>
+                </GroupBox>
+            </StackPanel>
         </DataTemplate>
 
         <!-- Shape Element Properties Template -->

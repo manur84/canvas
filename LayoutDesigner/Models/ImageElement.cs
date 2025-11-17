@@ -9,6 +9,7 @@ namespace LayoutDesigner.Models
     public class ImageElement : LayoutElementBase
     {
         private string _imagePath = string.Empty;
+        private string? _imageData = null; // Base64 encoded image data
         private ImageStretchMode _stretchMode = ImageStretchMode.Uniform;
         private bool _maintainAspectRatio = true;
         private bool _hasBorder = false;
@@ -35,6 +36,16 @@ namespace LayoutDesigner.Models
         {
             get => _imagePath;
             set => SetProperty(ref _imagePath, value);
+        }
+
+        /// <summary>
+        /// Base64 encoded image data (used for embedding images in the layout file)
+        /// When this is set, it takes priority over ImagePath
+        /// </summary>
+        public string? ImageData
+        {
+            get => _imageData;
+            set => SetProperty(ref _imageData, value);
         }
 
         /// <summary>
@@ -196,6 +207,7 @@ namespace LayoutDesigner.Models
                 IsVisible = IsVisible,
                 Opacity = Opacity,
                 ImagePath = ImagePath,
+                ImageData = ImageData,
                 StretchMode = StretchMode,
                 MaintainAspectRatio = MaintainAspectRatio,
                 HasBorder = HasBorder,

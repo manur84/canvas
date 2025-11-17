@@ -9,10 +9,10 @@ using System.Windows.Media.Imaging;
 namespace LayoutDesigner.Converters
 {
     /// <summary>
-    /// Converts image file path to BitmapImage with lazy loading and caching optimization
+    /// Converts image file path or Base64 data to BitmapImage with lazy loading and caching optimization
     /// Best Practice: Use BitmapCacheOption.OnLoad and limit decode size for performance
     /// </summary>
-    public class ImagePathConverter : IValueConverter
+    public class ImagePathConverter : IMultiValueConverter
     {
         // Thread-safe cache for images - Best Practice: Reuse frozen images
         private static readonly ConcurrentDictionary<string, BitmapImage> _imageCache = new();
@@ -21,13 +21,58 @@ namespace LayoutDesigner.Converters
         private const int MaxDecodePixelWidth = 2048;
         private const int MaxDecodePixelHeight = 2048;
 
-        public object? Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        public object? Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is not string imagePath || string.IsNullOrWhiteSpace(imagePath))
+            // values[0] = ImagePath, values[1] = ImageData
+            string? imageData = values.Length > 1 && values[1] is string data && !string.IsNullOrWhiteSpace(data) ? data : null;
+            string? imagePath = values.Length > 0 && values[0] is string path && !string.IsNullOrWhiteSpace(path) ? path : null;
+
+            // Priority: Use embedded ImageData if available, otherwise use ImagePath
+            if (!string.IsNullOrWhiteSpace(imageData))
+            {
+                return LoadFromBase64(imageData);
+            }
+
+            if (!string.IsNullOrWhiteSpace(imagePath))
+            {
+                return LoadFromPath(imagePath);
+            }
+
+            return null;
+        }
+
+        private BitmapImage? LoadFromBase64(string base64Data)
+        {
+            // Return cached image if available
+            var cacheKey = $"base64:{base64Data.Substring(0, Math.Min(50, base64Data.Length))}";
+            if (_imageCache.TryGetValue(cacheKey, out var cachedImage))
+            {
+                return cachedImage;
+            }
+
+            try
+            {
+                var imageBytes = System.Convert.FromBase64String(base64Data);
+
+                var bitmap = new BitmapImage();
+                bitmap.BeginInit();
+                bitmap.CacheOption = BitmapCacheOption.OnLoad;
+                bitmap.StreamSource = new MemoryStream(imageBytes);
+                bitmap.DecodePixelWidth = MaxDecodePixelWidth;
+                bitmap.EndInit();
+                bitmap.Freeze();
+
+                _imageCache.TryAdd(cacheKey, bitmap);
+                return bitmap;
+            }
+            catch (Exception)
             {
                 return null;
             }
+        }
 
+        private BitmapImage? LoadFromPath(string imagePath)
+        {
             // Return cached image if available
             if (_imageCache.TryGetValue(imagePath, out var cachedImage))
             {
@@ -80,7 +125,7 @@ namespace LayoutDesigner.Converters
             }
         }
 
-        public object? ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
         {
             // Not needed for image paths
             throw new NotImplementedException();
