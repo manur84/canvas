@@ -238,6 +238,20 @@ namespace LayoutDesigner.Controls
                 return;
             }
 
+            // Don't interfere with Thumbs (resize/rotate handles)
+            var sourceElement = e.OriginalSource as DependencyObject;
+            var current = sourceElement;
+            while (current != null && current != this)
+            {
+                // Check if we hit a Thumb (resize/rotate handle)
+                if (current is System.Windows.Controls.Primitives.Thumb)
+                {
+                    return; // Let the Thumb handle its own drag logic
+                }
+
+                current = VisualTreeHelper.GetParent(current);
+            }
+
             // Try to find an element by walking up the visual tree
             var layoutElement = FindLayoutElement(e.OriginalSource as DependencyObject);
 
