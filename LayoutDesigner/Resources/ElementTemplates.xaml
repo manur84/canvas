@@ -178,8 +178,15 @@
 
     <!-- LineElement DataTemplate -->
     <DataTemplate DataType="{x:Type models:LineElement}">
-        <!-- Canvas container to ensure DataContext is available for FindLayoutElement -->
-        <Canvas Background="Transparent">
+        <!-- Canvas container with larger hit area for easier selection -->
+        <Grid Background="Transparent">
+            <!-- Invisible larger hit area for easier clicking (±10px around line) -->
+            <Rectangle Fill="Transparent"
+                       Stroke="Transparent"
+                       StrokeThickness="20"
+                       Margin="-10"/>
+
+            <!-- Actual visible line -->
             <Line X1="0" Y1="0"
                   X2="{Binding X2}"
                   Y2="{Binding Y2}"
@@ -188,8 +195,9 @@
                   StrokeStartLineCap="Round"
                   StrokeEndLineCap="Round"
                   UseLayoutRounding="True"
-                  SnapsToDevicePixels="True"/>
-        </Canvas>
+                  SnapsToDevicePixels="True"
+                  IsHitTestVisible="False"/>
+        </Grid>
     </DataTemplate>
 
     <!-- ButtonElement DataTemplate -->
