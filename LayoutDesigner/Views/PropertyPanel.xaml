@@ -9,6 +9,160 @@
              d:DesignHeight="450" d:DesignWidth="280"
              Background="{StaticResource BackgroundBrush}">
 
+    <UserControl.Resources>
+        <!-- Text Element Properties Template -->
+        <DataTemplate x:Key="TextElementPropertiesTemplate" DataType="{x:Type models:TextElement}">
+            <GroupBox Header="Text Properties" Style="{StaticResource PropertyGroup}">
+                <StackPanel>
+                    <Label Content="Text:" Style="{StaticResource PropertyLabel}"/>
+                    <TextBox Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}"
+                           TextWrapping="Wrap" AcceptsReturn="True" MinHeight="60"
+                           Style="{StaticResource ModernTextBox}"/>
+
+                    <Label Content="Font Family:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
+                    <ComboBox SelectedItem="{Binding FontFamily}" Style="{StaticResource ModernComboBox}">
+                        <ComboBoxItem Content="Arial"/>
+                        <ComboBoxItem Content="Calibri"/>
+                        <ComboBoxItem Content="Times New Roman"/>
+                        <ComboBoxItem Content="Verdana"/>
+                        <ComboBoxItem Content="Segoe UI"/>
+                    </ComboBox>
+
+                    <Label Content="Font Size:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
+                    <TextBox Text="{Binding FontSize, UpdateSourceTrigger=PropertyChanged}"
+                           Style="{StaticResource ModernTextBox}"/>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                        <CheckBox Content="Bold" IsChecked="{Binding IsBold}" Style="{StaticResource ModernCheckBox}" Margin="0,0,8,0"/>
+                        <CheckBox Content="Italic" IsChecked="{Binding IsItalic}" Style="{StaticResource ModernCheckBox}" Margin="0,0,8,0"/>
+                        <CheckBox Content="Underline" IsChecked="{Binding IsUnderline}" Style="{StaticResource ModernCheckBox}"/>
+                    </StackPanel>
+
+                    <Label Content="Foreground Color:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
+                    <controls:ColorInputControl ColorValue="{Binding ForegroundColor, UpdateSourceTrigger=PropertyChanged}"/>
+
+                    <Label Content="Background Color:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
+                    <controls:ColorInputControl ColorValue="{Binding BackgroundColor, UpdateSourceTrigger=PropertyChanged}" ShowTransparencyPattern="True"/>
+                </StackPanel>
+            </GroupBox>
+        </DataTemplate>
+
+        <!-- Image Element Properties Template -->
+        <DataTemplate x:Key="ImageElementPropertiesTemplate" DataType="{x:Type models:ImageElement}">
+            <GroupBox Header="Image Properties" Style="{StaticResource PropertyGroup}">
+                <StackPanel>
+                    <Label Content="Image Path:" Style="{StaticResource PropertyLabel}"/>
+                    <TextBox Text="{Binding ImagePath, UpdateSourceTrigger=PropertyChanged}"
+                           Style="{StaticResource ModernTextBox}"/>
+                    <Button Content="Browse..." Margin="0,4,0,0" Style="{StaticResource ModernButton}"
+                            Command="{Binding DataContext.BrowseImageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+
+                    <Label Content="Stretch Mode:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
+                    <ComboBox SelectedItem="{Binding StretchMode}" Style="{StaticResource ModernComboBox}">
+                        <ComboBoxItem Content="None"/>
+                        <ComboBoxItem Content="Fill"/>
+                        <ComboBoxItem Content="Uniform"/>
+                        <ComboBoxItem Content="UniformToFill"/>
+                    </ComboBox>
+
+                    <CheckBox Content="Maintain Aspect Ratio" IsChecked="{Binding MaintainAspectRatio}"
+                            Style="{StaticResource ModernCheckBox}" Margin="0,8,0,0"/>
+                </StackPanel>
+            </GroupBox>
+        </DataTemplate>
+
+        <!-- Shape Element Properties Template -->
+        <DataTemplate x:Key="ShapeElementPropertiesTemplate" DataType="{x:Type models:ShapeElement}">
+            <GroupBox Header="Shape Properties" Style="{StaticResource PropertyGroup}">
+                <StackPanel>
+                    <Label Content="Shape Type:" Style="{StaticResource PropertyLabel}"/>
+                    <ComboBox SelectedItem="{Binding ShapeType}" Style="{StaticResource ModernComboBox}">
+                        <ComboBoxItem Content="Rectangle"/>
+                        <ComboBoxItem Content="Ellipse"/>
+                        <ComboBoxItem Content="Line"/>
+                        <ComboBoxItem Content="RoundedRectangle"/>
+                    </ComboBox>
+
+                    <Label Content="Fill Color:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
+                    <controls:ColorInputControl ColorValue="{Binding FillColor, UpdateSourceTrigger=PropertyChanged}" ShowTransparencyPattern="True"/>
+
+                    <Label Content="Stroke Color:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
+                    <controls:ColorInputControl ColorValue="{Binding StrokeColor, UpdateSourceTrigger=PropertyChanged}"/>
+
+                    <Label Content="Stroke Thickness:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
+                    <TextBox Text="{Binding StrokeThickness, UpdateSourceTrigger=PropertyChanged}"
+                           Style="{StaticResource ModernTextBox}"/>
+
+                    <Label Content="Corner Radius:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
+                    <TextBox Text="{Binding CornerRadius, UpdateSourceTrigger=PropertyChanged}"
+                           Style="{StaticResource ModernTextBox}"/>
+                </StackPanel>
+            </GroupBox>
+        </DataTemplate>
+
+        <!-- QR Code Element Properties Template -->
+        <DataTemplate x:Key="QrCodeElementPropertiesTemplate" DataType="{x:Type models:QrCodeElement}">
+            <GroupBox Header="QR Code Properties" Style="{StaticResource PropertyGroup}">
+                <StackPanel>
+                    <Label Content="Content:" Style="{StaticResource PropertyLabel}"/>
+                    <TextBox Text="{Binding Content, UpdateSourceTrigger=PropertyChanged}"
+                           TextWrapping="Wrap" AcceptsReturn="True" MinHeight="60"
+                           Style="{StaticResource ModernTextBox}"/>
+
+                    <Label Content="Foreground Color:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
+                    <controls:ColorInputControl ColorValue="{Binding ForegroundColor, UpdateSourceTrigger=PropertyChanged}"/>
+
+                    <Label Content="Background Color:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
+                    <controls:ColorInputControl ColorValue="{Binding BackgroundColor, UpdateSourceTrigger=PropertyChanged}" ShowTransparencyPattern="True"/>
+
+                    <Label Content="Error Correction Level:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
+                    <Slider Value="{Binding ErrorCorrectionLevel}" Minimum="0" Maximum="3"
+                          TickFrequency="1" IsSnapToTickEnabled="True"
+                          Style="{StaticResource ModernSlider}"/>
+                    <TextBlock Text="{Binding ErrorCorrectionLevel}" Margin="0,2,0,0"/>
+                </StackPanel>
+            </GroupBox>
+        </DataTemplate>
+
+        <!-- Dynamic Field Element Properties Template -->
+        <DataTemplate x:Key="DynamicFieldElementPropertiesTemplate" DataType="{x:Type models:DynamicFieldElement}">
+            <GroupBox Header="Dynamic Field Properties" Style="{StaticResource PropertyGroup}">
+                <StackPanel>
+                    <Label Content="Field Type:" Style="{StaticResource PropertyLabel}"/>
+                    <ComboBox SelectedItem="{Binding FieldType}" Style="{StaticResource ModernComboBox}">
+                        <ComboBoxItem Content="DateTime"/>
+                        <ComboBoxItem Content="Date"/>
+                        <ComboBoxItem Content="Time"/>
+                        <ComboBoxItem Content="Custom"/>
+                    </ComboBox>
+
+                    <Label Content="Format:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
+                    <TextBox Text="{Binding Format, UpdateSourceTrigger=PropertyChanged}"
+                           Style="{StaticResource ModernTextBox}"/>
+
+                    <Label Content="Font Family:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
+                    <ComboBox SelectedItem="{Binding FontFamily}" Style="{StaticResource ModernComboBox}">
+                        <ComboBoxItem Content="Arial"/>
+                        <ComboBoxItem Content="Calibri"/>
+                        <ComboBoxItem Content="Times New Roman"/>
+                    </ComboBox>
+
+                    <Label Content="Font Size:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
+                    <TextBox Text="{Binding FontSize, UpdateSourceTrigger=PropertyChanged}"
+                           Style="{StaticResource ModernTextBox}"/>
+                </StackPanel>
+            </GroupBox>
+        </DataTemplate>
+
+        <!-- Template Selector -->
+        <controls:ElementTypeTemplateSelector x:Key="ElementTypeTemplateSelector"
+            TextElementTemplate="{StaticResource TextElementPropertiesTemplate}"
+            ImageElementTemplate="{StaticResource ImageElementPropertiesTemplate}"
+            ShapeElementTemplate="{StaticResource ShapeElementPropertiesTemplate}"
+            QrCodeElementTemplate="{StaticResource QrCodeElementPropertiesTemplate}"
+            DynamicFieldElementTemplate="{StaticResource DynamicFieldElementPropertiesTemplate}"/>
+    </UserControl.Resources>
+
     <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,0,0,0">
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <StackPanel Margin="8">
@@ -101,144 +255,9 @@
                         </StackPanel>
                     </GroupBox>
 
-                    <!-- Text Element Properties -->
-                    <GroupBox Header="Text Properties" Style="{StaticResource PropertyGroup}"
-                            Visibility="{Binding SelectedElement, Converter={StaticResource TypeToVisibility}, ConverterParameter=TextElement}">
-                        <StackPanel DataContext="{Binding SelectedElement}">
-                            <Label Content="Text:" Style="{StaticResource PropertyLabel}"/>
-                            <TextBox Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}"
-                                   TextWrapping="Wrap" AcceptsReturn="True" MinHeight="60"
-                                   Style="{StaticResource ModernTextBox}"/>
-
-                            <Label Content="Font Family:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                            <ComboBox SelectedItem="{Binding FontFamily}" Style="{StaticResource ModernComboBox}">
-                                <ComboBoxItem Content="Arial"/>
-                                <ComboBoxItem Content="Calibri"/>
-                                <ComboBoxItem Content="Times New Roman"/>
-                                <ComboBoxItem Content="Verdana"/>
-                                <ComboBoxItem Content="Segoe UI"/>
-                            </ComboBox>
-
-                            <Label Content="Font Size:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                            <TextBox Text="{Binding FontSize, UpdateSourceTrigger=PropertyChanged}"
-                                   Style="{StaticResource ModernTextBox}"/>
-
-                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                                <CheckBox Content="Bold" IsChecked="{Binding IsBold}" Style="{StaticResource ModernCheckBox}" Margin="0,0,8,0"/>
-                                <CheckBox Content="Italic" IsChecked="{Binding IsItalic}" Style="{StaticResource ModernCheckBox}" Margin="0,0,8,0"/>
-                                <CheckBox Content="Underline" IsChecked="{Binding IsUnderline}" Style="{StaticResource ModernCheckBox}"/>
-                            </StackPanel>
-
-                            <Label Content="Foreground Color:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                            <controls:ColorInputControl ColorValue="{Binding ForegroundColor, UpdateSourceTrigger=PropertyChanged}"/>
-
-                            <Label Content="Background Color:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                            <controls:ColorInputControl ColorValue="{Binding BackgroundColor, UpdateSourceTrigger=PropertyChanged}" ShowTransparencyPattern="True"/>
-                        </StackPanel>
-                    </GroupBox>
-
-                    <!-- Image Element Properties -->
-                    <GroupBox Header="Image Properties" Style="{StaticResource PropertyGroup}"
-                            Visibility="{Binding SelectedElement, Converter={StaticResource TypeToVisibility}, ConverterParameter=ImageElement}">
-                        <StackPanel DataContext="{Binding SelectedElement}">
-                            <Label Content="Image Path:" Style="{StaticResource PropertyLabel}"/>
-                            <TextBox Text="{Binding ImagePath, UpdateSourceTrigger=PropertyChanged}"
-                                   Style="{StaticResource ModernTextBox}"/>
-                            <Button Content="Browse..." Margin="0,4,0,0" Style="{StaticResource ModernButton}"
-                                    Command="{Binding DataContext.BrowseImageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
-
-                            <Label Content="Stretch Mode:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                            <ComboBox SelectedItem="{Binding StretchMode}" Style="{StaticResource ModernComboBox}">
-                                <ComboBoxItem Content="None"/>
-                                <ComboBoxItem Content="Fill"/>
-                                <ComboBoxItem Content="Uniform"/>
-                                <ComboBoxItem Content="UniformToFill"/>
-                            </ComboBox>
-
-                            <CheckBox Content="Maintain Aspect Ratio" IsChecked="{Binding MaintainAspectRatio}"
-                                    Style="{StaticResource ModernCheckBox}" Margin="0,8,0,0"/>
-                        </StackPanel>
-                    </GroupBox>
-
-                    <!-- Shape Element Properties -->
-                    <GroupBox Header="Shape Properties" Style="{StaticResource PropertyGroup}"
-                            Visibility="{Binding SelectedElement, Converter={StaticResource TypeToVisibility}, ConverterParameter=ShapeElement}">
-                        <StackPanel DataContext="{Binding SelectedElement}">
-                            <Label Content="Shape Type:" Style="{StaticResource PropertyLabel}"/>
-                            <ComboBox SelectedItem="{Binding ShapeType}" Style="{StaticResource ModernComboBox}">
-                                <ComboBoxItem Content="Rectangle"/>
-                                <ComboBoxItem Content="Ellipse"/>
-                                <ComboBoxItem Content="Line"/>
-                                <ComboBoxItem Content="RoundedRectangle"/>
-                            </ComboBox>
-
-                            <Label Content="Fill Color:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                            <controls:ColorInputControl ColorValue="{Binding FillColor, UpdateSourceTrigger=PropertyChanged}" ShowTransparencyPattern="True"/>
-
-                            <Label Content="Stroke Color:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                            <controls:ColorInputControl ColorValue="{Binding StrokeColor, UpdateSourceTrigger=PropertyChanged}"/>
-
-                            <Label Content="Stroke Thickness:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                            <TextBox Text="{Binding StrokeThickness, UpdateSourceTrigger=PropertyChanged}"
-                                   Style="{StaticResource ModernTextBox}"/>
-
-                            <Label Content="Corner Radius:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                            <TextBox Text="{Binding CornerRadius, UpdateSourceTrigger=PropertyChanged}"
-                                   Style="{StaticResource ModernTextBox}"/>
-                        </StackPanel>
-                    </GroupBox>
-
-                    <!-- QR Code Element Properties -->
-                    <GroupBox Header="QR Code Properties" Style="{StaticResource PropertyGroup}"
-                            Visibility="{Binding SelectedElement, Converter={StaticResource TypeToVisibility}, ConverterParameter=QrCodeElement}">
-                        <StackPanel DataContext="{Binding SelectedElement}">
-                            <Label Content="Content:" Style="{StaticResource PropertyLabel}"/>
-                            <TextBox Text="{Binding Content, UpdateSourceTrigger=PropertyChanged}"
-                                   TextWrapping="Wrap" AcceptsReturn="True" MinHeight="60"
-                                   Style="{StaticResource ModernTextBox}"/>
-
-                            <Label Content="Foreground Color:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                            <controls:ColorInputControl ColorValue="{Binding ForegroundColor, UpdateSourceTrigger=PropertyChanged}"/>
-
-                            <Label Content="Background Color:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                            <controls:ColorInputControl ColorValue="{Binding BackgroundColor, UpdateSourceTrigger=PropertyChanged}" ShowTransparencyPattern="True"/>
-
-                            <Label Content="Error Correction Level:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                            <Slider Value="{Binding ErrorCorrectionLevel}" Minimum="0" Maximum="3"
-                                  TickFrequency="1" IsSnapToTickEnabled="True"
-                                  Style="{StaticResource ModernSlider}"/>
-                            <TextBlock Text="{Binding ErrorCorrectionLevel}" Margin="0,2,0,0"/>
-                        </StackPanel>
-                    </GroupBox>
-
-                    <!-- Dynamic Field Element Properties -->
-                    <GroupBox Header="Dynamic Field Properties" Style="{StaticResource PropertyGroup}"
-                            Visibility="{Binding SelectedElement, Converter={StaticResource TypeToVisibility}, ConverterParameter=DynamicFieldElement}">
-                        <StackPanel DataContext="{Binding SelectedElement}">
-                            <Label Content="Field Type:" Style="{StaticResource PropertyLabel}"/>
-                            <ComboBox SelectedItem="{Binding FieldType}" Style="{StaticResource ModernComboBox}">
-                                <ComboBoxItem Content="DateTime"/>
-                                <ComboBoxItem Content="Date"/>
-                                <ComboBoxItem Content="Time"/>
-                                <ComboBoxItem Content="Custom"/>
-                            </ComboBox>
-
-                            <Label Content="Format:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                            <TextBox Text="{Binding Format, UpdateSourceTrigger=PropertyChanged}"
-                                   Style="{StaticResource ModernTextBox}"/>
-
-                            <Label Content="Font Family:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                            <ComboBox SelectedItem="{Binding FontFamily}" Style="{StaticResource ModernComboBox}">
-                                <ComboBoxItem Content="Arial"/>
-                                <ComboBoxItem Content="Calibri"/>
-                                <ComboBoxItem Content="Times New Roman"/>
-                            </ComboBox>
-
-                            <Label Content="Font Size:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                            <TextBox Text="{Binding FontSize, UpdateSourceTrigger=PropertyChanged}"
-                                   Style="{StaticResource ModernTextBox}"/>
-                        </StackPanel>
-                    </GroupBox>
+                    <!-- Element-Specific Properties using ContentControl -->
+                    <ContentControl Content="{Binding SelectedElement}"
+                                  ContentTemplateSelector="{StaticResource ElementTypeTemplateSelector}"/>
 
                 </StackPanel>
             </StackPanel>
