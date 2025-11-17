@@ -18,10 +18,12 @@ namespace LayoutDesigner.Services
     public class SvgExportService : ISvgExportService
     {
         private readonly IErrorHandlingService _errorHandlingService;
+        private readonly IQrCodeService _qrCodeService;
 
-        public SvgExportService(IErrorHandlingService errorHandlingService)
+        public SvgExportService(IErrorHandlingService errorHandlingService, IQrCodeService qrCodeService)
         {
             _errorHandlingService = errorHandlingService;
+            _qrCodeService = qrCodeService;
         }
 
         public async Task<bool> ExportToSvgAsync(LayoutDocument document, string filePath)
@@ -505,57 +507,51 @@ namespace LayoutDesigner.Services
 
         private void ExportQrCodeElement(XmlWriter writer, QrCodeElement element)
         {
-            // QR Code background
-            writer.WriteStartElement("rect");
-            writer.WriteAttributeString("width", FormatNumber(element.Width));
-            writer.WriteAttributeString("height", FormatNumber(element.Height));
-            writer.WriteAttributeString("fill", ConvertColorToSvg(element.BackgroundColor));
-            writer.WriteAttributeString("stroke", ConvertColorToSvg(element.BorderColor));
-            writer.WriteAttributeString("stroke-width", "1");
-
-            var bgOpacity = GetColorOpacity(element.BackgroundColor);
-            if (Math.Abs(bgOpacity - 1.0) > 0.001)
+            try
             {
-                writer.WriteAttributeString("fill-opacity", FormatNumber(bgOpacity));
+                // Generate actual QR code using the QR code service
+                var qrBitmap = _qrCodeService.GenerateQrCode(
+                    element.Content,
+                    pixelsPerModule: 10,
+                    foregroundColor: element.ForegroundColor,
+                    backgroundColor: element.BackgroundColor,
+                    errorCorrectionLevel: element.ErrorCorrectionLevel
+                );
+
+                // Convert BitmapSource to Base64 PNG
+                string base64Image = ConvertBitmapToBase64(qrBitmap);
+
+                // Export as SVG image element
+                writer.WriteStartElement("image");
+                writer.WriteAttributeString("width", FormatNumber(element.Width));
+                writer.WriteAttributeString("height", FormatNumber(element.Height));
+                writer.WriteAttributeString("href", $"data:image/png;base64,{base64Image}");
+                writer.WriteAttributeString("preserveAspectRatio", "xMidYMid meet");
+                writer.WriteEndElement();
             }
-
-            var borderOpacity = GetColorOpacity(element.BorderColor);
-            if (Math.Abs(borderOpacity - 1.0) > 0.001)
+            catch (Exception ex)
             {
-                writer.WriteAttributeString("stroke-opacity", FormatNumber(borderOpacity));
-            }
+                // Fallback: render a placeholder rectangle if QR code generation fails
+                _errorHandlingService.HandleError(ex, "Failed to generate QR code for SVG export", showDialog: false);
 
-            writer.WriteEndElement();
+                writer.WriteStartElement("rect");
+                writer.WriteAttributeString("width", FormatNumber(element.Width));
+                writer.WriteAttributeString("height", FormatNumber(element.Height));
+                writer.WriteAttributeString("fill", ConvertColorToSvg(element.BackgroundColor));
+                writer.WriteAttributeString("stroke", ConvertColorToSvg(element.BorderColor));
+                writer.WriteAttributeString("stroke-width", "2");
+                writer.WriteEndElement();
 
-            // QR Code pattern (simplified representation using foreground color)
-            var patternSize = Math.Min(element.Width, element.Height) / 25; // Approximate QR grid
-            var fgOpacity = GetColorOpacity(element.ForegroundColor);
-
-            for (int row = 0; row < 25; row++)
-            {
-                for (int col = 0; col < 25; col++)
-                {
-                    // Create a simple QR-like pattern (corners + scattered dots)
-                    bool shouldDraw = (row < 7 && col < 7) || (row < 7 && col >= 18) || (row >= 18 && col < 7) ||
-                                     ((row + col) % 3 == 0 && row > 8 && row < 17 && col > 8 && col < 17);
-
-                    if (shouldDraw)
-                    {
-                        writer.WriteStartElement("rect");
-                        writer.WriteAttributeString("x", FormatNumber(col * patternSize + (element.Width - 25 * patternSize) / 2));
-                        writer.WriteAttributeString("y", FormatNumber(row * patternSize + (element.Height - 25 * patternSize) / 2));
-                        writer.WriteAttributeString("width", FormatNumber(patternSize * 0.9));
-                        writer.WriteAttributeString("height", FormatNumber(patternSize * 0.9));
-                        writer.WriteAttributeString("fill", ConvertColorToSvg(element.ForegroundColor));
-
-                        if (Math.Abs(fgOpacity - 1.0) > 0.001)
-                        {
-                            writer.WriteAttributeString("fill-opacity", FormatNumber(fgOpacity));
-                        }
-
-                        writer.WriteEndElement();
-                    }
-                }
+                // Error text
+                writer.WriteStartElement("text");
+                writer.WriteAttributeString("x", FormatNumber(element.Width / 2));
+                writer.WriteAttributeString("y", FormatNumber(element.Height / 2));
+                writer.WriteAttributeString("text-anchor", "middle");
+                writer.WriteAttributeString("dominant-baseline", "middle");
+                writer.WriteAttributeString("fill", "#FF0000");
+                writer.WriteAttributeString("font-size", "12");
+                writer.WriteString("[QR Error]");
+                writer.WriteEndElement();
             }
         }
 
@@ -1131,6 +1127,18 @@ namespace LayoutDesigner.Services
         private string FormatNumber(double value)
         {
             return value.ToString("F2", CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>
+        /// Converts a BitmapSource to Base64-encoded PNG string
+        /// </summary>
+        private string ConvertBitmapToBase64(System.Windows.Media.Imaging.BitmapSource bitmap)
+        {
+            using var stream = new System.IO.MemoryStream();
+            var encoder = new System.Windows.Media.Imaging.PngBitmapEncoder();
+            encoder.Frames.Add(System.Windows.Media.Imaging.BitmapFrame.Create(bitmap));
+            encoder.Save(stream);
+            return Convert.ToBase64String(stream.ToArray());
         }
 
         /// <summary>
