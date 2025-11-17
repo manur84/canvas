@@ -32,6 +32,7 @@ namespace LayoutDesigner
             Services.Register<ILayoutStorageService, LayoutStorageService>();
             Services.Register<IQrCodeService, QrCodeService>();
             Services.Register<IExportService, ExportService>();
+            Services.Register<ISvgExportService, SvgExportService>();
             Services.Register<IAssetService, AssetService>();
             Services.Register<ITemplateService, TemplateService>();
             Services.Register<IDirtyTrackingService, DirtyTrackingService>();

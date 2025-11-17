@@ -66,6 +66,7 @@
                 <MenuItem Header="E_xport">
                     <MenuItem Header="Export as _PNG..." Command="{Binding ExportPngCommand}"/>
                     <MenuItem Header="Export as _JPG..." Command="{Binding ExportJpgCommand}"/>
+                    <MenuItem Header="Export as _SVG..." Command="{Binding CanvasViewModel.ExportToSvgCommand}"/>
                 </MenuItem>
                 <Separator/>
                 <MenuItem Header="E_xit" Command="{Binding ExitCommand}"/>
