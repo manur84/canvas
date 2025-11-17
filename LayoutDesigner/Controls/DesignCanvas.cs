@@ -331,7 +331,22 @@ namespace LayoutDesigner.Controls
                 }
                 else if (e.Source is FrameworkElement element)
                 {
+                    // Handle simple click (not a drag) - select the element
+                    if (!_isDragging && element.DataContext is LayoutElementBase layoutElement)
+                    {
+                        SelectElement(layoutElement, Keyboard.Modifiers.HasFlag(ModifierKeys.Control));
+                    }
+
                     element.ReleaseMouseCapture();
+                }
+                else if (e.Source == this)
+                {
+                    // Click on empty canvas - clear selection
+                    if (!_isDragging && !_isRectangleSelecting)
+                    {
+                        ClearSelection();
+                    }
+                    ReleaseMouseCapture();
                 }
 
                 // Clear snap lines when drag ends
@@ -448,6 +463,62 @@ namespace LayoutDesigner.Controls
                 if (Math.Abs(movingBottom - otherY) < snapDistance) // Bottom to Top
                     _snapLinesAdorner.ShowHorizontalLine(otherY, 0, ActualWidth);
             }
+        }
+
+        /// <summary>
+        /// Selects a single element (or toggles selection if Ctrl is held)
+        /// </summary>
+        private void SelectElement(LayoutElementBase element, bool isCtrlHeld)
+        {
+            if (CanvasViewModel == null)
+                return;
+
+            // Use reflection to access SelectedElements
+            var canvasVmType = CanvasViewModel.GetType();
+            var selectedElementsProperty = canvasVmType.GetProperty("SelectedElements");
+            if (selectedElementsProperty == null)
+                return;
+
+            var selectedElements = selectedElementsProperty.GetValue(CanvasViewModel) as System.Collections.IList;
+            if (selectedElements == null)
+                return;
+
+            if (isCtrlHeld)
+            {
+                // Toggle selection
+                if (selectedElements.Contains(element))
+                {
+                    selectedElements.Remove(element);
+                }
+                else
+                {
+                    selectedElements.Add(element);
+                }
+            }
+            else
+            {
+                // Single selection
+                selectedElements.Clear();
+                selectedElements.Add(element);
+            }
+        }
+
+        /// <summary>
+        /// Clears all element selection
+        /// </summary>
+        private void ClearSelection()
+        {
+            if (CanvasViewModel == null)
+                return;
+
+            // Use reflection to access SelectedElements
+            var canvasVmType = CanvasViewModel.GetType();
+            var selectedElementsProperty = canvasVmType.GetProperty("SelectedElements");
+            if (selectedElementsProperty == null)
+                return;
+
+            var selectedElements = selectedElementsProperty.GetValue(CanvasViewModel) as System.Collections.IList;
+            selectedElements?.Clear();
         }
 
         #endregion
