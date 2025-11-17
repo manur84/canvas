@@ -66,6 +66,63 @@ namespace LayoutDesigner.Services
                 writer.WriteAttributeString("text-rendering", "geometricPrecision");
                 writer.WriteAttributeString("image-rendering", "optimizeQuality");
 
+                // Definitions section for filters, gradients, and markers
+                writer.WriteStartElement("defs");
+                int filterId = 0;
+                int gradientId = 0;
+
+                // Pre-create filters and gradients for all elements
+                var sortedElements = document.Elements.OrderBy(e => e.ZIndex).ToList();
+                foreach (var element in sortedElements)
+                {
+                    if (!element.IsVisible) continue;
+
+                    switch (element)
+                    {
+                        case TextElement textElement:
+                            if (textElement.HasShadow)
+                            {
+                                textElement.Name = textElement.Name ?? "text";
+                                CreateShadowFilter(writer, $"shadow_{element.Id}", textElement.ShadowColor,
+                                    textElement.ShadowBlur, textElement.ShadowOffsetX, textElement.ShadowOffsetY);
+                            }
+                            break;
+                        case ShapeElement shapeElement:
+                            if (shapeElement.UseGradient)
+                            {
+                                CreateGradient(writer, $"gradient_{element.Id}", shapeElement.GradientStartColor,
+                                    shapeElement.GradientEndColor, shapeElement.GradientDirection, element.Width, element.Height);
+                            }
+                            if (shapeElement.HasShadow)
+                            {
+                                CreateShadowFilter(writer, $"shadow_{element.Id}", shapeElement.ShadowColor,
+                                    shapeElement.ShadowBlur, shapeElement.ShadowOffsetX, shapeElement.ShadowOffsetY);
+                            }
+                            break;
+                        case ImageElement imageElement:
+                            if (imageElement.HasShadow || imageElement.Blur > 0 || imageElement.Grayscale ||
+                                Math.Abs(imageElement.Brightness - 1.0) > 0.001 ||
+                                Math.Abs(imageElement.Contrast - 1.0) > 0.001 ||
+                                Math.Abs(imageElement.Saturation - 1.0) > 0.001)
+                            {
+                                CreateImageFilter(writer, $"filter_{element.Id}", imageElement);
+                            }
+                            if (imageElement.CornerRadius > 0)
+                            {
+                                CreateRoundedClipPath(writer, $"clip_{element.Id}", element.Width, element.Height, imageElement.CornerRadius);
+                            }
+                            break;
+                    }
+                }
+
+                // Add arrow markers for lines
+                CreateArrowMarker(writer, "arrowStart", "start");
+                CreateArrowMarker(writer, "arrowEnd", "end");
+                CreateCircleMarker(writer, "circleMarker");
+                CreateSquareMarker(writer, "squareMarker");
+
+                writer.WriteEndElement(); // defs
+
                 // Background
                 if (!string.IsNullOrEmpty(document.BackgroundColor))
                 {
@@ -77,8 +134,6 @@ namespace LayoutDesigner.Services
                 }
 
                 // Export elements sorted by Z-Index
-                var sortedElements = document.Elements.OrderBy(e => e.ZIndex).ToList();
-
                 foreach (var element in sortedElements)
                 {
                     if (!element.IsVisible) continue;
@@ -147,26 +202,72 @@ namespace LayoutDesigner.Services
 
         private void ExportTextElement(XmlWriter writer, TextElement element)
         {
-            // Background rect
-            if (!string.IsNullOrEmpty(element.BackgroundColor))
+            // Background rect with border if enabled
+            if (!string.IsNullOrEmpty(element.BackgroundColor) || element.HasBorder)
             {
                 writer.WriteStartElement("rect");
                 writer.WriteAttributeString("width", FormatNumber(element.Width));
                 writer.WriteAttributeString("height", FormatNumber(element.Height));
-                writer.WriteAttributeString("fill", element.BackgroundColor);
+                writer.WriteAttributeString("fill", !string.IsNullOrEmpty(element.BackgroundColor) ? element.BackgroundColor : "none");
                 writer.WriteAttributeString("rx", FormatNumber(element.CornerRadius));
+
+                if (element.HasBorder)
+                {
+                    writer.WriteAttributeString("stroke", element.BorderColor);
+                    writer.WriteAttributeString("stroke-width", FormatNumber(element.BorderThickness));
+                }
+
                 writer.WriteEndElement();
             }
 
-            // Text
+            // Calculate text position based on alignment
+            double textX = element.Padding;
+            string textAnchor = "start";
+
+            switch (element.TextAlignment)
+            {
+                case System.Windows.TextAlignment.Left:
+                    textX = element.Padding;
+                    textAnchor = "start";
+                    break;
+                case System.Windows.TextAlignment.Center:
+                    textX = element.Width / 2;
+                    textAnchor = "middle";
+                    break;
+                case System.Windows.TextAlignment.Right:
+                    textX = element.Width - element.Padding;
+                    textAnchor = "end";
+                    break;
+            }
+
+            double textY = element.Padding;
+            string dominantBaseline = "text-before-edge";
+
+            switch (element.VerticalAlignment)
+            {
+                case System.Windows.VerticalAlignment.Top:
+                    textY = element.Padding + element.FontSize * 0.8;
+                    dominantBaseline = "text-before-edge";
+                    break;
+                case System.Windows.VerticalAlignment.Center:
+                    textY = element.Height / 2;
+                    dominantBaseline = "middle";
+                    break;
+                case System.Windows.VerticalAlignment.Bottom:
+                    textY = element.Height - element.Padding;
+                    dominantBaseline = "text-after-edge";
+                    break;
+            }
+
+            // Text with all styling
             writer.WriteStartElement("text");
-            writer.WriteAttributeString("x", FormatNumber(element.Width / 2));
-            writer.WriteAttributeString("y", FormatNumber(element.Height / 2));
+            writer.WriteAttributeString("x", FormatNumber(textX));
+            writer.WriteAttributeString("y", FormatNumber(textY));
             writer.WriteAttributeString("font-family", element.FontFamily);
             writer.WriteAttributeString("font-size", FormatNumber(element.FontSize));
             writer.WriteAttributeString("fill", element.ForegroundColor);
-            writer.WriteAttributeString("text-anchor", "middle");
-            writer.WriteAttributeString("dominant-baseline", "middle");
+            writer.WriteAttributeString("text-anchor", textAnchor);
+            writer.WriteAttributeString("dominant-baseline", dominantBaseline);
 
             if (element.IsBold)
                 writer.WriteAttributeString("font-weight", "bold");
@@ -175,12 +276,31 @@ namespace LayoutDesigner.Services
             if (element.IsUnderline)
                 writer.WriteAttributeString("text-decoration", "underline");
 
+            if (Math.Abs(element.LetterSpacing) > 0.001)
+                writer.WriteAttributeString("letter-spacing", FormatNumber(element.LetterSpacing));
+
+            if (element.HasShadow)
+                writer.WriteAttributeString("filter", $"url(#shadow_{element.Id})");
+
             writer.WriteString(element.Text);
             writer.WriteEndElement();
         }
 
         private void ExportImageElement(XmlWriter writer, ImageElement element)
         {
+            // Border if enabled
+            if (element.HasBorder)
+            {
+                writer.WriteStartElement("rect");
+                writer.WriteAttributeString("width", FormatNumber(element.Width));
+                writer.WriteAttributeString("height", FormatNumber(element.Height));
+                writer.WriteAttributeString("fill", "none");
+                writer.WriteAttributeString("stroke", element.BorderColor);
+                writer.WriteAttributeString("stroke-width", FormatNumber(element.BorderThickness));
+                writer.WriteAttributeString("rx", FormatNumber(element.CornerRadius));
+                writer.WriteEndElement();
+            }
+
             writer.WriteStartElement("image");
             writer.WriteAttributeString("width", FormatNumber(element.Width));
             writer.WriteAttributeString("height", FormatNumber(element.Height));
@@ -196,11 +316,29 @@ namespace LayoutDesigner.Services
             }
 
             writer.WriteAttributeString("preserveAspectRatio", element.MaintainAspectRatio ? "xMidYMid meet" : "none");
+
+            // Apply filter if any image effects are enabled
+            if (element.HasShadow || element.Blur > 0 || element.Grayscale ||
+                Math.Abs(element.Brightness - 1.0) > 0.001 ||
+                Math.Abs(element.Contrast - 1.0) > 0.001 ||
+                Math.Abs(element.Saturation - 1.0) > 0.001)
+            {
+                writer.WriteAttributeString("filter", $"url(#filter_{element.Id})");
+            }
+
+            // Apply clip path for rounded corners
+            if (element.CornerRadius > 0)
+            {
+                writer.WriteAttributeString("clip-path", $"url(#clip_{element.Id})");
+            }
+
             writer.WriteEndElement();
         }
 
         private void ExportShapeElement(XmlWriter writer, ShapeElement element)
         {
+            var fillValue = element.UseGradient ? $"url(#gradient_{element.Id})" : element.FillColor;
+
             switch (element.ShapeType)
             {
                 case ShapeType.Rectangle:
@@ -208,14 +346,21 @@ namespace LayoutDesigner.Services
                     writer.WriteStartElement("rect");
                     writer.WriteAttributeString("width", FormatNumber(element.Width));
                     writer.WriteAttributeString("height", FormatNumber(element.Height));
-                    writer.WriteAttributeString("fill", element.FillColor);
+                    writer.WriteAttributeString("fill", fillValue);
                     writer.WriteAttributeString("stroke", element.StrokeColor);
                     writer.WriteAttributeString("stroke-width", FormatNumber(element.StrokeThickness));
+
                     if (element.ShapeType == ShapeType.RoundedRectangle)
                     {
                         writer.WriteAttributeString("rx", FormatNumber(element.CornerRadius));
                         writer.WriteAttributeString("ry", FormatNumber(element.CornerRadius));
                     }
+
+                    ApplyStrokeDashStyle(writer, element.StrokeDashStyle);
+
+                    if (element.HasShadow)
+                        writer.WriteAttributeString("filter", $"url(#shadow_{element.Id})");
+
                     writer.WriteEndElement();
                     break;
 
@@ -225,9 +370,15 @@ namespace LayoutDesigner.Services
                     writer.WriteAttributeString("cy", FormatNumber(element.Height / 2));
                     writer.WriteAttributeString("rx", FormatNumber(element.Width / 2));
                     writer.WriteAttributeString("ry", FormatNumber(element.Height / 2));
-                    writer.WriteAttributeString("fill", element.FillColor);
+                    writer.WriteAttributeString("fill", fillValue);
                     writer.WriteAttributeString("stroke", element.StrokeColor);
                     writer.WriteAttributeString("stroke-width", FormatNumber(element.StrokeThickness));
+
+                    ApplyStrokeDashStyle(writer, element.StrokeDashStyle);
+
+                    if (element.HasShadow)
+                        writer.WriteAttributeString("filter", $"url(#shadow_{element.Id})");
+
                     writer.WriteEndElement();
                     break;
 
@@ -240,6 +391,9 @@ namespace LayoutDesigner.Services
                     writer.WriteAttributeString("stroke", element.StrokeColor);
                     writer.WriteAttributeString("stroke-width", FormatNumber(element.StrokeThickness));
                     writer.WriteAttributeString("stroke-linecap", "round");
+
+                    ApplyStrokeDashStyle(writer, element.StrokeDashStyle);
+
                     writer.WriteEndElement();
                     break;
             }
@@ -255,27 +409,61 @@ namespace LayoutDesigner.Services
             writer.WriteAttributeString("stroke", element.StrokeColor);
             writer.WriteAttributeString("stroke-width", FormatNumber(element.StrokeThickness));
             writer.WriteAttributeString("stroke-linecap", "round");
+
+            // Apply dash style
+            ApplyStrokeDashStyle(writer, element.StrokeDashStyle);
+
+            // Apply line caps (markers)
+            if (!string.IsNullOrEmpty(element.StartCap) && element.StartCap != "None")
+            {
+                var markerRef = GetMarkerReference(element.StartCap);
+                if (!string.IsNullOrEmpty(markerRef))
+                    writer.WriteAttributeString("marker-start", markerRef);
+            }
+
+            if (!string.IsNullOrEmpty(element.EndCap) && element.EndCap != "None")
+            {
+                var markerRef = GetMarkerReference(element.EndCap);
+                if (!string.IsNullOrEmpty(markerRef))
+                    writer.WriteAttributeString("marker-end", markerRef);
+            }
+
             writer.WriteEndElement();
         }
 
         private void ExportQrCodeElement(XmlWriter writer, QrCodeElement element)
         {
-            // QR Code as placeholder rectangle
+            // QR Code background
             writer.WriteStartElement("rect");
             writer.WriteAttributeString("width", FormatNumber(element.Width));
             writer.WriteAttributeString("height", FormatNumber(element.Height));
             writer.WriteAttributeString("fill", element.BackgroundColor);
+            writer.WriteAttributeString("stroke", element.BorderColor);
+            writer.WriteAttributeString("stroke-width", "1");
             writer.WriteEndElement();
 
-            // Add text label
-            writer.WriteStartElement("text");
-            writer.WriteAttributeString("x", FormatNumber(element.Width / 2));
-            writer.WriteAttributeString("y", FormatNumber(element.Height / 2));
-            writer.WriteAttributeString("text-anchor", "middle");
-            writer.WriteAttributeString("dominant-baseline", "middle");
-            writer.WriteAttributeString("font-size", "12");
-            writer.WriteString("[QR Code]");
-            writer.WriteEndElement();
+            // QR Code pattern (simplified representation using foreground color)
+            var patternSize = Math.Min(element.Width, element.Height) / 25; // Approximate QR grid
+            for (int row = 0; row < 25; row++)
+            {
+                for (int col = 0; col < 25; col++)
+                {
+                    // Create a simple QR-like pattern (corners + scattered dots)
+                    bool shouldDraw = (row < 7 && col < 7) || (row < 7 && col >= 18) || (row >= 18 && col < 7) ||
+                                     ((row + col) % 3 == 0 && row > 8 && row < 17 && col > 8 && col < 17);
+
+                    if (shouldDraw)
+                    {
+                        writer.WriteStartElement("rect");
+                        writer.WriteAttributeString("x", FormatNumber(col * patternSize + (element.Width - 25 * patternSize) / 2));
+                        writer.WriteAttributeString("y", FormatNumber(row * patternSize + (element.Height - 25 * patternSize) / 2));
+                        writer.WriteAttributeString("width", FormatNumber(patternSize * 0.9));
+                        writer.WriteAttributeString("height", FormatNumber(patternSize * 0.9));
+                        writer.WriteAttributeString("fill", element.ForegroundColor);
+                        writer.WriteEndElement();
+                    }
+                }
+            }
         }
 
         private void ExportTableElement(XmlWriter writer, TableElement element)
@@ -372,10 +560,55 @@ namespace LayoutDesigner.Services
             writer.WriteAttributeString("rx", FormatNumber(element.CornerRadius));
             writer.WriteEndElement();
 
+            // Calculate positions based on icon presence and position
+            double iconSize = element.FontSize * 1.2;
+            double spacing = 6;
+            bool hasIcon = !string.IsNullOrEmpty(element.Icon);
+
+            double textX = element.Width / 2;
+            double textY = element.Height / 2;
+            double iconX = element.Width / 2;
+            double iconY = element.Height / 2;
+
+            if (hasIcon)
+            {
+                switch (element.IconPosition)
+                {
+                    case "Left":
+                        iconX = element.Width / 2 - spacing;
+                        textX = element.Width / 2 + iconSize / 2 + spacing;
+                        break;
+                    case "Right":
+                        textX = element.Width / 2 - iconSize / 2 - spacing;
+                        iconX = element.Width / 2 + spacing;
+                        break;
+                    case "Top":
+                        iconY = element.Height / 2 - spacing;
+                        textY = element.Height / 2 + iconSize / 2 + spacing;
+                        break;
+                    case "Bottom":
+                        textY = element.Height / 2 - iconSize / 2 - spacing;
+                        iconY = element.Height / 2 + spacing;
+                        break;
+                }
+
+                // Icon text
+                writer.WriteStartElement("text");
+                writer.WriteAttributeString("x", FormatNumber(iconX));
+                writer.WriteAttributeString("y", FormatNumber(iconY));
+                writer.WriteAttributeString("font-family", element.FontFamily);
+                writer.WriteAttributeString("font-size", FormatNumber(iconSize));
+                writer.WriteAttributeString("fill", element.ForegroundColor);
+                writer.WriteAttributeString("text-anchor", "middle");
+                writer.WriteAttributeString("dominant-baseline", "middle");
+                writer.WriteString(element.Icon);
+                writer.WriteEndElement();
+            }
+
             // Button text
             writer.WriteStartElement("text");
-            writer.WriteAttributeString("x", FormatNumber(element.Width / 2));
-            writer.WriteAttributeString("y", FormatNumber(element.Height / 2));
+            writer.WriteAttributeString("x", FormatNumber(textX));
+            writer.WriteAttributeString("y", FormatNumber(textY));
             writer.WriteAttributeString("font-family", element.FontFamily);
             writer.WriteAttributeString("font-size", FormatNumber(element.FontSize));
             writer.WriteAttributeString("fill", element.ForegroundColor);
@@ -389,6 +622,338 @@ namespace LayoutDesigner.Services
 
             writer.WriteString(element.Text);
             writer.WriteEndElement();
+        }
+
+        private void CreateShadowFilter(XmlWriter writer, string id, string color, double blur, double offsetX, double offsetY)
+        {
+            writer.WriteStartElement("filter");
+            writer.WriteAttributeString("id", id);
+            writer.WriteAttributeString("x", "-50%");
+            writer.WriteAttributeString("y", "-50%");
+            writer.WriteAttributeString("width", "200%");
+            writer.WriteAttributeString("height", "200%");
+
+            // Flood fill with shadow color
+            writer.WriteStartElement("feFlood");
+            writer.WriteAttributeString("flood-color", color);
+            writer.WriteAttributeString("result", "flood");
+            writer.WriteEndElement();
+
+            // Composite with alpha
+            writer.WriteStartElement("feComposite");
+            writer.WriteAttributeString("in", "flood");
+            writer.WriteAttributeString("in2", "SourceAlpha");
+            writer.WriteAttributeString("operator", "in");
+            writer.WriteAttributeString("result", "shadow");
+            writer.WriteEndElement();
+
+            // Blur
+            writer.WriteStartElement("feGaussianBlur");
+            writer.WriteAttributeString("in", "shadow");
+            writer.WriteAttributeString("stdDeviation", FormatNumber(blur / 2));
+            writer.WriteAttributeString("result", "blurred");
+            writer.WriteEndElement();
+
+            // Offset
+            writer.WriteStartElement("feOffset");
+            writer.WriteAttributeString("in", "blurred");
+            writer.WriteAttributeString("dx", FormatNumber(offsetX));
+            writer.WriteAttributeString("dy", FormatNumber(offsetY));
+            writer.WriteAttributeString("result", "offsetShadow");
+            writer.WriteEndElement();
+
+            // Merge shadow with source
+            writer.WriteStartElement("feMerge");
+            writer.WriteStartElement("feMergeNode");
+            writer.WriteAttributeString("in", "offsetShadow");
+            writer.WriteEndElement();
+            writer.WriteStartElement("feMergeNode");
+            writer.WriteAttributeString("in", "SourceGraphic");
+            writer.WriteEndElement();
+            writer.WriteEndElement(); // feMerge
+
+            writer.WriteEndElement(); // filter
+        }
+
+        private void CreateGradient(XmlWriter writer, string id, string startColor, string endColor, string direction, double width, double height)
+        {
+            bool isLinear = direction != "Radial";
+
+            if (isLinear)
+            {
+                writer.WriteStartElement("linearGradient");
+                writer.WriteAttributeString("id", id);
+
+                switch (direction)
+                {
+                    case "Horizontal":
+                        writer.WriteAttributeString("x1", "0%");
+                        writer.WriteAttributeString("y1", "0%");
+                        writer.WriteAttributeString("x2", "100%");
+                        writer.WriteAttributeString("y2", "0%");
+                        break;
+                    case "Vertical":
+                        writer.WriteAttributeString("x1", "0%");
+                        writer.WriteAttributeString("y1", "0%");
+                        writer.WriteAttributeString("x2", "0%");
+                        writer.WriteAttributeString("y2", "100%");
+                        break;
+                    case "Diagonal":
+                        writer.WriteAttributeString("x1", "0%");
+                        writer.WriteAttributeString("y1", "0%");
+                        writer.WriteAttributeString("x2", "100%");
+                        writer.WriteAttributeString("y2", "100%");
+                        break;
+                }
+            }
+            else
+            {
+                writer.WriteStartElement("radialGradient");
+                writer.WriteAttributeString("id", id);
+                writer.WriteAttributeString("cx", "50%");
+                writer.WriteAttributeString("cy", "50%");
+                writer.WriteAttributeString("r", "50%");
+            }
+
+            writer.WriteStartElement("stop");
+            writer.WriteAttributeString("offset", "0%");
+            writer.WriteAttributeString("stop-color", startColor);
+            writer.WriteEndElement();
+
+            writer.WriteStartElement("stop");
+            writer.WriteAttributeString("offset", "100%");
+            writer.WriteAttributeString("stop-color", endColor);
+            writer.WriteEndElement();
+
+            writer.WriteEndElement(); // linearGradient or radialGradient
+        }
+
+        private void CreateImageFilter(XmlWriter writer, string id, ImageElement element)
+        {
+            writer.WriteStartElement("filter");
+            writer.WriteAttributeString("id", id);
+            writer.WriteAttributeString("x", "-50%");
+            writer.WriteAttributeString("y", "-50%");
+            writer.WriteAttributeString("width", "200%");
+            writer.WriteAttributeString("height", "200%");
+
+            string currentResult = "SourceGraphic";
+
+            // Grayscale
+            if (element.Grayscale)
+            {
+                writer.WriteStartElement("feColorMatrix");
+                writer.WriteAttributeString("in", currentResult);
+                writer.WriteAttributeString("type", "saturate");
+                writer.WriteAttributeString("values", "0");
+                writer.WriteAttributeString("result", "grayscale");
+                writer.WriteEndElement();
+                currentResult = "grayscale";
+            }
+
+            // Saturation
+            if (Math.Abs(element.Saturation - 1.0) > 0.001 && !element.Grayscale)
+            {
+                writer.WriteStartElement("feColorMatrix");
+                writer.WriteAttributeString("in", currentResult);
+                writer.WriteAttributeString("type", "saturate");
+                writer.WriteAttributeString("values", FormatNumber(element.Saturation));
+                writer.WriteAttributeString("result", "saturated");
+                writer.WriteEndElement();
+                currentResult = "saturated";
+            }
+
+            // Brightness & Contrast (using component transfer)
+            if (Math.Abs(element.Brightness - 1.0) > 0.001 || Math.Abs(element.Contrast - 1.0) > 0.001)
+            {
+                writer.WriteStartElement("feComponentTransfer");
+                writer.WriteAttributeString("in", currentResult);
+                writer.WriteAttributeString("result", "adjusted");
+
+                var slope = element.Contrast;
+                var intercept = element.Brightness - 1.0;
+
+                writer.WriteStartElement("feFuncR");
+                writer.WriteAttributeString("type", "linear");
+                writer.WriteAttributeString("slope", FormatNumber(slope));
+                writer.WriteAttributeString("intercept", FormatNumber(intercept));
+                writer.WriteEndElement();
+
+                writer.WriteStartElement("feFuncG");
+                writer.WriteAttributeString("type", "linear");
+                writer.WriteAttributeString("slope", FormatNumber(slope));
+                writer.WriteAttributeString("intercept", FormatNumber(intercept));
+                writer.WriteEndElement();
+
+                writer.WriteStartElement("feFuncB");
+                writer.WriteAttributeString("type", "linear");
+                writer.WriteAttributeString("slope", FormatNumber(slope));
+                writer.WriteAttributeString("intercept", FormatNumber(intercept));
+                writer.WriteEndElement();
+
+                writer.WriteEndElement(); // feComponentTransfer
+                currentResult = "adjusted";
+            }
+
+            // Blur
+            if (element.Blur > 0)
+            {
+                writer.WriteStartElement("feGaussianBlur");
+                writer.WriteAttributeString("in", currentResult);
+                writer.WriteAttributeString("stdDeviation", FormatNumber(element.Blur));
+                writer.WriteAttributeString("result", "blurred");
+                writer.WriteEndElement();
+                currentResult = "blurred";
+            }
+
+            // Shadow (if enabled)
+            if (element.HasShadow)
+            {
+                // Create shadow
+                writer.WriteStartElement("feFlood");
+                writer.WriteAttributeString("flood-color", element.ShadowColor);
+                writer.WriteAttributeString("result", "shadowColor");
+                writer.WriteEndElement();
+
+                writer.WriteStartElement("feComposite");
+                writer.WriteAttributeString("in", "shadowColor");
+                writer.WriteAttributeString("in2", "SourceAlpha");
+                writer.WriteAttributeString("operator", "in");
+                writer.WriteAttributeString("result", "shadowAlpha");
+                writer.WriteEndElement();
+
+                writer.WriteStartElement("feGaussianBlur");
+                writer.WriteAttributeString("in", "shadowAlpha");
+                writer.WriteAttributeString("stdDeviation", FormatNumber(element.ShadowBlur / 2));
+                writer.WriteAttributeString("result", "shadowBlurred");
+                writer.WriteEndElement();
+
+                writer.WriteStartElement("feOffset");
+                writer.WriteAttributeString("in", "shadowBlurred");
+                writer.WriteAttributeString("dx", FormatNumber(element.ShadowOffsetX));
+                writer.WriteAttributeString("dy", FormatNumber(element.ShadowOffsetY));
+                writer.WriteAttributeString("result", "shadowOffset");
+                writer.WriteEndElement();
+
+                // Merge shadow with filtered image
+                writer.WriteStartElement("feMerge");
+                writer.WriteStartElement("feMergeNode");
+                writer.WriteAttributeString("in", "shadowOffset");
+                writer.WriteEndElement();
+                writer.WriteStartElement("feMergeNode");
+                writer.WriteAttributeString("in", currentResult);
+                writer.WriteEndElement();
+                writer.WriteEndElement(); // feMerge
+            }
+
+            writer.WriteEndElement(); // filter
+        }
+
+        private void CreateRoundedClipPath(XmlWriter writer, string id, double width, double height, double radius)
+        {
+            writer.WriteStartElement("clipPath");
+            writer.WriteAttributeString("id", id);
+
+            writer.WriteStartElement("rect");
+            writer.WriteAttributeString("width", FormatNumber(width));
+            writer.WriteAttributeString("height", FormatNumber(height));
+            writer.WriteAttributeString("rx", FormatNumber(radius));
+            writer.WriteAttributeString("ry", FormatNumber(radius));
+            writer.WriteEndElement();
+
+            writer.WriteEndElement(); // clipPath
+        }
+
+        private void CreateArrowMarker(XmlWriter writer, string id, string position)
+        {
+            writer.WriteStartElement("marker");
+            writer.WriteAttributeString("id", id);
+            writer.WriteAttributeString("markerWidth", "10");
+            writer.WriteAttributeString("markerHeight", "10");
+            writer.WriteAttributeString("refX", position == "start" ? "0" : "10");
+            writer.WriteAttributeString("refY", "5");
+            writer.WriteAttributeString("orient", "auto");
+            writer.WriteAttributeString("markerUnits", "strokeWidth");
+
+            writer.WriteStartElement("path");
+            if (position == "start")
+                writer.WriteAttributeString("d", "M 10 0 L 0 5 L 10 10 z");
+            else
+                writer.WriteAttributeString("d", "M 0 0 L 10 5 L 0 10 z");
+            writer.WriteAttributeString("fill", "context-stroke");
+            writer.WriteEndElement();
+
+            writer.WriteEndElement(); // marker
+        }
+
+        private void CreateCircleMarker(XmlWriter writer, string id)
+        {
+            writer.WriteStartElement("marker");
+            writer.WriteAttributeString("id", id);
+            writer.WriteAttributeString("markerWidth", "8");
+            writer.WriteAttributeString("markerHeight", "8");
+            writer.WriteAttributeString("refX", "4");
+            writer.WriteAttributeString("refY", "4");
+            writer.WriteAttributeString("markerUnits", "strokeWidth");
+
+            writer.WriteStartElement("circle");
+            writer.WriteAttributeString("cx", "4");
+            writer.WriteAttributeString("cy", "4");
+            writer.WriteAttributeString("r", "3");
+            writer.WriteAttributeString("fill", "context-stroke");
+            writer.WriteEndElement();
+
+            writer.WriteEndElement(); // marker
+        }
+
+        private void CreateSquareMarker(XmlWriter writer, string id)
+        {
+            writer.WriteStartElement("marker");
+            writer.WriteAttributeString("id", id);
+            writer.WriteAttributeString("markerWidth", "8");
+            writer.WriteAttributeString("markerHeight", "8");
+            writer.WriteAttributeString("refX", "4");
+            writer.WriteAttributeString("refY", "4");
+            writer.WriteAttributeString("markerUnits", "strokeWidth");
+
+            writer.WriteStartElement("rect");
+            writer.WriteAttributeString("x", "1");
+            writer.WriteAttributeString("y", "1");
+            writer.WriteAttributeString("width", "6");
+            writer.WriteAttributeString("height", "6");
+            writer.WriteAttributeString("fill", "context-stroke");
+            writer.WriteEndElement();
+
+            writer.WriteEndElement(); // marker
+        }
+
+        private void ApplyStrokeDashStyle(XmlWriter writer, string dashStyle)
+        {
+            if (string.IsNullOrEmpty(dashStyle) || dashStyle == "Solid")
+                return;
+
+            string dashArray = dashStyle switch
+            {
+                "Dash" => "8,4",
+                "Dot" => "2,2",
+                "DashDot" => "8,4,2,4",
+                "DashDotDot" => "8,4,2,4,2,4",
+                _ => null
+            };
+
+            if (!string.IsNullOrEmpty(dashArray))
+                writer.WriteAttributeString("stroke-dasharray", dashArray);
+        }
+
+        private string GetMarkerReference(string capStyle)
+        {
+            return capStyle switch
+            {
+                "Arrow" => "url(#arrowEnd)",
+                "Circle" => "url(#circleMarker)",
+                "Square" => "url(#squareMarker)",
+                _ => null
+            };
         }
 
         private string FormatNumber(double value)
