@@ -179,7 +179,7 @@
     <!-- LineElement DataTemplate -->
     <DataTemplate DataType="{x:Type models:LineElement}">
         <!-- Grid container makes entire bounds clickable for selection and dragging -->
-        <Grid>
+        <Grid Background="Transparent">
             <!-- Invisible thick line for easier hit-testing and selection (min 10px thickness) -->
             <Line X1="0" Y1="0"
                   X2="{Binding X2}"

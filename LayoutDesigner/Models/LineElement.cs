@@ -21,10 +21,11 @@ namespace LayoutDesigner.Models
         /// <summary>
         /// Width is calculated from X2 for LineElements
         /// Setting Width updates X2 accordingly
+        /// Minimum 10px for proper hit-testing on horizontal/vertical lines
         /// </summary>
         public override double Width
         {
-            get => Math.Abs(_x2);
+            get => Math.Max(Math.Abs(_x2), 10);
             set
             {
                 var newX2 = _x2 < 0 ? -value : value;
@@ -38,10 +39,11 @@ namespace LayoutDesigner.Models
         /// <summary>
         /// Height is calculated from Y2 for LineElements
         /// Setting Height updates Y2 accordingly
+        /// Minimum 10px for proper hit-testing on horizontal/vertical lines
         /// </summary>
         public override double Height
         {
-            get => Math.Abs(_y2);
+            get => Math.Max(Math.Abs(_y2), 10);
             set
             {
                 var newY2 = _y2 < 0 ? -value : value;
