@@ -216,12 +216,13 @@ namespace LayoutDesigner.Controls
                     return cpLayoutElement;
 
                 // Check FrameworkElement's DataContext
-                if (current is FrameworkElement fe)
+                if (current is FrameworkElement fe && fe.DataContext is LayoutElementBase layoutElement)
                 {
-                    if (fe.DataContext is LayoutElementBase layoutElement)
-                        return layoutElement;
+                    return layoutElement;
                 }
 
+                // Keep searching up the tree - don't stop at elements with non-LayoutElement DataContext
+                // (e.g., TableCell, which is the DataContext of Table cells)
                 current = VisualTreeHelper.GetParent(current);
             }
             return null;
