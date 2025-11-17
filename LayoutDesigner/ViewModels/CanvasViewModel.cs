@@ -583,8 +583,11 @@ namespace LayoutDesigner.ViewModels
             GridSize = document.GridSize;
             SnapToGrid = document.SnapToGrid;
 
+            // Notify UI that Elements collection has changed
+            OnPropertyChanged(nameof(Elements));
             OnPropertyChanged(nameof(CanvasWidth));
             OnPropertyChanged(nameof(CanvasHeight));
+            OnPropertyChanged(nameof(BackgroundColor));
         }
 
         public void NewDocument()
