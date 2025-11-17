@@ -286,10 +286,10 @@
                                     <Setter Property="behaviors:SmartCachingBehavior.EnableSmartCaching" Value="True"/>
 
                                     <!-- Canvas positioning via attached properties -->
-                                    <Setter Property="Canvas.Left" Value="{Binding X}"/>
-                                    <Setter Property="Canvas.Top" Value="{Binding Y}"/>
-                                    <Setter Property="Width" Value="{Binding Width}"/>
-                                    <Setter Property="Height" Value="{Binding Height}"/>
+                                    <Setter Property="Canvas.Left" Value="{Binding X, Mode=TwoWay}"/>
+                                    <Setter Property="Canvas.Top" Value="{Binding Y, Mode=TwoWay}"/>
+                                    <Setter Property="Width" Value="{Binding Width, Mode=TwoWay}"/>
+                                    <Setter Property="Height" Value="{Binding Height, Mode=TwoWay}"/>
                                     <Setter Property="Canvas.ZIndex" Value="{Binding ZIndex}"/>
 
                                     <!-- Rotation transform -->
