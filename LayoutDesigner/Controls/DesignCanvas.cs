@@ -22,6 +22,7 @@ namespace LayoutDesigner.Controls
         private bool _isDragging;
         private bool _isRectangleSelecting;
         private Pen? _gridPen; // Cached pen for grid rendering
+        private LayoutElementBase? _draggingElement; // Track which element is being dragged
 
         // Adorners for visual feedback
         private SnapLinesAdorner? _snapLinesAdorner;
@@ -205,26 +206,34 @@ namespace LayoutDesigner.Controls
 
         #region Mouse Handling
 
+        /// <summary>
+        /// Finds the LayoutElementBase by walking up the visual tree from the source element
+        /// </summary>
+        private LayoutElementBase? FindLayoutElement(DependencyObject? source)
+        {
+            var current = source;
+            while (current != null && current != this)
+            {
+                if (current is FrameworkElement fe && fe.DataContext is LayoutElementBase layoutElement)
+                {
+                    return layoutElement;
+                }
+                current = VisualTreeHelper.GetParent(current);
+            }
+            return null;
+        }
+
         private void OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
-            if (e.Source is FrameworkElement element && element.DataContext is LayoutElementBase)
-            {
-                // Dragging an element
-                _dragStartPoint = e.GetPosition(this);
-                _isDragging = false;
-                _isRectangleSelecting = false;
-                element.CaptureMouse();
-                e.Handled = true;
-            }
-            else if (e.Source == this)
-            {
-                // Click on empty canvas - start rectangle selection
-                _dragStartPoint = e.GetPosition(this);
-                _isDragging = false;
-                _isRectangleSelecting = false;
-                CaptureMouse();
-                e.Handled = true;
-            }
+            // Try to find an element by walking up the visual tree
+            var layoutElement = FindLayoutElement(e.OriginalSource as DependencyObject);
+
+            _dragStartPoint = e.GetPosition(this);
+            _isDragging = false;
+            _isRectangleSelecting = false;
+            _draggingElement = layoutElement; // Store which element was clicked
+            CaptureMouse();
+            e.Handled = true;
         }
 
         private void OnMouseMove(object sender, MouseEventArgs e)
@@ -242,7 +251,7 @@ namespace LayoutDesigner.Controls
                 if (Math.Abs(delta.X) > UIConstants.DragDeadZonePixels || Math.Abs(delta.Y) > UIConstants.DragDeadZonePixels)
                 {
                     // Check if we're dragging an element or doing rectangle selection
-                    if (e.Source is FrameworkElement elem && elem.DataContext is LayoutElementBase)
+                    if (_draggingElement != null)
                     {
                         _isDragging = true;
                     }
@@ -267,8 +276,10 @@ namespace LayoutDesigner.Controls
             }
 
             // Performance: Only process if we have valid element for dragging
-            if (e.Source is not FrameworkElement element || element.DataContext is not LayoutElementBase layoutElement)
+            if (_draggingElement == null)
                 return;
+
+            var layoutElement = _draggingElement;
 
             // Calculate new position
             var newX = layoutElement.X + delta.X;
@@ -327,27 +338,20 @@ namespace LayoutDesigner.Controls
                 {
                     var selectionRect = _selectionAdorner.EndSelection();
                     SelectElementsInRectangle(selectionRect);
-                    ReleaseMouseCapture();
                 }
-                else if (e.Source is FrameworkElement element)
+                else if (!_isDragging && _draggingElement != null)
                 {
                     // Handle simple click (not a drag) - select the element
-                    if (!_isDragging && element.DataContext is LayoutElementBase layoutElement)
-                    {
-                        SelectElement(layoutElement, Keyboard.Modifiers.HasFlag(ModifierKeys.Control));
-                    }
-
-                    element.ReleaseMouseCapture();
+                    SelectElement(_draggingElement, Keyboard.Modifiers.HasFlag(ModifierKeys.Control));
                 }
-                else if (e.Source == this)
+                else if (!_isDragging && _draggingElement == null)
                 {
                     // Click on empty canvas - clear selection
-                    if (!_isDragging && !_isRectangleSelecting)
-                    {
-                        ClearSelection();
-                    }
-                    ReleaseMouseCapture();
+                    ClearSelection();
                 }
+
+                // Release mouse and clear state
+                ReleaseMouseCapture();
 
                 // Clear snap lines when drag ends
                 _snapLinesAdorner?.Clear();
@@ -355,6 +359,7 @@ namespace LayoutDesigner.Controls
                 _dragStartPoint = null;
                 _isDragging = false;
                 _isRectangleSelecting = false;
+                _draggingElement = null;
                 e.Handled = true;
             }
         }
