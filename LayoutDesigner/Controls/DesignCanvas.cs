@@ -211,16 +211,16 @@ namespace LayoutDesigner.Controls
             var current = source;
             while (current != null && current != this)
             {
+                // Check ContentPresenter's Content first (most reliable for ItemsControl items)
+                if (current is ContentPresenter cp && cp.Content is LayoutElementBase cpLayoutElement)
+                    return cpLayoutElement;
+
                 // Check FrameworkElement's DataContext
                 if (current is FrameworkElement fe)
                 {
                     if (fe.DataContext is LayoutElementBase layoutElement)
                         return layoutElement;
                 }
-
-                // Check ContentPresenter's Content
-                if (current is ContentPresenter cp && cp.Content is LayoutElementBase cpLayoutElement)
-                    return cpLayoutElement;
 
                 current = VisualTreeHelper.GetParent(current);
             }
@@ -231,9 +231,14 @@ namespace LayoutDesigner.Controls
         {
             base.OnPreviewMouseLeftButtonDown(e);
 
-            // Don't interfere with TextBox or other input controls
-            if (e.OriginalSource is System.Windows.Controls.TextBox ||
-                e.OriginalSource is System.Windows.Controls.TextBlock && (e.OriginalSource as System.Windows.Controls.TextBlock)?.IsMouseDirectlyOver == true)
+            // Don't interfere with TextBox editing (but allow dragging when not focused)
+            if (e.OriginalSource is System.Windows.Controls.TextBox textBox && textBox.IsFocused)
+            {
+                return;
+            }
+
+            // Don't interfere with direct TextBlock interactions
+            if (e.OriginalSource is System.Windows.Controls.TextBlock textBlock && textBlock.IsMouseDirectlyOver && textBlock.IsFocused)
             {
                 return;
             }
