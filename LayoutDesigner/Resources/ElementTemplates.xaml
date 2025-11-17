@@ -214,19 +214,20 @@
     <!-- TableElement DataTemplate -->
     <DataTemplate DataType="{x:Type models:TableElement}">
         <Border BorderBrush="{Binding BorderColor, Converter={StaticResource ColorToBrushConverter}}"
+                BorderThickness="{Binding BorderThickness}"
                 Background="Transparent">
             <Border.Style>
                 <Style TargetType="Border">
                     <Setter Property="BorderThickness" Value="0"/>
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding ShowBorder}" Value="True">
-                            <Setter Property="BorderThickness" Value="1"/>
+                            <Setter Property="BorderThickness" Value="{Binding BorderThickness, RelativeSource={RelativeSource Self}}"/>
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
             </Border.Style>
             <!-- 2D Grid of editable cells -->
-            <ItemsControl ItemsSource="{Binding Cells}">
+            <ItemsControl ItemsSource="{Binding Cells}" x:Name="TableRows">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel Orientation="Vertical"/>
@@ -244,12 +245,14 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <!-- Each cell -->
-                                    <Border Background="{Binding BackgroundColor, Converter={StaticResource ColorToBrushConverter}}"
+                                    <Border x:Name="CellBorder"
+                                            Background="{Binding BackgroundColor, Converter={StaticResource ColorToBrushConverter}}"
                                             BorderBrush="{Binding BorderColor, Converter={StaticResource ColorToBrushConverter}}"
                                             BorderThickness="{Binding BorderThickness}"
                                             MinWidth="80"
                                             MinHeight="30">
                                         <TextBox Text="{Binding Value, UpdateSourceTrigger=LostFocus}"
+                                                x:Name="CellTextBox"
                                                 FontFamily="{Binding FontFamily}"
                                                 FontSize="{Binding FontSize}"
                                                 Foreground="{Binding ForegroundColor, Converter={StaticResource ColorToBrushConverter}}"
