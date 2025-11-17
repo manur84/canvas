@@ -45,7 +45,8 @@ namespace LayoutDesigner.Controls
                 Stroke = new SolidColorBrush(Color.FromArgb(60, 0, 120, 215)),
                 StrokeThickness = 4,
                 Fill = Brushes.Transparent,
-                Effect = new BlurEffect { Radius = 3 }
+                Effect = new BlurEffect { Radius = 3 },
+                IsHitTestVisible = false  // Don't block mouse events for dragging
             };
             _visualChildren.Add(_shadowBorder);
 
@@ -55,7 +56,8 @@ namespace LayoutDesigner.Controls
                 Stroke = Brushes.DodgerBlue,
                 StrokeThickness = 2,
                 StrokeDashArray = new DoubleCollection { 5, 3 },
-                Fill = Brushes.Transparent
+                Fill = Brushes.Transparent,
+                IsHitTestVisible = false  // Don't block mouse events for dragging
             };
             _visualChildren.Add(_border);
 
@@ -66,7 +68,8 @@ namespace LayoutDesigner.Controls
                 Foreground = Brushes.White,
                 Padding = new Thickness(4, 2, 4, 2),
                 FontSize = 10,
-                FontWeight = FontWeights.Bold
+                FontWeight = FontWeights.Bold,
+                IsHitTestVisible = false  // Don't block mouse events for dragging
             };
             _visualChildren.Add(_dimensionLabel);
 
