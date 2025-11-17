@@ -261,44 +261,49 @@
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <!-- Each cell -->
+                                    <!-- Each cell - now uses cell-level properties with table-level fallbacks -->
                                     <Border x:Name="CellBorder"
                                             MinWidth="80"
                                             MinHeight="30"
-                                            BorderThickness="0">
+                                            Background="{Binding BackgroundColor, Converter={StaticResource ColorToBrushConverter}}"
+                                            BorderBrush="{Binding BorderColor, Converter={StaticResource ColorToBrushConverter}}"
+                                            BorderThickness="{Binding BorderThickness}">
                                         <Border.Style>
                                             <Style TargetType="Border">
-                                                <!-- Default: data row styling -->
-                                                <Setter Property="Background">
-                                                    <Setter.Value>
-                                                        <Binding Path="DataContext.RowBackgroundColor"
-                                                                ElementName="TableRoot"
-                                                                Converter="{StaticResource ColorToBrushConverter}"/>
-                                                    </Setter.Value>
-                                                </Setter>
-                                                <Setter Property="BorderBrush">
-                                                    <Setter.Value>
-                                                        <Binding Path="DataContext.BorderColor"
-                                                                ElementName="TableRoot"
-                                                                Converter="{StaticResource ColorToBrushConverter}"/>
-                                                    </Setter.Value>
-                                                </Setter>
                                                 <Style.Triggers>
-                                                    <!-- Show border if ShowBorder is true -->
-                                                    <DataTrigger Binding="{Binding DataContext.ShowBorder, ElementName=TableRoot}" Value="True">
-                                                        <Setter Property="BorderThickness">
+                                                    <!-- Apply table-level border color only if cell doesn't have custom border -->
+                                                    <DataTrigger Binding="{Binding BorderColor}" Value="#FFCCCCCC">
+                                                        <Setter Property="BorderBrush">
                                                             <Setter.Value>
-                                                                <Binding Path="DataContext.BorderThickness"
-                                                                        ElementName="TableRoot"/>
+                                                                <Binding Path="DataContext.BorderColor"
+                                                                        ElementName="TableRoot"
+                                                                        Converter="{StaticResource ColorToBrushConverter}"/>
                                                             </Setter.Value>
                                                         </Setter>
                                                     </DataTrigger>
 
-                                                    <!-- Alternate row background color (for odd rows when AlternateRows is true) -->
+                                                    <!-- Apply table row background for cells with default white background -->
+                                                    <DataTrigger Binding="{Binding BackgroundColor}" Value="#FFFFFFFF">
+                                                        <Setter Property="Background">
+                                                            <Setter.Value>
+                                                                <Binding Path="DataContext.RowBackgroundColor"
+                                                                        ElementName="TableRoot"
+                                                                        Converter="{StaticResource ColorToBrushConverter}"/>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </DataTrigger>
+
+                                                    <!-- Show border if ShowBorder is true -->
+                                                    <DataTrigger Binding="{Binding DataContext.ShowBorder, ElementName=TableRoot}" Value="False">
+                                                        <Setter Property="BorderThickness" Value="0"/>
+                                                    </DataTrigger>
+
+                                                    <!-- Alternate row background color (for odd rows when AlternateRows is true and cell has default color) -->
                                                     <MultiDataTrigger>
                                                         <MultiDataTrigger.Conditions>
                                                             <Condition Binding="{Binding DataContext.AlternateRows, ElementName=TableRoot}" Value="True"/>
                                                             <Condition Binding="{Binding Tag, RelativeSource={RelativeSource AncestorType=ContentPresenter}}" Value="1"/>
+                                                            <Condition Binding="{Binding BackgroundColor}" Value="#FFFFFFFF"/>
                                                         </MultiDataTrigger.Conditions>
                                                         <Setter Property="Background">
                                                             <Setter.Value>
@@ -309,11 +314,12 @@
                                                         </Setter>
                                                     </MultiDataTrigger>
 
-                                                    <!-- Header row styling (first row when ShowHeader is true) -->
+                                                    <!-- Header row styling (first row when ShowHeader is true and cell has default color) -->
                                                     <MultiDataTrigger>
                                                         <MultiDataTrigger.Conditions>
                                                             <Condition Binding="{Binding DataContext.ShowHeader, ElementName=TableRoot}" Value="True"/>
                                                             <Condition Binding="{Binding Tag, RelativeSource={RelativeSource AncestorType=ContentPresenter}}" Value="0"/>
+                                                            <Condition Binding="{Binding BackgroundColor}" Value="#FFFFFFFF"/>
                                                         </MultiDataTrigger.Conditions>
                                                         <Setter Property="Background">
                                                             <Setter.Value>
@@ -327,46 +333,41 @@
                                             </Style>
                                         </Border.Style>
                                         <TextBox Text="{Binding Value, UpdateSourceTrigger=LostFocus}"
+                                                FontFamily="{Binding FontFamily}"
+                                                FontSize="{Binding FontSize}"
+                                                Foreground="{Binding ForegroundColor, Converter={StaticResource ColorToBrushConverter}}"
                                                 Background="Transparent"
                                                 BorderThickness="0"
                                                 Padding="4"
-                                                VerticalContentAlignment="Center">
+                                                HorizontalContentAlignment="{Binding HorizontalAlignment}"
+                                                VerticalContentAlignment="{Binding VerticalAlignment}">
                                             <TextBox.Style>
                                                 <Style TargetType="TextBox">
-                                                    <!-- Default: data row styling -->
-                                                    <Setter Property="FontFamily">
-                                                        <Setter.Value>
-                                                            <Binding Path="DataContext.FontFamily"
-                                                                    ElementName="TableRoot"/>
-                                                        </Setter.Value>
-                                                    </Setter>
-                                                    <Setter Property="FontSize">
-                                                        <Setter.Value>
-                                                            <Binding Path="DataContext.FontSize"
-                                                                    ElementName="TableRoot"/>
-                                                        </Setter.Value>
-                                                    </Setter>
-                                                    <Setter Property="Foreground">
-                                                        <Setter.Value>
-                                                            <Binding Path="DataContext.ForegroundColor"
-                                                                    ElementName="TableRoot"
-                                                                    Converter="{StaticResource ColorToBrushConverter}"/>
-                                                        </Setter.Value>
-                                                    </Setter>
+                                                    <!-- Default font weight based on cell's IsBold property -->
                                                     <Setter Property="FontWeight" Value="Normal"/>
+                                                    <Setter Property="FontStyle" Value="Normal"/>
+                                                    <Setter Property="TextDecorations" Value="None"/>
                                                     <Style.Triggers>
-                                                        <!-- Header row text styling (first row when ShowHeader is true) -->
+                                                        <!-- Cell-level bold -->
+                                                        <DataTrigger Binding="{Binding IsBold}" Value="True">
+                                                            <Setter Property="FontWeight" Value="Bold"/>
+                                                        </DataTrigger>
+                                                        <!-- Cell-level italic -->
+                                                        <DataTrigger Binding="{Binding IsItalic}" Value="True">
+                                                            <Setter Property="FontStyle" Value="Italic"/>
+                                                        </DataTrigger>
+                                                        <!-- Cell-level underline -->
+                                                        <DataTrigger Binding="{Binding IsUnderline}" Value="True">
+                                                            <Setter Property="TextDecorations" Value="Underline"/>
+                                                        </DataTrigger>
+
+                                                        <!-- Override with table-level header styling if cell has default values -->
                                                         <MultiDataTrigger>
                                                             <MultiDataTrigger.Conditions>
                                                                 <Condition Binding="{Binding DataContext.ShowHeader, ElementName=TableRoot}" Value="True"/>
                                                                 <Condition Binding="{Binding Tag, RelativeSource={RelativeSource AncestorType=ContentPresenter}}" Value="0"/>
+                                                                <Condition Binding="{Binding ForegroundColor}" Value="#FF000000"/>
                                                             </MultiDataTrigger.Conditions>
-                                                            <Setter Property="FontSize">
-                                                                <Setter.Value>
-                                                                    <Binding Path="DataContext.HeaderFontSize"
-                                                                            ElementName="TableRoot"/>
-                                                                </Setter.Value>
-                                                            </Setter>
                                                             <Setter Property="Foreground">
                                                                 <Setter.Value>
                                                                     <Binding Path="DataContext.HeaderForegroundColor"
@@ -376,12 +377,13 @@
                                                             </Setter>
                                                         </MultiDataTrigger>
 
-                                                        <!-- Header bold (when ShowHeader is true and HeaderBold is true) -->
+                                                        <!-- Header bold (when ShowHeader is true and HeaderBold is true and cell has default font) -->
                                                         <MultiDataTrigger>
                                                             <MultiDataTrigger.Conditions>
                                                                 <Condition Binding="{Binding DataContext.ShowHeader, ElementName=TableRoot}" Value="True"/>
                                                                 <Condition Binding="{Binding DataContext.HeaderBold, ElementName=TableRoot}" Value="True"/>
                                                                 <Condition Binding="{Binding Tag, RelativeSource={RelativeSource AncestorType=ContentPresenter}}" Value="0"/>
+                                                                <Condition Binding="{Binding IsBold}" Value="False"/>
                                                             </MultiDataTrigger.Conditions>
                                                             <Setter Property="FontWeight" Value="Bold"/>
                                                         </MultiDataTrigger>
