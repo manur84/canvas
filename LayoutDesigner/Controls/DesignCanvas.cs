@@ -247,32 +247,46 @@ namespace LayoutDesigner.Controls
             _draggingElement = layoutElement; // Store which element was clicked
             _draggingElementsStartPositions = null; // Reset dragging elements
 
-            // Prepare for multi-element dragging: store start positions of all selected elements
-            if (layoutElement != null && CanvasViewModel != null)
+            // Prepare for dragging: store start positions
+            if (layoutElement != null && !layoutElement.IsLocked)
             {
-                var canvasVmType = CanvasViewModel.GetType();
-                var selectedElementsProperty = canvasVmType.GetProperty("SelectedElements");
-                if (selectedElementsProperty != null)
-                {
-                    var selectedElements = selectedElementsProperty.GetValue(CanvasViewModel) as System.Collections.IEnumerable;
-                    if (selectedElements != null)
-                    {
-                        var selectedList = selectedElements.OfType<LayoutElementBase>().ToList();
+                _draggingElementsStartPositions = new Dictionary<LayoutElementBase, Point>();
 
-                        // If clicked element is part of selection, prepare to drag all selected elements
-                        if (selectedList.Contains(layoutElement))
+                if (CanvasViewModel != null)
+                {
+                    var canvasVmType = CanvasViewModel.GetType();
+                    var selectedElementsProperty = canvasVmType.GetProperty("SelectedElements");
+                    if (selectedElementsProperty != null)
+                    {
+                        var selectedElements = selectedElementsProperty.GetValue(CanvasViewModel) as System.Collections.IEnumerable;
+                        if (selectedElements != null)
                         {
-                            _draggingElementsStartPositions = new Dictionary<LayoutElementBase, Point>();
-                            foreach (var element in selectedList)
+                            var selectedList = selectedElements.OfType<LayoutElementBase>().ToList();
+
+                            // If clicked element is part of selection, prepare to drag all selected elements
+                            if (selectedList.Contains(layoutElement))
                             {
-                                // Skip locked elements
-                                if (!element.IsLocked)
+                                foreach (var element in selectedList)
                                 {
-                                    _draggingElementsStartPositions[element] = new Point(element.X, element.Y);
+                                    // Skip locked elements
+                                    if (!element.IsLocked)
+                                    {
+                                        _draggingElementsStartPositions[element] = new Point(element.X, element.Y);
+                                    }
                                 }
+                            }
+                            else
+                            {
+                                // Single element not in selection - just store its start position
+                                _draggingElementsStartPositions[layoutElement] = new Point(layoutElement.X, layoutElement.Y);
                             }
                         }
                     }
+                }
+                else
+                {
+                    // No ViewModel - just drag the single element
+                    _draggingElementsStartPositions[layoutElement] = new Point(layoutElement.X, layoutElement.Y);
                 }
             }
 
@@ -448,7 +462,6 @@ namespace LayoutDesigner.Controls
                 layoutElement.Y = Math.Max(0, newY);
             }
 
-            _dragStartPoint = currentPoint;
             e.Handled = true; // Prevent ScrollViewer from handling
         }
 
