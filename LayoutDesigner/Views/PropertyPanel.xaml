@@ -189,6 +189,25 @@
             </GroupBox>
         </DataTemplate>
 
+        <!-- Line Element Properties Template -->
+        <DataTemplate x:Key="LineElementPropertiesTemplate" DataType="{x:Type models:LineElement}">
+            <GroupBox Header="Line Properties" Style="{StaticResource PropertyGroup}">
+                <StackPanel>
+                    <Label Content="End X Position:" Style="{StaticResource PropertyLabel}"/>
+                    <TextBox Text="{Binding X2}" Style="{StaticResource ModernTextBox}"/>
+
+                    <Label Content="End Y Position:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
+                    <TextBox Text="{Binding Y2}" Style="{StaticResource ModernTextBox}"/>
+
+                    <Label Content="Stroke Color:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
+                    <controls:ColorInputControl ColorValue="{Binding StrokeColor}"/>
+
+                    <Label Content="Stroke Thickness:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
+                    <TextBox Text="{Binding StrokeThickness}" Style="{StaticResource ModernTextBox}"/>
+                </StackPanel>
+            </GroupBox>
+        </DataTemplate>
+
         <!-- Table Element Properties Template -->
         <DataTemplate x:Key="TableElementPropertiesTemplate" DataType="{x:Type models:TableElement}">
             <StackPanel>
@@ -275,6 +294,7 @@
             ShapeElementTemplate="{StaticResource ShapeElementPropertiesTemplate}"
             QrCodeElementTemplate="{StaticResource QrCodeElementPropertiesTemplate}"
             DynamicFieldElementTemplate="{StaticResource DynamicFieldElementPropertiesTemplate}"
+            LineElementTemplate="{StaticResource LineElementPropertiesTemplate}"
             TableElementTemplate="{StaticResource TableElementPropertiesTemplate}"/>
     </UserControl.Resources>
 
