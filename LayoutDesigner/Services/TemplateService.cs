@@ -1,9 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using LayoutDesigner.Models;
 using LayoutDesigner.Models.Base;
 using LayoutDesigner.Services.Interfaces;
+using LayoutDesigner.Constants;
 using System.IO;
 using System.Text.Json;
 
@@ -17,13 +20,14 @@ namespace LayoutDesigner.Services
         private readonly List<LayoutTemplate> _builtInTemplates;
         private readonly List<LayoutTemplate> _customTemplates;
         private readonly string _customTemplatesPath;
+        private readonly IAppLogger? _logger;
 
-        public TemplateService()
+        public TemplateService(IAppLogger logger)
         {
-            _customTemplatesPath = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "LayoutDesigner",
-                "Templates");
+            ArgumentNullException.ThrowIfNull(logger);
+
+            _logger = logger;
+            _customTemplatesPath = ConfigurationDefaults.TemplatesPath;
 
             Directory.CreateDirectory(_customTemplatesPath);
 
@@ -53,8 +57,10 @@ namespace LayoutDesigner.Services
             return GetAllTemplates().FirstOrDefault(t => t.Id == id);
         }
 
-        public bool SaveTemplate(LayoutTemplate template)
+        public async Task<bool> SaveTemplateAsync(LayoutTemplate template, CancellationToken cancellationToken = default)
         {
+            ArgumentNullException.ThrowIfNull(template);
+
             try
             {
                 template.IsBuiltIn = false;
@@ -76,22 +82,27 @@ namespace LayoutDesigner.Services
                     WriteIndented = true
                 });
 
-                File.WriteAllText(filePath, json);
+                await File.WriteAllTextAsync(filePath, json, cancellationToken);
+                _logger?.LogInfo($"Template saved successfully: {template.Name}");
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                _logger?.LogError(ex, $"Failed to save template: {template.Name}");
                 return false;
             }
         }
 
-        public bool DeleteTemplate(string id)
+        public async Task<bool> DeleteTemplateAsync(string id, CancellationToken cancellationToken = default)
         {
+            ArgumentNullException.ThrowIfNull(id);
+
             try
             {
                 var template = _customTemplates.FirstOrDefault(t => t.Id == id);
                 if (template == null)
                 {
+                    _logger?.LogWarning($"Template not found for deletion: {id}");
                     return false;
                 }
 
@@ -100,13 +111,17 @@ namespace LayoutDesigner.Services
                 var filePath = Path.Combine(_customTemplatesPath, $"{id}.json");
                 if (File.Exists(filePath))
                 {
-                    File.Delete(filePath);
+                    // File.Delete is synchronous but fast for single file operations
+                    // Using Task.Run to keep async pattern consistent
+                    await Task.Run(() => File.Delete(filePath), cancellationToken);
                 }
 
+                _logger?.LogInfo($"Template deleted successfully: {template.Name}");
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                _logger?.LogError(ex, $"Failed to delete template: {id}");
                 return false;
             }
         }
@@ -137,6 +152,8 @@ namespace LayoutDesigner.Services
                 {
                     try
                     {
+                        // Use synchronous read for initialization to avoid blocking startup
+                        // This is acceptable as it's called once during service construction
                         var json = File.ReadAllText(file);
                         var template = JsonSerializer.Deserialize<LayoutTemplate>(json);
 
@@ -145,15 +162,17 @@ namespace LayoutDesigner.Services
                             templates.Add(template);
                         }
                     }
-                    catch
+                    catch (Exception ex)
                     {
                         // Skip invalid templates
+                        _logger?.LogWarning($"Failed to load template from {file}: {ex.Message}");
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
                 // Directory doesn't exist or can't be read
+                _logger?.LogError(ex, "Failed to load custom templates directory");
             }
 
             return templates;

@@ -73,6 +73,7 @@ namespace LayoutDesigner.Views
 
         private async void OnImportClick(object sender, RoutedEventArgs e)
         {
+            var logger = ServiceContainer.GetService<IAppLogger>();
             var filePath = FileDialogHelper.ShowOpenImageDialog();
             if (filePath == null)
                 return;
@@ -84,10 +85,12 @@ namespace LayoutDesigner.Views
                 if (relativePath != null)
                 {
                     LoadAssets(); // Refresh the list
+                    logger?.LogInfo($"Asset imported successfully: {relativePath}");
                     _errorHandler.HandleInfo($"Asset imported successfully:\n{relativePath}", "Import Complete");
                 }
                 else
                 {
+                    logger?.LogWarning("Asset import returned null");
                     _errorHandler.HandleError(
                         new InvalidOperationException("Import returned null"),
                         "Failed to import asset");
@@ -95,6 +98,7 @@ namespace LayoutDesigner.Views
             }
             catch (Exception ex)
             {
+                logger?.LogError(ex, $"Failed to import asset from {filePath}");
                 _errorHandler.HandleError(ex, "Failed to import asset");
             }
         }
