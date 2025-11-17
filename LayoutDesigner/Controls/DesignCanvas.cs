@@ -305,7 +305,8 @@ namespace LayoutDesigner.Controls
                 if (Math.Abs(delta.X) > UIConstants.DragDeadZonePixels || Math.Abs(delta.Y) > UIConstants.DragDeadZonePixels)
                 {
                     // Check if we're dragging an element or doing rectangle selection
-                    if (_draggingElement != null)
+                    // IMPORTANT: Dragging elements requires holding Shift key
+                    if (_draggingElement != null && (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)))
                     {
                         _isDragging = true;
                         e.Handled = true; // Prevent ScrollViewer from handling
@@ -484,6 +485,41 @@ namespace LayoutDesigner.Controls
                 _isRectangleSelecting = false;
                 _draggingElement = null;
                 _draggingElementsStartPositions = null;
+                e.Handled = true;
+            }
+        }
+
+        protected override void OnPreviewMouseRightButtonDown(MouseButtonEventArgs e)
+        {
+            base.OnPreviewMouseRightButtonDown(e);
+
+            // Find element under cursor
+            var layoutElement = FindLayoutElement(e.OriginalSource as DependencyObject);
+
+            // Only show context menu if we clicked on an actual element
+            if (layoutElement != null)
+            {
+                // Make sure the element is selected before showing context menu
+                if (CanvasViewModel != null)
+                {
+                    var canvasVmType = CanvasViewModel.GetType();
+                    var selectedElementsProperty = canvasVmType.GetProperty("SelectedElements");
+                    if (selectedElementsProperty != null)
+                    {
+                        var selectedElements = selectedElementsProperty.GetValue(CanvasViewModel) as System.Collections.IList;
+                        if (selectedElements != null && !selectedElements.Contains(layoutElement))
+                        {
+                            // If not already selected, select this element
+                            selectedElements.Clear();
+                            selectedElements.Add(layoutElement);
+                        }
+                    }
+                }
+                // Context menu will open automatically via XAML
+            }
+            else
+            {
+                // Clicked on empty canvas - prevent context menu from opening
                 e.Handled = true;
             }
         }
