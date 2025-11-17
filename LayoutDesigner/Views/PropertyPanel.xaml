@@ -189,13 +189,93 @@
             </GroupBox>
         </DataTemplate>
 
+        <!-- Table Element Properties Template -->
+        <DataTemplate x:Key="TableElementPropertiesTemplate" DataType="{x:Type models:TableElement}">
+            <StackPanel>
+                <GroupBox Header="Table Structure" Style="{StaticResource PropertyGroup}">
+                    <StackPanel>
+                        <Label Content="Rows:" Style="{StaticResource PropertyLabel}"/>
+                        <TextBox Text="{Binding Rows}" Style="{StaticResource ModernTextBox}"/>
+
+                        <Label Content="Columns:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
+                        <TextBox Text="{Binding Columns}" Style="{StaticResource ModernTextBox}"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox Header="Header Settings" Style="{StaticResource PropertyGroup}">
+                    <StackPanel>
+                        <CheckBox Content="Show Header Row" IsChecked="{Binding ShowHeader}"
+                                Style="{StaticResource ModernCheckBox}"/>
+
+                        <Label Content="Header Background Color:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
+                        <controls:ColorInputControl ColorValue="{Binding HeaderBackgroundColor}"/>
+
+                        <Label Content="Header Text Color:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
+                        <controls:ColorInputControl ColorValue="{Binding HeaderForegroundColor}"/>
+
+                        <Label Content="Header Font Size:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
+                        <TextBox Text="{Binding HeaderFontSize}" Style="{StaticResource ModernTextBox}"/>
+
+                        <CheckBox Content="Bold Header" IsChecked="{Binding HeaderBold}"
+                                Style="{StaticResource ModernCheckBox}" Margin="0,8,0,0"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox Header="Row Colors" Style="{StaticResource PropertyGroup}">
+                    <StackPanel>
+                        <Label Content="Row Background Color:" Style="{StaticResource PropertyLabel}"/>
+                        <controls:ColorInputControl ColorValue="{Binding RowBackgroundColor}" ShowTransparencyPattern="True"/>
+
+                        <CheckBox Content="Alternate Row Colors" IsChecked="{Binding AlternateRows}"
+                                Style="{StaticResource ModernCheckBox}" Margin="0,8,0,0"/>
+
+                        <Label Content="Alternate Row Color:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
+                        <controls:ColorInputControl ColorValue="{Binding AlternateRowBackgroundColor}" ShowTransparencyPattern="True"/>
+
+                        <Label Content="Text Color:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
+                        <controls:ColorInputControl ColorValue="{Binding ForegroundColor}"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox Header="Border Settings" Style="{StaticResource PropertyGroup}">
+                    <StackPanel>
+                        <CheckBox Content="Show Borders" IsChecked="{Binding ShowBorder}"
+                                Style="{StaticResource ModernCheckBox}"/>
+
+                        <Label Content="Border Color:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
+                        <controls:ColorInputControl ColorValue="{Binding BorderColor}"/>
+
+                        <Label Content="Border Thickness:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
+                        <TextBox Text="{Binding BorderThickness}" Style="{StaticResource ModernTextBox}"/>
+                    </StackPanel>
+                </GroupBox>
+
+                <GroupBox Header="Font Settings" Style="{StaticResource PropertyGroup}">
+                    <StackPanel>
+                        <Label Content="Font Family:" Style="{StaticResource PropertyLabel}"/>
+                        <ComboBox SelectedItem="{Binding FontFamily}" Style="{StaticResource ModernComboBox}">
+                            <sys:String>Arial</sys:String>
+                            <sys:String>Calibri</sys:String>
+                            <sys:String>Times New Roman</sys:String>
+                            <sys:String>Verdana</sys:String>
+                            <sys:String>Segoe UI</sys:String>
+                        </ComboBox>
+
+                        <Label Content="Font Size:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
+                        <TextBox Text="{Binding FontSize}" Style="{StaticResource ModernTextBox}"/>
+                    </StackPanel>
+                </GroupBox>
+            </StackPanel>
+        </DataTemplate>
+
         <!-- Template Selector -->
         <controls:ElementTypeTemplateSelector x:Key="ElementTypeTemplateSelector"
             TextElementTemplate="{StaticResource TextElementPropertiesTemplate}"
             ImageElementTemplate="{StaticResource ImageElementPropertiesTemplate}"
             ShapeElementTemplate="{StaticResource ShapeElementPropertiesTemplate}"
             QrCodeElementTemplate="{StaticResource QrCodeElementPropertiesTemplate}"
-            DynamicFieldElementTemplate="{StaticResource DynamicFieldElementPropertiesTemplate}"/>
+            DynamicFieldElementTemplate="{StaticResource DynamicFieldElementPropertiesTemplate}"
+            TableElementTemplate="{StaticResource TableElementPropertiesTemplate}"/>
     </UserControl.Resources>
 
     <Border BorderBrush="{StaticResource BorderBrush}" BorderThickness="1,0,0,0">
