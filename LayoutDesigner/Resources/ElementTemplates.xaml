@@ -178,15 +178,18 @@
 
     <!-- LineElement DataTemplate -->
     <DataTemplate DataType="{x:Type models:LineElement}">
-        <!-- Canvas container with larger hit area for easier selection -->
-        <Grid Background="Transparent">
-            <!-- Invisible larger hit area for easier clicking (±10px around line) -->
-            <Rectangle Fill="Transparent"
-                       Stroke="Transparent"
-                       StrokeThickness="20"
-                       Margin="-10"/>
+        <!-- Canvas container with transparent background for hit-testing -->
+        <Canvas Background="Transparent">
+            <!-- Invisible thicker line for easier clicking (10px thick transparent line) -->
+            <Line X1="0" Y1="0"
+                  X2="{Binding X2}"
+                  Y2="{Binding Y2}"
+                  Stroke="Transparent"
+                  StrokeThickness="10"
+                  StrokeStartLineCap="Round"
+                  StrokeEndLineCap="Round"/>
 
-            <!-- Actual visible line -->
+            <!-- Actual visible line on top -->
             <Line X1="0" Y1="0"
                   X2="{Binding X2}"
                   Y2="{Binding Y2}"
@@ -197,7 +200,7 @@
                   UseLayoutRounding="True"
                   SnapsToDevicePixels="True"
                   IsHitTestVisible="False"/>
-        </Grid>
+        </Canvas>
     </DataTemplate>
 
     <!-- ButtonElement DataTemplate -->
