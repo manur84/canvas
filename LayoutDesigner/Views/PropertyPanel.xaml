@@ -15,7 +15,7 @@
             <GroupBox Header="Text Properties" Style="{StaticResource PropertyGroup}">
                 <StackPanel>
                     <Label Content="Text:" Style="{StaticResource PropertyLabel}"/>
-                    <TextBox Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}"
+                    <TextBox Text="{Binding Text}"
                            TextWrapping="Wrap" AcceptsReturn="True" MinHeight="60"
                            Style="{StaticResource ModernTextBox}"/>
 
@@ -29,7 +29,7 @@
                     </ComboBox>
 
                     <Label Content="Font Size:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                    <TextBox Text="{Binding FontSize, UpdateSourceTrigger=PropertyChanged}"
+                    <TextBox Text="{Binding FontSize}"
                            Style="{StaticResource ModernTextBox}"/>
 
                     <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
@@ -39,10 +39,10 @@
                     </StackPanel>
 
                     <Label Content="Foreground Color:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                    <controls:ColorInputControl ColorValue="{Binding ForegroundColor, UpdateSourceTrigger=PropertyChanged}"/>
+                    <controls:ColorInputControl ColorValue="{Binding ForegroundColor}"/>
 
                     <Label Content="Background Color:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                    <controls:ColorInputControl ColorValue="{Binding BackgroundColor, UpdateSourceTrigger=PropertyChanged}" ShowTransparencyPattern="True"/>
+                    <controls:ColorInputControl ColorValue="{Binding BackgroundColor}" ShowTransparencyPattern="True"/>
                 </StackPanel>
             </GroupBox>
         </DataTemplate>
@@ -52,7 +52,7 @@
             <GroupBox Header="Image Properties" Style="{StaticResource PropertyGroup}">
                 <StackPanel>
                     <Label Content="Image Path:" Style="{StaticResource PropertyLabel}"/>
-                    <TextBox Text="{Binding ImagePath, UpdateSourceTrigger=PropertyChanged}"
+                    <TextBox Text="{Binding ImagePath}"
                            Style="{StaticResource ModernTextBox}"/>
                     <Button Content="Browse..." Margin="0,4,0,0" Style="{StaticResource ModernButton}"
                             Command="{Binding DataContext.BrowseImageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
@@ -84,17 +84,17 @@
                     </ComboBox>
 
                     <Label Content="Fill Color:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                    <controls:ColorInputControl ColorValue="{Binding FillColor, UpdateSourceTrigger=PropertyChanged}" ShowTransparencyPattern="True"/>
+                    <controls:ColorInputControl ColorValue="{Binding FillColor}" ShowTransparencyPattern="True"/>
 
                     <Label Content="Stroke Color:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                    <controls:ColorInputControl ColorValue="{Binding StrokeColor, UpdateSourceTrigger=PropertyChanged}"/>
+                    <controls:ColorInputControl ColorValue="{Binding StrokeColor}"/>
 
                     <Label Content="Stroke Thickness:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                    <TextBox Text="{Binding StrokeThickness, UpdateSourceTrigger=PropertyChanged}"
+                    <TextBox Text="{Binding StrokeThickness}"
                            Style="{StaticResource ModernTextBox}"/>
 
                     <Label Content="Corner Radius:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                    <TextBox Text="{Binding CornerRadius, UpdateSourceTrigger=PropertyChanged}"
+                    <TextBox Text="{Binding CornerRadius}"
                            Style="{StaticResource ModernTextBox}"/>
                 </StackPanel>
             </GroupBox>
@@ -105,15 +105,15 @@
             <GroupBox Header="QR Code Properties" Style="{StaticResource PropertyGroup}">
                 <StackPanel>
                     <Label Content="Content:" Style="{StaticResource PropertyLabel}"/>
-                    <TextBox Text="{Binding Content, UpdateSourceTrigger=PropertyChanged}"
+                    <TextBox Text="{Binding Content}"
                            TextWrapping="Wrap" AcceptsReturn="True" MinHeight="60"
                            Style="{StaticResource ModernTextBox}"/>
 
                     <Label Content="Foreground Color:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                    <controls:ColorInputControl ColorValue="{Binding ForegroundColor, UpdateSourceTrigger=PropertyChanged}"/>
+                    <controls:ColorInputControl ColorValue="{Binding ForegroundColor}"/>
 
                     <Label Content="Background Color:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                    <controls:ColorInputControl ColorValue="{Binding BackgroundColor, UpdateSourceTrigger=PropertyChanged}" ShowTransparencyPattern="True"/>
+                    <controls:ColorInputControl ColorValue="{Binding BackgroundColor}" ShowTransparencyPattern="True"/>
 
                     <Label Content="Error Correction Level:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
                     <Slider Value="{Binding ErrorCorrectionLevel}" Minimum="0" Maximum="3"
@@ -137,7 +137,7 @@
                     </ComboBox>
 
                     <Label Content="Format:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                    <TextBox Text="{Binding Format, UpdateSourceTrigger=PropertyChanged}"
+                    <TextBox Text="{Binding Format}"
                            Style="{StaticResource ModernTextBox}"/>
 
                     <Label Content="Font Family:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
@@ -148,7 +148,7 @@
                     </ComboBox>
 
                     <Label Content="Font Size:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                    <TextBox Text="{Binding FontSize, UpdateSourceTrigger=PropertyChanged}"
+                    <TextBox Text="{Binding FontSize}"
                            Style="{StaticResource ModernTextBox}"/>
                 </StackPanel>
             </GroupBox>
@@ -176,15 +176,15 @@
                     <GroupBox Header="Canvas Settings" Style="{StaticResource PropertyGroup}">
                         <StackPanel>
                             <Label Content="Canvas Width:" Style="{StaticResource PropertyLabel}"/>
-                            <TextBox Text="{Binding CanvasWidth, UpdateSourceTrigger=PropertyChanged}"
+                            <TextBox Text="{Binding CanvasWidth}"
                                    Style="{StaticResource ModernTextBox}"/>
 
                             <Label Content="Canvas Height:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                            <TextBox Text="{Binding CanvasHeight, UpdateSourceTrigger=PropertyChanged}"
+                            <TextBox Text="{Binding CanvasHeight}"
                                    Style="{StaticResource ModernTextBox}"/>
 
                             <Label Content="Grid Size:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                            <TextBox Text="{Binding GridSize, UpdateSourceTrigger=PropertyChanged}"
+                            <TextBox Text="{Binding GridSize}"
                                    Style="{StaticResource ModernTextBox}"/>
 
                             <CheckBox Content="Show Grid" IsChecked="{Binding ShowGrid}"
@@ -197,7 +197,7 @@
                     <GroupBox Header="Canvas Appearance" Style="{StaticResource PropertyGroup}">
                         <StackPanel>
                             <Label Content="Background Color:" Style="{StaticResource PropertyLabel}"/>
-                            <controls:ColorInputControl ColorValue="{Binding BackgroundColor, UpdateSourceTrigger=PropertyChanged}"/>
+                            <controls:ColorInputControl ColorValue="{Binding BackgroundColor}"/>
                         </StackPanel>
                     </GroupBox>
                 </StackPanel>
@@ -217,23 +217,23 @@
                     <GroupBox Header="General" Style="{StaticResource PropertyGroup}">
                         <StackPanel>
                             <Label Content="Name:" Style="{StaticResource PropertyLabel}"/>
-                            <TextBox Text="{Binding SelectedElement.Name, UpdateSourceTrigger=PropertyChanged}"
+                            <TextBox Text="{Binding SelectedElement.Name}"
                                    Style="{StaticResource ModernTextBox}"/>
 
                             <Label Content="Position X:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                            <TextBox Text="{Binding SelectedElement.X, UpdateSourceTrigger=PropertyChanged}"
+                            <TextBox Text="{Binding SelectedElement.X}"
                                    Style="{StaticResource ModernTextBox}"/>
 
                             <Label Content="Position Y:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                            <TextBox Text="{Binding SelectedElement.Y, UpdateSourceTrigger=PropertyChanged}"
+                            <TextBox Text="{Binding SelectedElement.Y}"
                                    Style="{StaticResource ModernTextBox}"/>
 
                             <Label Content="Width:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                            <TextBox Text="{Binding SelectedElement.Width, UpdateSourceTrigger=PropertyChanged}"
+                            <TextBox Text="{Binding SelectedElement.Width}"
                                    Style="{StaticResource ModernTextBox}"/>
 
                             <Label Content="Height:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                            <TextBox Text="{Binding SelectedElement.Height, UpdateSourceTrigger=PropertyChanged}"
+                            <TextBox Text="{Binding SelectedElement.Height}"
                                    Style="{StaticResource ModernTextBox}"/>
 
                             <Label Content="Rotation:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
