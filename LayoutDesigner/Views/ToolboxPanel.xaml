@@ -34,13 +34,20 @@
                     </StackPanel>
                 </GroupBox>
 
+                <GroupBox Header="Lines" Style="{StaticResource PropertyGroup}">
+                    <StackPanel>
+                        <Button Content="─ Horizontal Line" Command="{Binding AddHorizontalLineCommand}"
+                              Style="{StaticResource ModernButton}" Margin="0,4"/>
+                        <Button Content="│ Vertical Line" Command="{Binding AddVerticalLineCommand}"
+                              Style="{StaticResource ModernButton}" Margin="0,4"/>
+                    </StackPanel>
+                </GroupBox>
+
                 <GroupBox Header="Special Elements" Style="{StaticResource PropertyGroup}">
                     <StackPanel>
                         <Button Content="📱 QR Code" Command="{Binding AddQrCodeCommand}"
                               Style="{StaticResource ModernButton}" Margin="0,4"/>
                         <Button Content="🕐 Dynamic Field" Command="{Binding AddDynamicFieldCommand}"
-                              Style="{StaticResource ModernButton}" Margin="0,4"/>
-                        <Button Content="🔗 Line Connector" Command="{Binding AddLineCommand}"
                               Style="{StaticResource ModernButton}" Margin="0,4"/>
                         <Button Content="🔘 Button" Command="{Binding AddButtonCommand}"
                               Style="{StaticResource ModernButton}" Margin="0,4"/>

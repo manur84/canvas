@@ -46,7 +46,8 @@ namespace LayoutDesigner.ViewModels
             AddShapeCommand = new RelayCommand<string>(AddShape);
             AddQrCodeCommand = new RelayCommand(AddQrCode);
             AddDynamicFieldCommand = new RelayCommand(AddDynamicField);
-            AddLineCommand = new RelayCommand(AddLine);
+            AddHorizontalLineCommand = new RelayCommand(AddHorizontalLine);
+            AddVerticalLineCommand = new RelayCommand(AddVerticalLine);
             AddButtonCommand = new RelayCommand(AddButton);
             AddTableCommand = new RelayCommand(AddTable);
             DeleteSelectedCommand = new RelayCommand(DeleteSelected, () => SelectedElements.Count > 0);
@@ -185,7 +186,8 @@ namespace LayoutDesigner.ViewModels
         public ICommand AddShapeCommand { get; }
         public ICommand AddQrCodeCommand { get; }
         public ICommand AddDynamicFieldCommand { get; }
-        public ICommand AddLineCommand { get; }
+        public ICommand AddHorizontalLineCommand { get; }
+        public ICommand AddVerticalLineCommand { get; }
         public ICommand AddButtonCommand { get; }
         public ICommand AddTableCommand { get; }
         public ICommand DeleteSelectedCommand { get; }
@@ -296,20 +298,36 @@ namespace LayoutDesigner.ViewModels
             AddElement(element, "Add Dynamic Field");
         }
 
-        private void AddLine()
+        private void AddHorizontalLine()
         {
             var element = new LineElement
             {
-                Name = $"Line {Elements.Count + 1}",
+                Name = $"Horizontal Line {Elements.Count + 1}",
                 X = 50,
-                Y = 50,
+                Y = 100,
                 Width = 200,
                 Height = 2,
-                X2 = 250,
-                Y2 = 50
+                X2 = 200,  // Horizontal: X2 is different, Y2 is same
+                Y2 = 0
             };
 
-            AddElement(element, "Add Line");
+            AddElement(element, "Add Horizontal Line");
+        }
+
+        private void AddVerticalLine()
+        {
+            var element = new LineElement
+            {
+                Name = $"Vertical Line {Elements.Count + 1}",
+                X = 100,
+                Y = 50,
+                Width = 2,
+                Height = 200,
+                X2 = 0,  // Vertical: X2 is same, Y2 is different
+                Y2 = 200
+            };
+
+            AddElement(element, "Add Vertical Line");
         }
 
         private void AddButton()
