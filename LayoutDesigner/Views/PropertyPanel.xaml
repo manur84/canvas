@@ -5,11 +5,33 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:models="clr-namespace:LayoutDesigner.Models"
              xmlns:controls="clr-namespace:LayoutDesigner.Controls"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="280"
              Background="{StaticResource BackgroundBrush}">
 
     <UserControl.Resources>
+        <!-- Enum values provider for ImageStretchMode -->
+        <ObjectDataProvider x:Key="ImageStretchModeValues" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="models:ImageStretchMode"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+
+        <!-- Enum values provider for ShapeType -->
+        <ObjectDataProvider x:Key="ShapeTypeValues" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="models:ShapeType"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+
+        <!-- Enum values provider for DynamicFieldType -->
+        <ObjectDataProvider x:Key="DynamicFieldTypeValues" MethodName="GetValues" ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="models:DynamicFieldType"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+
         <!-- Text Element Properties Template -->
         <DataTemplate x:Key="TextElementPropertiesTemplate" DataType="{x:Type models:TextElement}">
             <GroupBox Header="Text Properties" Style="{StaticResource PropertyGroup}">
@@ -21,11 +43,11 @@
 
                     <Label Content="Font Family:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
                     <ComboBox SelectedItem="{Binding FontFamily}" Style="{StaticResource ModernComboBox}">
-                        <ComboBoxItem Content="Arial"/>
-                        <ComboBoxItem Content="Calibri"/>
-                        <ComboBoxItem Content="Times New Roman"/>
-                        <ComboBoxItem Content="Verdana"/>
-                        <ComboBoxItem Content="Segoe UI"/>
+                        <sys:String>Arial</sys:String>
+                        <sys:String>Calibri</sys:String>
+                        <sys:String>Times New Roman</sys:String>
+                        <sys:String>Verdana</sys:String>
+                        <sys:String>Segoe UI</sys:String>
                     </ComboBox>
 
                     <Label Content="Font Size:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
@@ -58,12 +80,9 @@
                             Command="{Binding DataContext.BrowseImageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
 
                     <Label Content="Stretch Mode:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                    <ComboBox SelectedItem="{Binding StretchMode}" Style="{StaticResource ModernComboBox}">
-                        <ComboBoxItem Content="None"/>
-                        <ComboBoxItem Content="Fill"/>
-                        <ComboBoxItem Content="Uniform"/>
-                        <ComboBoxItem Content="UniformToFill"/>
-                    </ComboBox>
+                    <ComboBox ItemsSource="{Binding Source={StaticResource ImageStretchModeValues}}"
+                              SelectedItem="{Binding StretchMode}"
+                              Style="{StaticResource ModernComboBox}"/>
 
                     <CheckBox Content="Maintain Aspect Ratio" IsChecked="{Binding MaintainAspectRatio}"
                             Style="{StaticResource ModernCheckBox}" Margin="0,8,0,0"/>
@@ -76,12 +95,9 @@
             <GroupBox Header="Shape Properties" Style="{StaticResource PropertyGroup}">
                 <StackPanel>
                     <Label Content="Shape Type:" Style="{StaticResource PropertyLabel}"/>
-                    <ComboBox SelectedItem="{Binding ShapeType}" Style="{StaticResource ModernComboBox}">
-                        <ComboBoxItem Content="Rectangle"/>
-                        <ComboBoxItem Content="Ellipse"/>
-                        <ComboBoxItem Content="Line"/>
-                        <ComboBoxItem Content="RoundedRectangle"/>
-                    </ComboBox>
+                    <ComboBox ItemsSource="{Binding Source={StaticResource ShapeTypeValues}}"
+                              SelectedItem="{Binding ShapeType}"
+                              Style="{StaticResource ModernComboBox}"/>
 
                     <Label Content="Fill Color:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
                     <controls:ColorInputControl ColorValue="{Binding FillColor}" ShowTransparencyPattern="True"/>
@@ -129,12 +145,9 @@
             <GroupBox Header="Dynamic Field Properties" Style="{StaticResource PropertyGroup}">
                 <StackPanel>
                     <Label Content="Field Type:" Style="{StaticResource PropertyLabel}"/>
-                    <ComboBox SelectedItem="{Binding FieldType}" Style="{StaticResource ModernComboBox}">
-                        <ComboBoxItem Content="DateTime"/>
-                        <ComboBoxItem Content="Date"/>
-                        <ComboBoxItem Content="Time"/>
-                        <ComboBoxItem Content="Custom"/>
-                    </ComboBox>
+                    <ComboBox ItemsSource="{Binding Source={StaticResource DynamicFieldTypeValues}}"
+                              SelectedItem="{Binding FieldType}"
+                              Style="{StaticResource ModernComboBox}"/>
 
                     <Label Content="Format:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
                     <TextBox Text="{Binding Format}"
@@ -142,9 +155,11 @@
 
                     <Label Content="Font Family:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
                     <ComboBox SelectedItem="{Binding FontFamily}" Style="{StaticResource ModernComboBox}">
-                        <ComboBoxItem Content="Arial"/>
-                        <ComboBoxItem Content="Calibri"/>
-                        <ComboBoxItem Content="Times New Roman"/>
+                        <sys:String>Arial</sys:String>
+                        <sys:String>Calibri</sys:String>
+                        <sys:String>Times New Roman</sys:String>
+                        <sys:String>Verdana</sys:String>
+                        <sys:String>Segoe UI</sys:String>
                     </ComboBox>
 
                     <Label Content="Font Size:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
