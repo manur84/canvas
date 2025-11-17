@@ -178,16 +178,15 @@
 
     <!-- LineElement DataTemplate -->
     <DataTemplate DataType="{x:Type models:LineElement}">
-        <!-- Grid container makes entire bounds clickable for selection and dragging -->
-        <Grid Background="Transparent">
-            <!-- Invisible thick line for easier hit-testing and selection (min 10px thickness) -->
-            <Line X1="0" Y1="0"
-                  X2="{Binding X2}"
-                  Y2="{Binding Y2}"
-                  Stroke="Transparent"
-                  StrokeThickness="10"
-                  StrokeStartLineCap="Round"
-                  StrokeEndLineCap="Round"/>
+        <!-- Canvas for absolute positioning of line within bounds -->
+        <Canvas>
+            <!-- Transparent Rectangle for hit-testing - MUST use Fill, not Stroke! -->
+            <!-- Covers entire Width x Height bounds to make line clickable -->
+            <Rectangle Width="{Binding Width}"
+                      Height="{Binding Height}"
+                      Fill="Transparent"
+                      Canvas.Left="0"
+                      Canvas.Top="0"/>
 
             <!-- Actual visible line with user's settings -->
             <Line X1="0" Y1="0"
@@ -200,7 +199,7 @@
                   UseLayoutRounding="True"
                   SnapsToDevicePixels="True"
                   IsHitTestVisible="False"/>
-        </Grid>
+        </Canvas>
     </DataTemplate>
 
     <!-- ButtonElement DataTemplate -->
@@ -224,26 +223,33 @@
 
     <!-- TableElement DataTemplate -->
     <DataTemplate DataType="{x:Type models:TableElement}">
-        <Border BorderBrush="{Binding BorderColor, Converter={StaticResource ColorToBrushConverter}}"
-                BorderThickness="{Binding BorderThickness}"
-                Background="Transparent">
+        <Border Background="Transparent">
+            <!-- Outer border controlled by ShowBorder -->
             <Border.Style>
                 <Style TargetType="Border">
                     <Setter Property="BorderThickness" Value="0"/>
+                    <Setter Property="BorderBrush" Value="Transparent"/>
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding ShowBorder}" Value="True">
-                            <Setter Property="BorderThickness" Value="{Binding BorderThickness, RelativeSource={RelativeSource Self}}"/>
+                            <Setter Property="BorderBrush" Value="{Binding BorderColor, Converter={StaticResource ColorToBrushConverter}}"/>
+                            <Setter Property="BorderThickness" Value="{Binding BorderThickness}"/>
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
             </Border.Style>
-            <!-- 2D Grid of editable cells -->
-            <ItemsControl ItemsSource="{Binding Cells}" x:Name="TableRows">
+
+            <!-- Grid of cells with AlternationCount for alternating rows -->
+            <ItemsControl ItemsSource="{Binding Cells}" AlternationCount="2">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel Orientation="Vertical"/>
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="ContentPresenter">
+                        <Setter Property="Tag" Value="{Binding RelativeSource={RelativeSource Self}, Path=(ItemsControl.AlternationIndex)}"/>
+                    </Style>
+                </ItemsControl.ItemContainerStyle>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <!-- Each row -->
@@ -257,31 +263,128 @@
                                 <DataTemplate>
                                     <!-- Each cell -->
                                     <Border x:Name="CellBorder"
-                                            Background="{Binding BackgroundColor, Converter={StaticResource ColorToBrushConverter}}"
-                                            BorderBrush="{Binding BorderColor, Converter={StaticResource ColorToBrushConverter}}"
-                                            BorderThickness="{Binding BorderThickness}"
                                             MinWidth="80"
-                                            MinHeight="30">
+                                            MinHeight="30"
+                                            BorderThickness="0">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <!-- Default: data row styling -->
+                                                <Setter Property="Background">
+                                                    <Setter.Value>
+                                                        <Binding Path="DataContext.RowBackgroundColor"
+                                                                RelativeSource="{RelativeSource AncestorType=ItemsControl, AncestorLevel=2}"
+                                                                Converter="{StaticResource ColorToBrushConverter}"/>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Setter Property="BorderBrush">
+                                                    <Setter.Value>
+                                                        <Binding Path="DataContext.BorderColor"
+                                                                RelativeSource="{RelativeSource AncestorType=ItemsControl, AncestorLevel=2}"
+                                                                Converter="{StaticResource ColorToBrushConverter}"/>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Style.Triggers>
+                                                    <!-- Show border if ShowBorder is true -->
+                                                    <DataTrigger Binding="{Binding DataContext.ShowBorder, RelativeSource={RelativeSource AncestorType=ItemsControl, AncestorLevel=2}}" Value="True">
+                                                        <Setter Property="BorderThickness">
+                                                            <Setter.Value>
+                                                                <Binding Path="DataContext.BorderThickness"
+                                                                        RelativeSource="{RelativeSource AncestorType=ItemsControl, AncestorLevel=2}"/>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </DataTrigger>
+
+                                                    <!-- Alternate row background color (for odd rows when AlternateRows is true) -->
+                                                    <MultiDataTrigger>
+                                                        <MultiDataTrigger.Conditions>
+                                                            <Condition Binding="{Binding DataContext.AlternateRows, RelativeSource={RelativeSource AncestorType=ItemsControl, AncestorLevel=2}}" Value="True"/>
+                                                            <Condition Binding="{Binding Tag, RelativeSource={RelativeSource AncestorType=ContentPresenter}}" Value="1"/>
+                                                        </MultiDataTrigger.Conditions>
+                                                        <Setter Property="Background">
+                                                            <Setter.Value>
+                                                                <Binding Path="DataContext.AlternateRowBackgroundColor"
+                                                                        RelativeSource="{RelativeSource AncestorType=ItemsControl, AncestorLevel=2}"
+                                                                        Converter="{StaticResource ColorToBrushConverter}"/>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </MultiDataTrigger>
+
+                                                    <!-- Header row styling (first row when ShowHeader is true) -->
+                                                    <MultiDataTrigger>
+                                                        <MultiDataTrigger.Conditions>
+                                                            <Condition Binding="{Binding DataContext.ShowHeader, RelativeSource={RelativeSource AncestorType=ItemsControl, AncestorLevel=2}}" Value="True"/>
+                                                            <Condition Binding="{Binding Tag, RelativeSource={RelativeSource AncestorType=ContentPresenter}}" Value="0"/>
+                                                        </MultiDataTrigger.Conditions>
+                                                        <Setter Property="Background">
+                                                            <Setter.Value>
+                                                                <Binding Path="DataContext.HeaderBackgroundColor"
+                                                                        RelativeSource="{RelativeSource AncestorType=ItemsControl, AncestorLevel=2}"
+                                                                        Converter="{StaticResource ColorToBrushConverter}"/>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </MultiDataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
                                         <TextBox Text="{Binding Value, UpdateSourceTrigger=LostFocus}"
-                                                x:Name="CellTextBox"
-                                                FontFamily="{Binding FontFamily}"
-                                                FontSize="{Binding FontSize}"
-                                                Foreground="{Binding ForegroundColor, Converter={StaticResource ColorToBrushConverter}}"
                                                 Background="Transparent"
                                                 BorderThickness="0"
                                                 Padding="4"
-                                                IsReadOnly="{Binding IsReadOnly}"
-                                                TextAlignment="{Binding HorizontalAlignment}"
-                                                VerticalContentAlignment="{Binding VerticalAlignment}">
+                                                VerticalContentAlignment="Center">
                                             <TextBox.Style>
                                                 <Style TargetType="TextBox">
+                                                    <!-- Default: data row styling -->
+                                                    <Setter Property="FontFamily">
+                                                        <Setter.Value>
+                                                            <Binding Path="DataContext.FontFamily"
+                                                                    RelativeSource="{RelativeSource AncestorType=ItemsControl, AncestorLevel=2}"/>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                    <Setter Property="FontSize">
+                                                        <Setter.Value>
+                                                            <Binding Path="DataContext.FontSize"
+                                                                    RelativeSource="{RelativeSource AncestorType=ItemsControl, AncestorLevel=2}"/>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                    <Setter Property="Foreground">
+                                                        <Setter.Value>
+                                                            <Binding Path="DataContext.ForegroundColor"
+                                                                    RelativeSource="{RelativeSource AncestorType=ItemsControl, AncestorLevel=2}"
+                                                                    Converter="{StaticResource ColorToBrushConverter}"/>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                    <Setter Property="FontWeight" Value="Normal"/>
                                                     <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsBold}" Value="True">
+                                                        <!-- Header row text styling (first row when ShowHeader is true) -->
+                                                        <MultiDataTrigger>
+                                                            <MultiDataTrigger.Conditions>
+                                                                <Condition Binding="{Binding DataContext.ShowHeader, RelativeSource={RelativeSource AncestorType=ItemsControl, AncestorLevel=2}}" Value="True"/>
+                                                                <Condition Binding="{Binding Tag, RelativeSource={RelativeSource AncestorType=ContentPresenter}}" Value="0"/>
+                                                            </MultiDataTrigger.Conditions>
+                                                            <Setter Property="FontSize">
+                                                                <Setter.Value>
+                                                                    <Binding Path="DataContext.HeaderFontSize"
+                                                                            RelativeSource="{RelativeSource AncestorType=ItemsControl, AncestorLevel=2}"/>
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                            <Setter Property="Foreground">
+                                                                <Setter.Value>
+                                                                    <Binding Path="DataContext.HeaderForegroundColor"
+                                                                            RelativeSource="{RelativeSource AncestorType=ItemsControl, AncestorLevel=2}"
+                                                                            Converter="{StaticResource ColorToBrushConverter}"/>
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                        </MultiDataTrigger>
+
+                                                        <!-- Header bold (when ShowHeader is true and HeaderBold is true) -->
+                                                        <MultiDataTrigger>
+                                                            <MultiDataTrigger.Conditions>
+                                                                <Condition Binding="{Binding DataContext.ShowHeader, RelativeSource={RelativeSource AncestorType=ItemsControl, AncestorLevel=2}}" Value="True"/>
+                                                                <Condition Binding="{Binding DataContext.HeaderBold, RelativeSource={RelativeSource AncestorType=ItemsControl, AncestorLevel=2}}" Value="True"/>
+                                                                <Condition Binding="{Binding Tag, RelativeSource={RelativeSource AncestorType=ContentPresenter}}" Value="0"/>
+                                                            </MultiDataTrigger.Conditions>
                                                             <Setter Property="FontWeight" Value="Bold"/>
-                                                        </DataTrigger>
-                                                        <DataTrigger Binding="{Binding IsItalic}" Value="True">
-                                                            <Setter Property="FontStyle" Value="Italic"/>
-                                                        </DataTrigger>
+                                                        </MultiDataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
                                             </TextBox.Style>
