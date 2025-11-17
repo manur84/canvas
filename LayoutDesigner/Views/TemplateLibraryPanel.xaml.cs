@@ -1,4 +1,6 @@
 using System;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -10,10 +12,12 @@ namespace LayoutDesigner.Views
     /// <summary>
     /// Template Library Panel
     /// </summary>
-    public partial class TemplateLibraryPanel : UserControl
+    public partial class TemplateLibraryPanel : UserControl, INotifyPropertyChanged
     {
         private readonly ITemplateService _templateService;
         private string _selectedCategory = TemplateCategories.All;
+
+        public event PropertyChangedEventHandler? PropertyChanged;
 
         public TemplateLibraryPanel()
         {
@@ -30,9 +34,18 @@ namespace LayoutDesigner.Views
             get => _selectedCategory;
             set
             {
-                _selectedCategory = value;
-                LoadTemplates();
+                if (_selectedCategory != value)
+                {
+                    _selectedCategory = value;
+                    OnPropertyChanged();
+                    LoadTemplates();
+                }
             }
+        }
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         /// <summary>

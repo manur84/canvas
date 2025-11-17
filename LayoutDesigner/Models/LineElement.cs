@@ -19,38 +19,32 @@ namespace LayoutDesigner.Models
         public override string ElementType => "Line";
 
         /// <summary>
-        /// Width is calculated from X2 for LineElements
-        /// Setting Width updates X2 accordingly
+        /// Width is calculated from X2 for LineElements (read-only)
         /// Minimum 10px for proper hit-testing on horizontal/vertical lines
+        /// To change width, modify X2 property instead
         /// </summary>
         public override double Width
         {
             get => Math.Max(Math.Abs(_x2), 10);
             set
             {
-                var newX2 = _x2 < 0 ? -value : value;
-                if (SetProperty(ref _x2, newX2, nameof(X2)))
-                {
-                    OnPropertyChanged(nameof(Width));
-                }
+                // Read-only for LineElements - prevent infinite loops
+                // Users should modify X2 instead
             }
         }
 
         /// <summary>
-        /// Height is calculated from Y2 for LineElements
-        /// Setting Height updates Y2 accordingly
+        /// Height is calculated from Y2 for LineElements (read-only)
         /// Minimum 10px for proper hit-testing on horizontal/vertical lines
+        /// To change height, modify Y2 property instead
         /// </summary>
         public override double Height
         {
             get => Math.Max(Math.Abs(_y2), 10);
             set
             {
-                var newY2 = _y2 < 0 ? -value : value;
-                if (SetProperty(ref _y2, newY2, nameof(Y2)))
-                {
-                    OnPropertyChanged(nameof(Height));
-                }
+                // Read-only for LineElements - prevent infinite loops
+                // Users should modify Y2 instead
             }
         }
 
