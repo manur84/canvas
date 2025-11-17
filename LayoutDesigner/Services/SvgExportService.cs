@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml;
 using LayoutDesigner.Models;
+using LayoutDesigner.Models.Base;
 using LayoutDesigner.Services.Interfaces;
 
 namespace LayoutDesigner.Services
