@@ -44,9 +44,10 @@ namespace LayoutDesigner.Controls
             RenderOptions.SetEdgeMode(this, EdgeMode.Aliased); // Faster rendering for grid lines
             RenderOptions.SetBitmapScalingMode(this, BitmapScalingMode.HighQuality); // Better image quality
 
-            PreviewMouseLeftButtonDown += OnMouseLeftButtonDown;
-            PreviewMouseLeftButtonUp += OnMouseLeftButtonUp;
-            PreviewMouseMove += OnMouseMove;
+            // Use AddHandler with handledEventsToo=true to receive events even if already handled by child controls
+            AddHandler(MouseLeftButtonDownEvent, new MouseButtonEventHandler(OnMouseLeftButtonDown), handledEventsToo: true);
+            AddHandler(MouseLeftButtonUpEvent, new MouseButtonEventHandler(OnMouseLeftButtonUp), handledEventsToo: true);
+            AddHandler(MouseMoveEvent, new MouseEventHandler(OnMouseMove), handledEventsToo: true);
 
             // Initialize adorners when loaded
             Loaded += OnLoaded;
@@ -225,6 +226,13 @@ namespace LayoutDesigner.Controls
 
         private void OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
+            // Don't interfere with TextBox or other input controls
+            if (e.OriginalSource is System.Windows.Controls.TextBox ||
+                e.OriginalSource is System.Windows.Controls.TextBlock && (e.OriginalSource as System.Windows.Controls.TextBlock)?.IsMouseDirectlyOver == true)
+            {
+                return;
+            }
+
             // Try to find an element by walking up the visual tree
             var layoutElement = FindLayoutElement(e.OriginalSource as DependencyObject);
 
@@ -232,8 +240,13 @@ namespace LayoutDesigner.Controls
             _isDragging = false;
             _isRectangleSelecting = false;
             _draggingElement = layoutElement; // Store which element was clicked
-            CaptureMouse();
-            e.Handled = true;
+
+            // Only capture mouse if we're not clicking on an input control
+            if (layoutElement != null || e.OriginalSource == this)
+            {
+                CaptureMouse();
+                e.Handled = true;
+            }
         }
 
         private void OnMouseMove(object sender, MouseEventArgs e)
@@ -242,8 +255,9 @@ namespace LayoutDesigner.Controls
             if (!_dragStartPoint.HasValue || e.LeftButton != MouseButtonState.Pressed)
                 return;
 
-            // Prevent ScrollViewer from handling this event
-            e.Handled = true;
+            // Don't interfere with TextBox interactions
+            if (_draggingElement == null && e.OriginalSource is System.Windows.Controls.TextBox)
+                return;
 
             var currentPoint = e.GetPosition(this);
             var delta = currentPoint - _dragStartPoint.Value;
@@ -257,11 +271,13 @@ namespace LayoutDesigner.Controls
                     if (_draggingElement != null)
                     {
                         _isDragging = true;
+                        e.Handled = true; // Prevent ScrollViewer from handling
                     }
                     else
                     {
                         _isRectangleSelecting = true;
                         _selectionAdorner?.StartSelection(_dragStartPoint.Value);
+                        e.Handled = true; // Prevent ScrollViewer from handling
                     }
                 }
                 else
@@ -274,6 +290,7 @@ namespace LayoutDesigner.Controls
             if (_isRectangleSelecting)
             {
                 _selectionAdorner?.UpdateSelection(currentPoint);
+                e.Handled = true;
                 return;
             }
 
@@ -328,6 +345,7 @@ namespace LayoutDesigner.Controls
             layoutElement.Y = Math.Max(0, newY);
 
             _dragStartPoint = currentPoint;
+            e.Handled = true; // Prevent ScrollViewer from handling
         }
 
         private void OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
