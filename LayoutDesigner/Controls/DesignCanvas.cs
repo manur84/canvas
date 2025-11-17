@@ -23,6 +23,7 @@ namespace LayoutDesigner.Controls
         private bool _isRectangleSelecting;
         private Pen? _gridPen; // Cached pen for grid rendering
         private LayoutElementBase? _draggingElement; // Track which element is being dragged
+        private Dictionary<LayoutElementBase, Point>? _draggingElementsStartPositions; // Track start positions of all dragged elements
 
         // Adorners for visual feedback
         private SnapLinesAdorner? _snapLinesAdorner;
@@ -244,6 +245,36 @@ namespace LayoutDesigner.Controls
             _isDragging = false;
             _isRectangleSelecting = false;
             _draggingElement = layoutElement; // Store which element was clicked
+            _draggingElementsStartPositions = null; // Reset dragging elements
+
+            // Prepare for multi-element dragging: store start positions of all selected elements
+            if (layoutElement != null && CanvasViewModel != null)
+            {
+                var canvasVmType = CanvasViewModel.GetType();
+                var selectedElementsProperty = canvasVmType.GetProperty("SelectedElements");
+                if (selectedElementsProperty != null)
+                {
+                    var selectedElements = selectedElementsProperty.GetValue(CanvasViewModel) as System.Collections.IEnumerable;
+                    if (selectedElements != null)
+                    {
+                        var selectedList = selectedElements.OfType<LayoutElementBase>().ToList();
+
+                        // If clicked element is part of selection, prepare to drag all selected elements
+                        if (selectedList.Contains(layoutElement))
+                        {
+                            _draggingElementsStartPositions = new Dictionary<LayoutElementBase, Point>();
+                            foreach (var element in selectedList)
+                            {
+                                // Skip locked elements
+                                if (!element.IsLocked)
+                                {
+                                    _draggingElementsStartPositions[element] = new Point(element.X, element.Y);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
 
             // Only capture mouse if we're not clicking on an input control
             if (layoutElement != null || e.OriginalSource == this)
@@ -304,51 +335,116 @@ namespace LayoutDesigner.Controls
             if (_draggingElement == null || !_isDragging)
                 return;
 
-            var layoutElement = _draggingElement;
-
-            // Calculate new position
-            var newX = layoutElement.X + delta.X;
-            var newY = layoutElement.Y + delta.Y;
-
             // Clear previous snap lines
             _snapLinesAdorner?.Clear();
 
-            // Snap to grid if enabled (cached property access)
-            if (SnapToGrid)
+            // Check if we're dragging multiple selected elements or just a single element
+            if (_draggingElementsStartPositions != null && _draggingElementsStartPositions.Count > 0)
             {
-                newX = SnapHelper.SnapToGrid(newX, GridSize);
-                newY = SnapHelper.SnapToGrid(newY, GridSize);
-            }
+                // Multi-element dragging
+                var primaryElement = _draggingElement;
+                var primaryStartPos = _draggingElementsStartPositions.ContainsKey(primaryElement)
+                    ? _draggingElementsStartPositions[primaryElement]
+                    : new Point(primaryElement.X, primaryElement.Y);
 
-            // Snap to elements if enabled
-            if (SnapToElements && Elements != null)
-            {
-                // Temporarily update position for snap calculation
-                var originalX = layoutElement.X;
-                var originalY = layoutElement.Y;
-                layoutElement.X = newX;
-                layoutElement.Y = newY;
+                // Calculate new position for primary element
+                var newX = primaryStartPos.X + delta.X;
+                var newY = primaryStartPos.Y + delta.Y;
 
-                var otherElements = Elements.OfType<LayoutElementBase>().Where(e => e != layoutElement);
-                var (snapX, snapY, snapped) = SnapHelper.SnapToElements(layoutElement, otherElements);
-
-                if (snapped)
+                // Snap to grid if enabled (cached property access)
+                if (SnapToGrid)
                 {
-                    newX = snapX;
-                    newY = snapY;
-
-                    // Show snap lines
-                    ShowSnapLines(layoutElement, otherElements);
+                    newX = SnapHelper.SnapToGrid(newX, GridSize);
+                    newY = SnapHelper.SnapToGrid(newY, GridSize);
                 }
 
-                // Restore original position
-                layoutElement.X = originalX;
-                layoutElement.Y = originalY;
-            }
+                // Snap to elements if enabled (using primary element)
+                if (SnapToElements && Elements != null)
+                {
+                    // Temporarily update position for snap calculation
+                    var originalX = primaryElement.X;
+                    var originalY = primaryElement.Y;
+                    primaryElement.X = newX;
+                    primaryElement.Y = newY;
 
-            // Update position with bounds check
-            layoutElement.X = Math.Max(0, newX);
-            layoutElement.Y = Math.Max(0, newY);
+                    var otherElements = Elements.OfType<LayoutElementBase>()
+                        .Where(e => !_draggingElementsStartPositions.ContainsKey(e));
+                    var (snapX, snapY, snapped) = SnapHelper.SnapToElements(primaryElement, otherElements);
+
+                    if (snapped)
+                    {
+                        newX = snapX;
+                        newY = snapY;
+
+                        // Show snap lines
+                        ShowSnapLines(primaryElement, otherElements);
+                    }
+
+                    // Restore original position
+                    primaryElement.X = originalX;
+                    primaryElement.Y = originalY;
+                }
+
+                // Calculate the actual delta based on snapping
+                var actualDeltaX = newX - primaryStartPos.X;
+                var actualDeltaY = newY - primaryStartPos.Y;
+
+                // Apply the delta to all selected elements
+                foreach (var kvp in _draggingElementsStartPositions)
+                {
+                    var element = kvp.Key;
+                    var startPos = kvp.Value;
+
+                    element.X = Math.Max(0, startPos.X + actualDeltaX);
+                    element.Y = Math.Max(0, startPos.Y + actualDeltaY);
+                }
+            }
+            else
+            {
+                // Single element dragging (original logic)
+                var layoutElement = _draggingElement;
+
+                // Calculate new position
+                var newX = layoutElement.X + delta.X;
+                var newY = layoutElement.Y + delta.Y;
+
+                // Snap to grid if enabled (cached property access)
+                if (SnapToGrid)
+                {
+                    newX = SnapHelper.SnapToGrid(newX, GridSize);
+                    newY = SnapHelper.SnapToGrid(newY, GridSize);
+                }
+
+                // Snap to elements if enabled
+                if (SnapToElements && Elements != null)
+                {
+                    // Temporarily update position for snap calculation
+                    var originalX = layoutElement.X;
+                    var originalY = layoutElement.Y;
+                    layoutElement.X = newX;
+                    layoutElement.Y = newY;
+
+                    var otherElements = Elements.OfType<LayoutElementBase>().Where(e => e != layoutElement);
+                    var (snapX, snapY, snapped) = SnapHelper.SnapToElements(layoutElement, otherElements);
+
+                    if (snapped)
+                    {
+                        newX = snapX;
+                        newY = snapY;
+
+                        // Show snap lines
+                        ShowSnapLines(layoutElement, otherElements);
+                    }
+
+                    // Restore original position
+                    layoutElement.X = originalX;
+                    layoutElement.Y = originalY;
+                }
+
+                // Update position with bounds check
+                layoutElement.X = Math.Max(0, newX);
+                layoutElement.Y = Math.Max(0, newY);
+            }
 
             _dragStartPoint = currentPoint;
             e.Handled = true; // Prevent ScrollViewer from handling
@@ -387,6 +483,7 @@ namespace LayoutDesigner.Controls
                 _isDragging = false;
                 _isRectangleSelecting = false;
                 _draggingElement = null;
+                _draggingElementsStartPositions = null;
                 e.Handled = true;
             }
         }
