@@ -223,21 +223,23 @@
 
     <!-- TableElement DataTemplate -->
     <DataTemplate DataType="{x:Type models:TableElement}">
-        <Border BorderBrush="{Binding BorderColor, Converter={StaticResource ColorToBrushConverter}}"
-                BorderThickness="{Binding BorderThickness}"
-                Background="Transparent">
+        <Border Background="Transparent">
+            <!-- Outer border controlled by ShowBorder -->
             <Border.Style>
                 <Style TargetType="Border">
                     <Setter Property="BorderThickness" Value="0"/>
+                    <Setter Property="BorderBrush" Value="Transparent"/>
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding ShowBorder}" Value="True">
-                            <Setter Property="BorderThickness" Value="{Binding BorderThickness, RelativeSource={RelativeSource Self}}"/>
+                            <Setter Property="BorderBrush" Value="{Binding BorderColor, Converter={StaticResource ColorToBrushConverter}}"/>
+                            <Setter Property="BorderThickness" Value="{Binding BorderThickness}"/>
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
             </Border.Style>
-            <!-- 2D Grid of editable cells -->
-            <ItemsControl ItemsSource="{Binding Cells}" x:Name="TableRows">
+
+            <!-- Grid of cells -->
+            <ItemsControl ItemsSource="{Binding Cells}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <StackPanel Orientation="Vertical"/>
@@ -246,7 +248,7 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <!-- Each row -->
-                        <ItemsControl ItemsSource="{Binding}">
+                        <ItemsControl ItemsSource="{Binding}" x:Name="RowItemsControl">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <StackPanel Orientation="Horizontal"/>
@@ -256,32 +258,67 @@
                                 <DataTemplate>
                                     <!-- Each cell -->
                                     <Border x:Name="CellBorder"
-                                            Background="{Binding BackgroundColor, Converter={StaticResource ColorToBrushConverter}}"
-                                            BorderBrush="{Binding BorderColor, Converter={StaticResource ColorToBrushConverter}}"
-                                            BorderThickness="{Binding BorderThickness}"
                                             MinWidth="80"
-                                            MinHeight="30">
+                                            MinHeight="30"
+                                            BorderThickness="0">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <!-- Default: data row styling -->
+                                                <Setter Property="Background">
+                                                    <Setter.Value>
+                                                        <Binding Path="DataContext.RowBackgroundColor"
+                                                                RelativeSource="{RelativeSource AncestorType=ItemsControl, AncestorLevel=2}"
+                                                                Converter="{StaticResource ColorToBrushConverter}"/>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Setter Property="BorderBrush">
+                                                    <Setter.Value>
+                                                        <Binding Path="DataContext.BorderColor"
+                                                                RelativeSource="{RelativeSource AncestorType=ItemsControl, AncestorLevel=2}"
+                                                                Converter="{StaticResource ColorToBrushConverter}"/>
+                                                    </Setter.Value>
+                                                </Setter>
+                                                <Style.Triggers>
+                                                    <!-- Show border if ShowBorder is true -->
+                                                    <DataTrigger Binding="{Binding DataContext.ShowBorder, RelativeSource={RelativeSource AncestorType=ItemsControl, AncestorLevel=2}}" Value="True">
+                                                        <Setter Property="BorderThickness">
+                                                            <Setter.Value>
+                                                                <Binding Path="DataContext.BorderThickness"
+                                                                        RelativeSource="{RelativeSource AncestorType=ItemsControl, AncestorLevel=2}"/>
+                                                            </Setter.Value>
+                                                        </Setter>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
                                         <TextBox Text="{Binding Value, UpdateSourceTrigger=LostFocus}"
-                                                x:Name="CellTextBox"
-                                                FontFamily="{Binding FontFamily}"
-                                                FontSize="{Binding FontSize}"
-                                                Foreground="{Binding ForegroundColor, Converter={StaticResource ColorToBrushConverter}}"
                                                 Background="Transparent"
                                                 BorderThickness="0"
                                                 Padding="4"
-                                                IsReadOnly="{Binding IsReadOnly}"
-                                                TextAlignment="{Binding HorizontalAlignment}"
-                                                VerticalContentAlignment="{Binding VerticalAlignment}">
+                                                VerticalContentAlignment="Center">
                                             <TextBox.Style>
                                                 <Style TargetType="TextBox">
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsBold}" Value="True">
-                                                            <Setter Property="FontWeight" Value="Bold"/>
-                                                        </DataTrigger>
-                                                        <DataTrigger Binding="{Binding IsItalic}" Value="True">
-                                                            <Setter Property="FontStyle" Value="Italic"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
+                                                    <!-- Default: data row styling -->
+                                                    <Setter Property="FontFamily">
+                                                        <Setter.Value>
+                                                            <Binding Path="DataContext.FontFamily"
+                                                                    RelativeSource="{RelativeSource AncestorType=ItemsControl, AncestorLevel=2}"/>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                    <Setter Property="FontSize">
+                                                        <Setter.Value>
+                                                            <Binding Path="DataContext.FontSize"
+                                                                    RelativeSource="{RelativeSource AncestorType=ItemsControl, AncestorLevel=2}"/>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                    <Setter Property="Foreground">
+                                                        <Setter.Value>
+                                                            <Binding Path="DataContext.ForegroundColor"
+                                                                    RelativeSource="{RelativeSource AncestorType=ItemsControl, AncestorLevel=2}"
+                                                                    Converter="{StaticResource ColorToBrushConverter}"/>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                    <Setter Property="FontWeight" Value="Normal"/>
                                                 </Style>
                                             </TextBox.Style>
                                         </TextBox>
