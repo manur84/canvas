@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:models="clr-namespace:LayoutDesigner.Models"
              xmlns:controls="clr-namespace:LayoutDesigner.Controls"
+             xmlns:behaviors="clr-namespace:LayoutDesigner.Behaviors"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d"
              d:DesignHeight="450" d:DesignWidth="280"
@@ -52,6 +53,7 @@
 
                     <Label Content="Font Size:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
                     <TextBox Text="{Binding FontSize}"
+                           behaviors:NumericInputBehavior.IsEnabled="True"
                            Style="{StaticResource ModernTextBox}"/>
 
                     <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
@@ -100,10 +102,12 @@
 
                         <Label Content="Border Thickness:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
                         <TextBox Text="{Binding BorderThickness}"
+                               behaviors:NumericInputBehavior.IsEnabled="True"
                                Style="{StaticResource ModernTextBox}"/>
 
                         <Label Content="Corner Radius:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
                         <TextBox Text="{Binding CornerRadius}"
+                               behaviors:NumericInputBehavior.IsEnabled="True"
                                Style="{StaticResource ModernTextBox}"/>
                     </StackPanel>
                 </GroupBox>
@@ -127,10 +131,12 @@
 
                     <Label Content="Stroke Thickness:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
                     <TextBox Text="{Binding StrokeThickness}"
+                           behaviors:NumericInputBehavior.IsEnabled="True"
                            Style="{StaticResource ModernTextBox}"/>
 
                     <Label Content="Corner Radius:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
                     <TextBox Text="{Binding CornerRadius}"
+                           behaviors:NumericInputBehavior.IsEnabled="True"
                            Style="{StaticResource ModernTextBox}"/>
                 </StackPanel>
             </GroupBox>
@@ -184,6 +190,7 @@
 
                     <Label Content="Font Size:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
                     <TextBox Text="{Binding FontSize}"
+                           behaviors:NumericInputBehavior.IsEnabled="True"
                            Style="{StaticResource ModernTextBox}"/>
                 </StackPanel>
             </GroupBox>
@@ -194,16 +201,22 @@
             <GroupBox Header="Line Properties" Style="{StaticResource PropertyGroup}">
                 <StackPanel>
                     <Label Content="End X Position:" Style="{StaticResource PropertyLabel}"/>
-                    <TextBox Text="{Binding X2}" Style="{StaticResource ModernTextBox}"/>
+                    <TextBox Text="{Binding X2}"
+                           behaviors:NumericInputBehavior.IsEnabled="True"
+                           Style="{StaticResource ModernTextBox}"/>
 
                     <Label Content="End Y Position:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                    <TextBox Text="{Binding Y2}" Style="{StaticResource ModernTextBox}"/>
+                    <TextBox Text="{Binding Y2}"
+                           behaviors:NumericInputBehavior.IsEnabled="True"
+                           Style="{StaticResource ModernTextBox}"/>
 
                     <Label Content="Stroke Color:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
                     <controls:ColorInputControl ColorValue="{Binding StrokeColor}"/>
 
                     <Label Content="Stroke Thickness:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                    <TextBox Text="{Binding StrokeThickness}" Style="{StaticResource ModernTextBox}"/>
+                    <TextBox Text="{Binding StrokeThickness}"
+                           behaviors:NumericInputBehavior.IsEnabled="True"
+                           Style="{StaticResource ModernTextBox}"/>
                 </StackPanel>
             </GroupBox>
         </DataTemplate>
@@ -214,10 +227,14 @@
                 <GroupBox Header="Table Structure" Style="{StaticResource PropertyGroup}">
                     <StackPanel>
                         <Label Content="Rows:" Style="{StaticResource PropertyLabel}"/>
-                        <TextBox Text="{Binding Rows}" Style="{StaticResource ModernTextBox}"/>
+                        <TextBox Text="{Binding Rows}"
+                               behaviors:NumericInputBehavior.IsEnabled="True"
+                               Style="{StaticResource ModernTextBox}"/>
 
                         <Label Content="Columns:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                        <TextBox Text="{Binding Columns}" Style="{StaticResource ModernTextBox}"/>
+                        <TextBox Text="{Binding Columns}"
+                               behaviors:NumericInputBehavior.IsEnabled="True"
+                               Style="{StaticResource ModernTextBox}"/>
                     </StackPanel>
                 </GroupBox>
 
@@ -233,7 +250,9 @@
                         <controls:ColorInputControl ColorValue="{Binding HeaderForegroundColor}"/>
 
                         <Label Content="Header Font Size:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                        <TextBox Text="{Binding HeaderFontSize}" Style="{StaticResource ModernTextBox}"/>
+                        <TextBox Text="{Binding HeaderFontSize}"
+                               behaviors:NumericInputBehavior.IsEnabled="True"
+                               Style="{StaticResource ModernTextBox}"/>
 
                         <CheckBox Content="Bold Header" IsChecked="{Binding HeaderBold}"
                                 Style="{StaticResource ModernCheckBox}" Margin="0,8,0,0"/>
@@ -265,7 +284,9 @@
                         <controls:ColorInputControl ColorValue="{Binding BorderColor}"/>
 
                         <Label Content="Border Thickness:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                        <TextBox Text="{Binding BorderThickness}" Style="{StaticResource ModernTextBox}"/>
+                        <TextBox Text="{Binding BorderThickness}"
+                               behaviors:NumericInputBehavior.IsEnabled="True"
+                               Style="{StaticResource ModernTextBox}"/>
                     </StackPanel>
                 </GroupBox>
 
@@ -281,7 +302,9 @@
                         </ComboBox>
 
                         <Label Content="Font Size:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
-                        <TextBox Text="{Binding FontSize}" Style="{StaticResource ModernTextBox}"/>
+                        <TextBox Text="{Binding FontSize}"
+                               behaviors:NumericInputBehavior.IsEnabled="True"
+                               Style="{StaticResource ModernTextBox}"/>
                     </StackPanel>
                 </GroupBox>
             </StackPanel>
@@ -312,14 +335,17 @@
                         <StackPanel>
                             <Label Content="Canvas Width:" Style="{StaticResource PropertyLabel}"/>
                             <TextBox Text="{Binding CanvasWidth}"
+                                   behaviors:NumericInputBehavior.IsEnabled="True"
                                    Style="{StaticResource ModernTextBox}"/>
 
                             <Label Content="Canvas Height:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
                             <TextBox Text="{Binding CanvasHeight}"
+                                   behaviors:NumericInputBehavior.IsEnabled="True"
                                    Style="{StaticResource ModernTextBox}"/>
 
                             <Label Content="Grid Size:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
                             <TextBox Text="{Binding GridSize}"
+                                   behaviors:NumericInputBehavior.IsEnabled="True"
                                    Style="{StaticResource ModernTextBox}"/>
 
                             <CheckBox Content="Show Grid" IsChecked="{Binding ShowGrid}"
@@ -357,24 +383,29 @@
 
                             <Label Content="Position X:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
                             <TextBox Text="{Binding SelectedElement.X}"
+                                   behaviors:NumericInputBehavior.IsEnabled="True"
                                    Style="{StaticResource ModernTextBox}"/>
 
                             <Label Content="Position Y:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
                             <TextBox Text="{Binding SelectedElement.Y}"
+                                   behaviors:NumericInputBehavior.IsEnabled="True"
                                    Style="{StaticResource ModernTextBox}"/>
 
                             <Label Content="Width:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
                             <TextBox Text="{Binding SelectedElement.Width}"
+                                   behaviors:NumericInputBehavior.IsEnabled="True"
                                    Style="{StaticResource ModernTextBox}"/>
 
                             <Label Content="Height:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
                             <TextBox Text="{Binding SelectedElement.Height}"
+                                   behaviors:NumericInputBehavior.IsEnabled="True"
                                    Style="{StaticResource ModernTextBox}"/>
 
                             <Label Content="Rotation:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
                             <Slider Value="{Binding SelectedElement.Rotation}" Minimum="0" Maximum="360"
                                   Style="{StaticResource ModernSlider}"/>
                             <TextBox Text="{Binding SelectedElement.Rotation, StringFormat={}{0:F1}°}"
+                                   behaviors:NumericInputBehavior.IsEnabled="True"
                                    Style="{StaticResource ModernTextBox}" Margin="0,2,0,0"/>
 
                             <Label Content="Opacity:" Style="{StaticResource PropertyLabel}" Margin="0,8,0,0"/>
