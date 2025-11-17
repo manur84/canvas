@@ -178,15 +178,18 @@
 
     <!-- LineElement DataTemplate -->
     <DataTemplate DataType="{x:Type models:LineElement}">
-        <Line X1="0" Y1="0"
-              X2="{Binding X2}"
-              Y2="{Binding Y2}"
-              Stroke="{Binding StrokeColor, Converter={StaticResource ColorToBrushConverter}}"
-              StrokeThickness="{Binding StrokeThickness}"
-              StrokeStartLineCap="Round"
-              StrokeEndLineCap="Round"
-              UseLayoutRounding="True"
-              SnapsToDevicePixels="True"/>
+        <!-- Canvas container to ensure DataContext is available for FindLayoutElement -->
+        <Canvas Background="Transparent">
+            <Line X1="0" Y1="0"
+                  X2="{Binding X2}"
+                  Y2="{Binding Y2}"
+                  Stroke="{Binding StrokeColor, Converter={StaticResource ColorToBrushConverter}}"
+                  StrokeThickness="{Binding StrokeThickness}"
+                  StrokeStartLineCap="Round"
+                  StrokeEndLineCap="Round"
+                  UseLayoutRounding="True"
+                  SnapsToDevicePixels="True"/>
+        </Canvas>
     </DataTemplate>
 
     <!-- ButtonElement DataTemplate -->
@@ -210,7 +213,8 @@
 
     <!-- TableElement DataTemplate -->
     <DataTemplate DataType="{x:Type models:TableElement}">
-        <Border BorderBrush="{Binding BorderColor, Converter={StaticResource ColorToBrushConverter}}">
+        <Border BorderBrush="{Binding BorderColor, Converter={StaticResource ColorToBrushConverter}}"
+                Background="Transparent">
             <Border.Style>
                 <Style TargetType="Border">
                     <Setter Property="BorderThickness" Value="0"/>
