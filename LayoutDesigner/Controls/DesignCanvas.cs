@@ -44,11 +44,6 @@ namespace LayoutDesigner.Controls
             RenderOptions.SetEdgeMode(this, EdgeMode.Aliased); // Faster rendering for grid lines
             RenderOptions.SetBitmapScalingMode(this, BitmapScalingMode.HighQuality); // Better image quality
 
-            // Use AddHandler with handledEventsToo=true to receive events even if already handled by child controls
-            AddHandler(MouseLeftButtonDownEvent, new MouseButtonEventHandler(OnMouseLeftButtonDown), handledEventsToo: true);
-            AddHandler(MouseLeftButtonUpEvent, new MouseButtonEventHandler(OnMouseLeftButtonUp), handledEventsToo: true);
-            AddHandler(MouseMoveEvent, new MouseEventHandler(OnMouseMove), handledEventsToo: true);
-
             // Initialize adorners when loaded
             Loaded += OnLoaded;
             Unloaded += OnUnloaded;
@@ -215,17 +210,26 @@ namespace LayoutDesigner.Controls
             var current = source;
             while (current != null && current != this)
             {
-                if (current is FrameworkElement fe && fe.DataContext is LayoutElementBase layoutElement)
+                // Check FrameworkElement's DataContext
+                if (current is FrameworkElement fe)
                 {
-                    return layoutElement;
+                    if (fe.DataContext is LayoutElementBase layoutElement)
+                        return layoutElement;
                 }
+
+                // Check ContentPresenter's Content
+                if (current is ContentPresenter cp && cp.Content is LayoutElementBase cpLayoutElement)
+                    return cpLayoutElement;
+
                 current = VisualTreeHelper.GetParent(current);
             }
             return null;
         }
 
-        private void OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        protected override void OnPreviewMouseLeftButtonDown(MouseButtonEventArgs e)
         {
+            base.OnPreviewMouseLeftButtonDown(e);
+
             // Don't interfere with TextBox or other input controls
             if (e.OriginalSource is System.Windows.Controls.TextBox ||
                 e.OriginalSource is System.Windows.Controls.TextBlock && (e.OriginalSource as System.Windows.Controls.TextBlock)?.IsMouseDirectlyOver == true)
@@ -245,12 +249,14 @@ namespace LayoutDesigner.Controls
             if (layoutElement != null || e.OriginalSource == this)
             {
                 CaptureMouse();
-                e.Handled = true;
+                // Don't handle the event here - let it bubble for selection behavior
             }
         }
 
-        private void OnMouseMove(object sender, MouseEventArgs e)
+        protected override void OnPreviewMouseMove(MouseEventArgs e)
         {
+            base.OnPreviewMouseMove(e);
+
             // Performance optimization: Early return if not in drag mode
             if (!_dragStartPoint.HasValue || e.LeftButton != MouseButtonState.Pressed)
                 return;
@@ -348,8 +354,10 @@ namespace LayoutDesigner.Controls
             e.Handled = true; // Prevent ScrollViewer from handling
         }
 
-        private void OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        protected override void OnPreviewMouseLeftButtonUp(MouseButtonEventArgs e)
         {
+            base.OnPreviewMouseLeftButtonUp(e);
+
             if (_dragStartPoint.HasValue)
             {
                 // Handle rectangle selection end
