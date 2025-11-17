@@ -60,15 +60,16 @@
 
     <!-- ImageElement DataTemplate -->
     <DataTemplate DataType="{x:Type models:ImageElement}">
-        <Border BorderBrush="{Binding BorderColor, Converter={StaticResource ColorToBrushConverter}}"
-                BorderThickness="{Binding BorderThickness}"
-                CornerRadius="{Binding CornerRadius}">
+        <Border CornerRadius="{Binding CornerRadius, Mode=OneWay}">
             <Border.Style>
                 <Style TargetType="Border">
                     <Setter Property="BorderThickness" Value="0"/>
+                    <Setter Property="BorderBrush" Value="Transparent"/>
                     <Style.Triggers>
-                        <DataTrigger Binding="{Binding HasBorder}" Value="True">
-                            <Setter Property="BorderThickness" Value="{Binding BorderThickness}"/>
+                        <!-- Show border when HasBorder is true -->
+                        <DataTrigger Binding="{Binding HasBorder, Mode=OneWay}" Value="True">
+                            <Setter Property="BorderBrush" Value="{Binding BorderColor, Mode=OneWay, Converter={StaticResource ColorToBrushConverter}}"/>
+                            <Setter Property="BorderThickness" Value="{Binding BorderThickness, Mode=OneWay}"/>
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
