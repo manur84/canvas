@@ -305,9 +305,9 @@ namespace LayoutDesigner.Controls
                 if (Math.Abs(delta.X) > UIConstants.DragDeadZonePixels || Math.Abs(delta.Y) > UIConstants.DragDeadZonePixels)
                 {
                     // Check if we're dragging an element or doing rectangle selection
-                    // IMPORTANT: Dragging elements requires holding Shift key
-                    if (_draggingElement != null && (Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift)))
+                    if (_draggingElement != null)
                     {
+                        // Start dragging the element
                         _isDragging = true;
                         e.Handled = true; // Prevent ScrollViewer from handling
                     }
@@ -318,7 +318,6 @@ namespace LayoutDesigner.Controls
                         _selectionAdorner?.StartSelection(_dragStartPoint.Value);
                         e.Handled = true; // Prevent ScrollViewer from handling
                     }
-                    // else: Element clicked but no Shift key - do nothing (just select the element)
                 }
                 else
                 {
