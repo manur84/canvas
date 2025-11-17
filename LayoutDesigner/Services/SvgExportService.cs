@@ -56,9 +56,9 @@ namespace LayoutDesigner.Services
 
                 // SVG root element
                 writer.WriteStartElement("svg", "http://www.w3.org/2000/svg");
-                writer.WriteAttributeString("width", FormatNumber(document.Width));
-                writer.WriteAttributeString("height", FormatNumber(document.Height));
-                writer.WriteAttributeString("viewBox", $"0 0 {FormatNumber(document.Width)} {FormatNumber(document.Height)}");
+                writer.WriteAttributeString("width", FormatNumber(document.CanvasWidth));
+                writer.WriteAttributeString("height", FormatNumber(document.CanvasHeight));
+                writer.WriteAttributeString("viewBox", $"0 0 {FormatNumber(document.CanvasWidth)} {FormatNumber(document.CanvasHeight)}");
                 writer.WriteAttributeString("version", "1.1");
 
                 // Premium quality rendering hints
