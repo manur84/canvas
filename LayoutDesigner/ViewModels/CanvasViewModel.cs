@@ -9,6 +9,7 @@ using LayoutDesigner.Constants;
 using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
+using Microsoft.Win32;
 
 namespace LayoutDesigner.ViewModels
 {
@@ -70,6 +71,7 @@ namespace LayoutDesigner.ViewModels
             DistributeVerticallyCommand = new RelayCommand(DistributeVertically, () => SelectedElements.Count >= 3);
             LockCommand = new RelayCommand(LockElements, () => SelectedElements.Count > 0);
             UnlockCommand = new RelayCommand(UnlockElements, () => SelectedElements.Count > 0);
+            ExportToSvgCommand = new RelayCommand(async () => await ExportToSvg());
 
             // Initialize grouping commands from partial class
             InitializeGroupingCommands();
@@ -210,6 +212,7 @@ namespace LayoutDesigner.ViewModels
         public ICommand DistributeVerticallyCommand { get; }
         public ICommand LockCommand { get; }
         public ICommand UnlockCommand { get; }
+        public ICommand ExportToSvgCommand { get; }
 
         #endregion
 
@@ -997,6 +1000,28 @@ namespace LayoutDesigner.ViewModels
             foreach (var element in SelectedElements)
             {
                 element.IsLocked = false;
+            }
+        }
+
+        private async System.Threading.Tasks.Task ExportToSvg()
+        {
+            var saveDialog = new SaveFileDialog
+            {
+                Title = "Export Layout to SVG",
+                Filter = "SVG Files (*.svg)|*.svg|All Files (*.*)|*.*",
+                DefaultExt = "svg",
+                FileName = "layout.svg"
+            };
+
+            if (saveDialog.ShowDialog() == true)
+            {
+                var svgService = App.Services.Resolve<ISvgExportService>();
+                var success = await svgService.ExportToSvgAsync(Document, saveDialog.FileName);
+
+                if (success)
+                {
+                    MessageBox.Show("SVG exported successfully!", "Export Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+                }
             }
         }
 
