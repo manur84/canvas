@@ -88,7 +88,7 @@
                                              Margin="0,2,0,0"
                                              FontSize="10"
                                              Foreground="{StaticResource SecondaryBrush}">
-                                        <Run Text="{Binding Elements.Count}"/>
+                                        <Run Text="{Binding Elements.Count, Mode=OneWay}"/>
                                         <Run Text="elements"/>
                                     </TextBlock>
                                 </Grid>

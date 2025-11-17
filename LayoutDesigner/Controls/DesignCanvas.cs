@@ -311,12 +311,14 @@ namespace LayoutDesigner.Controls
                         _isDragging = true;
                         e.Handled = true; // Prevent ScrollViewer from handling
                     }
-                    else
+                    else if (_draggingElement == null)
                     {
+                        // Only start rectangle selection if no element was clicked
                         _isRectangleSelecting = true;
                         _selectionAdorner?.StartSelection(_dragStartPoint.Value);
                         e.Handled = true; // Prevent ScrollViewer from handling
                     }
+                    // else: Element clicked but no Shift key - do nothing (just select the element)
                 }
                 else
                 {
