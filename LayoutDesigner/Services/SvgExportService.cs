@@ -126,11 +126,23 @@ namespace LayoutDesigner.Services
                 // Background
                 if (!string.IsNullOrEmpty(document.BackgroundColor))
                 {
-                    writer.WriteStartElement("rect");
-                    writer.WriteAttributeString("width", "100%");
-                    writer.WriteAttributeString("height", "100%");
-                    writer.WriteAttributeString("fill", document.BackgroundColor);
-                    writer.WriteEndElement();
+                    var bgOpacity = GetColorOpacity(document.BackgroundColor);
+
+                    // Only render background if not fully transparent
+                    if (bgOpacity > 0.001)
+                    {
+                        writer.WriteStartElement("rect");
+                        writer.WriteAttributeString("width", "100%");
+                        writer.WriteAttributeString("height", "100%");
+                        writer.WriteAttributeString("fill", ConvertColorToSvg(document.BackgroundColor));
+
+                        if (Math.Abs(bgOpacity - 1.0) > 0.001)
+                        {
+                            writer.WriteAttributeString("fill-opacity", FormatNumber(bgOpacity));
+                        }
+
+                        writer.WriteEndElement();
+                    }
                 }
 
                 // Export elements sorted by Z-Index
@@ -203,18 +215,32 @@ namespace LayoutDesigner.Services
         private void ExportTextElement(XmlWriter writer, TextElement element)
         {
             // Background rect with border if enabled
-            if (!string.IsNullOrEmpty(element.BackgroundColor) || element.HasBorder)
+            var bgOpacity = GetColorOpacity(element.BackgroundColor);
+            bool hasVisibleBackground = !string.IsNullOrEmpty(element.BackgroundColor) && bgOpacity > 0.001;
+
+            if (hasVisibleBackground || element.HasBorder)
             {
                 writer.WriteStartElement("rect");
                 writer.WriteAttributeString("width", FormatNumber(element.Width));
                 writer.WriteAttributeString("height", FormatNumber(element.Height));
-                writer.WriteAttributeString("fill", !string.IsNullOrEmpty(element.BackgroundColor) ? element.BackgroundColor : "none");
+                writer.WriteAttributeString("fill", hasVisibleBackground ? ConvertColorToSvg(element.BackgroundColor) : "none");
                 writer.WriteAttributeString("rx", FormatNumber(element.CornerRadius));
+
+                if (hasVisibleBackground && Math.Abs(bgOpacity - 1.0) > 0.001)
+                {
+                    writer.WriteAttributeString("fill-opacity", FormatNumber(bgOpacity));
+                }
 
                 if (element.HasBorder)
                 {
-                    writer.WriteAttributeString("stroke", element.BorderColor);
+                    writer.WriteAttributeString("stroke", ConvertColorToSvg(element.BorderColor));
                     writer.WriteAttributeString("stroke-width", FormatNumber(element.BorderThickness));
+
+                    var borderOpacity = GetColorOpacity(element.BorderColor);
+                    if (Math.Abs(borderOpacity - 1.0) > 0.001)
+                    {
+                        writer.WriteAttributeString("stroke-opacity", FormatNumber(borderOpacity));
+                    }
                 }
 
                 writer.WriteEndElement();
@@ -265,9 +291,15 @@ namespace LayoutDesigner.Services
             writer.WriteAttributeString("y", FormatNumber(textY));
             writer.WriteAttributeString("font-family", element.FontFamily);
             writer.WriteAttributeString("font-size", FormatNumber(element.FontSize));
-            writer.WriteAttributeString("fill", element.ForegroundColor);
+            writer.WriteAttributeString("fill", ConvertColorToSvg(element.ForegroundColor));
             writer.WriteAttributeString("text-anchor", textAnchor);
             writer.WriteAttributeString("dominant-baseline", dominantBaseline);
+
+            var textOpacity = GetColorOpacity(element.ForegroundColor);
+            if (Math.Abs(textOpacity - 1.0) > 0.001)
+            {
+                writer.WriteAttributeString("fill-opacity", FormatNumber(textOpacity));
+            }
 
             if (element.IsBold)
                 writer.WriteAttributeString("font-weight", "bold");
@@ -295,9 +327,16 @@ namespace LayoutDesigner.Services
                 writer.WriteAttributeString("width", FormatNumber(element.Width));
                 writer.WriteAttributeString("height", FormatNumber(element.Height));
                 writer.WriteAttributeString("fill", "none");
-                writer.WriteAttributeString("stroke", element.BorderColor);
+                writer.WriteAttributeString("stroke", ConvertColorToSvg(element.BorderColor));
                 writer.WriteAttributeString("stroke-width", FormatNumber(element.BorderThickness));
                 writer.WriteAttributeString("rx", FormatNumber(element.CornerRadius));
+
+                var borderOpacity = GetColorOpacity(element.BorderColor);
+                if (Math.Abs(borderOpacity - 1.0) > 0.001)
+                {
+                    writer.WriteAttributeString("stroke-opacity", FormatNumber(borderOpacity));
+                }
+
                 writer.WriteEndElement();
             }
 
@@ -337,7 +376,9 @@ namespace LayoutDesigner.Services
 
         private void ExportShapeElement(XmlWriter writer, ShapeElement element)
         {
-            var fillValue = element.UseGradient ? $"url(#gradient_{element.Id})" : element.FillColor;
+            var fillValue = element.UseGradient ? $"url(#gradient_{element.Id})" : ConvertColorToSvg(element.FillColor);
+            var fillOpacity = element.UseGradient ? 1.0 : GetColorOpacity(element.FillColor);
+            var strokeOpacity = GetColorOpacity(element.StrokeColor);
 
             switch (element.ShapeType)
             {
@@ -347,8 +388,18 @@ namespace LayoutDesigner.Services
                     writer.WriteAttributeString("width", FormatNumber(element.Width));
                     writer.WriteAttributeString("height", FormatNumber(element.Height));
                     writer.WriteAttributeString("fill", fillValue);
-                    writer.WriteAttributeString("stroke", element.StrokeColor);
+                    writer.WriteAttributeString("stroke", ConvertColorToSvg(element.StrokeColor));
                     writer.WriteAttributeString("stroke-width", FormatNumber(element.StrokeThickness));
+
+                    if (!element.UseGradient && Math.Abs(fillOpacity - 1.0) > 0.001)
+                    {
+                        writer.WriteAttributeString("fill-opacity", FormatNumber(fillOpacity));
+                    }
+
+                    if (Math.Abs(strokeOpacity - 1.0) > 0.001)
+                    {
+                        writer.WriteAttributeString("stroke-opacity", FormatNumber(strokeOpacity));
+                    }
 
                     if (element.ShapeType == ShapeType.RoundedRectangle)
                     {
@@ -371,8 +422,18 @@ namespace LayoutDesigner.Services
                     writer.WriteAttributeString("rx", FormatNumber(element.Width / 2));
                     writer.WriteAttributeString("ry", FormatNumber(element.Height / 2));
                     writer.WriteAttributeString("fill", fillValue);
-                    writer.WriteAttributeString("stroke", element.StrokeColor);
+                    writer.WriteAttributeString("stroke", ConvertColorToSvg(element.StrokeColor));
                     writer.WriteAttributeString("stroke-width", FormatNumber(element.StrokeThickness));
+
+                    if (!element.UseGradient && Math.Abs(fillOpacity - 1.0) > 0.001)
+                    {
+                        writer.WriteAttributeString("fill-opacity", FormatNumber(fillOpacity));
+                    }
+
+                    if (Math.Abs(strokeOpacity - 1.0) > 0.001)
+                    {
+                        writer.WriteAttributeString("stroke-opacity", FormatNumber(strokeOpacity));
+                    }
 
                     ApplyStrokeDashStyle(writer, element.StrokeDashStyle);
 
@@ -388,9 +449,14 @@ namespace LayoutDesigner.Services
                     writer.WriteAttributeString("y1", "0");
                     writer.WriteAttributeString("x2", FormatNumber(element.Width));
                     writer.WriteAttributeString("y2", FormatNumber(element.Height));
-                    writer.WriteAttributeString("stroke", element.StrokeColor);
+                    writer.WriteAttributeString("stroke", ConvertColorToSvg(element.StrokeColor));
                     writer.WriteAttributeString("stroke-width", FormatNumber(element.StrokeThickness));
                     writer.WriteAttributeString("stroke-linecap", "round");
+
+                    if (Math.Abs(strokeOpacity - 1.0) > 0.001)
+                    {
+                        writer.WriteAttributeString("stroke-opacity", FormatNumber(strokeOpacity));
+                    }
 
                     ApplyStrokeDashStyle(writer, element.StrokeDashStyle);
 
@@ -406,9 +472,15 @@ namespace LayoutDesigner.Services
             writer.WriteAttributeString("y1", "0");
             writer.WriteAttributeString("x2", FormatNumber(element.X2));
             writer.WriteAttributeString("y2", FormatNumber(element.Y2));
-            writer.WriteAttributeString("stroke", element.StrokeColor);
+            writer.WriteAttributeString("stroke", ConvertColorToSvg(element.StrokeColor));
             writer.WriteAttributeString("stroke-width", FormatNumber(element.StrokeThickness));
             writer.WriteAttributeString("stroke-linecap", "round");
+
+            var strokeOpacity = GetColorOpacity(element.StrokeColor);
+            if (Math.Abs(strokeOpacity - 1.0) > 0.001)
+            {
+                writer.WriteAttributeString("stroke-opacity", FormatNumber(strokeOpacity));
+            }
 
             // Apply dash style
             ApplyStrokeDashStyle(writer, element.StrokeDashStyle);
@@ -437,13 +509,28 @@ namespace LayoutDesigner.Services
             writer.WriteStartElement("rect");
             writer.WriteAttributeString("width", FormatNumber(element.Width));
             writer.WriteAttributeString("height", FormatNumber(element.Height));
-            writer.WriteAttributeString("fill", element.BackgroundColor);
-            writer.WriteAttributeString("stroke", element.BorderColor);
+            writer.WriteAttributeString("fill", ConvertColorToSvg(element.BackgroundColor));
+            writer.WriteAttributeString("stroke", ConvertColorToSvg(element.BorderColor));
             writer.WriteAttributeString("stroke-width", "1");
+
+            var bgOpacity = GetColorOpacity(element.BackgroundColor);
+            if (Math.Abs(bgOpacity - 1.0) > 0.001)
+            {
+                writer.WriteAttributeString("fill-opacity", FormatNumber(bgOpacity));
+            }
+
+            var borderOpacity = GetColorOpacity(element.BorderColor);
+            if (Math.Abs(borderOpacity - 1.0) > 0.001)
+            {
+                writer.WriteAttributeString("stroke-opacity", FormatNumber(borderOpacity));
+            }
+
             writer.WriteEndElement();
 
             // QR Code pattern (simplified representation using foreground color)
             var patternSize = Math.Min(element.Width, element.Height) / 25; // Approximate QR grid
+            var fgOpacity = GetColorOpacity(element.ForegroundColor);
+
             for (int row = 0; row < 25; row++)
             {
                 for (int col = 0; col < 25; col++)
@@ -459,7 +546,13 @@ namespace LayoutDesigner.Services
                         writer.WriteAttributeString("y", FormatNumber(row * patternSize + (element.Height - 25 * patternSize) / 2));
                         writer.WriteAttributeString("width", FormatNumber(patternSize * 0.9));
                         writer.WriteAttributeString("height", FormatNumber(patternSize * 0.9));
-                        writer.WriteAttributeString("fill", element.ForegroundColor);
+                        writer.WriteAttributeString("fill", ConvertColorToSvg(element.ForegroundColor));
+
+                        if (Math.Abs(fgOpacity - 1.0) > 0.001)
+                        {
+                            writer.WriteAttributeString("fill-opacity", FormatNumber(fgOpacity));
+                        }
+
                         writer.WriteEndElement();
                     }
                 }
@@ -478,8 +571,15 @@ namespace LayoutDesigner.Services
                 writer.WriteAttributeString("width", FormatNumber(element.Width));
                 writer.WriteAttributeString("height", FormatNumber(element.Height));
                 writer.WriteAttributeString("fill", "none");
-                writer.WriteAttributeString("stroke", element.BorderColor);
+                writer.WriteAttributeString("stroke", ConvertColorToSvg(element.BorderColor));
                 writer.WriteAttributeString("stroke-width", FormatNumber(element.BorderThickness));
+
+                var borderOpacity = GetColorOpacity(element.BorderColor);
+                if (Math.Abs(borderOpacity - 1.0) > 0.001)
+                {
+                    writer.WriteAttributeString("stroke-opacity", FormatNumber(borderOpacity));
+                }
+
                 writer.WriteEndElement();
             }
 
@@ -515,12 +615,24 @@ namespace LayoutDesigner.Services
                     writer.WriteAttributeString("y", FormatNumber(y));
                     writer.WriteAttributeString("width", FormatNumber(cellWidth));
                     writer.WriteAttributeString("height", FormatNumber(cellHeight));
-                    writer.WriteAttributeString("fill", bgColor);
+                    writer.WriteAttributeString("fill", ConvertColorToSvg(bgColor));
+
+                    var bgOpacity = GetColorOpacity(bgColor);
+                    if (Math.Abs(bgOpacity - 1.0) > 0.001)
+                    {
+                        writer.WriteAttributeString("fill-opacity", FormatNumber(bgOpacity));
+                    }
 
                     if (element.ShowBorder)
                     {
-                        writer.WriteAttributeString("stroke", element.BorderColor);
+                        writer.WriteAttributeString("stroke", ConvertColorToSvg(element.BorderColor));
                         writer.WriteAttributeString("stroke-width", FormatNumber(element.BorderThickness));
+
+                        var borderOpacity = GetColorOpacity(element.BorderColor);
+                        if (Math.Abs(borderOpacity - 1.0) > 0.001)
+                        {
+                            writer.WriteAttributeString("stroke-opacity", FormatNumber(borderOpacity));
+                        }
                     }
                     writer.WriteEndElement();
 
@@ -536,7 +648,13 @@ namespace LayoutDesigner.Services
                         writer.WriteAttributeString("dominant-baseline", "middle");
                         writer.WriteAttributeString("font-family", element.FontFamily);
                         writer.WriteAttributeString("font-size", FormatNumber(fontSize));
-                        writer.WriteAttributeString("fill", textColor);
+                        writer.WriteAttributeString("fill", ConvertColorToSvg(textColor));
+
+                        var textOpacity = GetColorOpacity(textColor);
+                        if (Math.Abs(textOpacity - 1.0) > 0.001)
+                        {
+                            writer.WriteAttributeString("fill-opacity", FormatNumber(textOpacity));
+                        }
 
                         if (isBold)
                             writer.WriteAttributeString("font-weight", "bold");
@@ -554,10 +672,23 @@ namespace LayoutDesigner.Services
             writer.WriteStartElement("rect");
             writer.WriteAttributeString("width", FormatNumber(element.Width));
             writer.WriteAttributeString("height", FormatNumber(element.Height));
-            writer.WriteAttributeString("fill", element.BackgroundColor);
-            writer.WriteAttributeString("stroke", element.BorderColor);
+            writer.WriteAttributeString("fill", ConvertColorToSvg(element.BackgroundColor));
+            writer.WriteAttributeString("stroke", ConvertColorToSvg(element.BorderColor));
             writer.WriteAttributeString("stroke-width", FormatNumber(element.BorderThickness));
             writer.WriteAttributeString("rx", FormatNumber(element.CornerRadius));
+
+            var bgOpacity = GetColorOpacity(element.BackgroundColor);
+            if (Math.Abs(bgOpacity - 1.0) > 0.001)
+            {
+                writer.WriteAttributeString("fill-opacity", FormatNumber(bgOpacity));
+            }
+
+            var borderOpacity = GetColorOpacity(element.BorderColor);
+            if (Math.Abs(borderOpacity - 1.0) > 0.001)
+            {
+                writer.WriteAttributeString("stroke-opacity", FormatNumber(borderOpacity));
+            }
+
             writer.WriteEndElement();
 
             // Calculate positions based on icon presence and position
@@ -569,6 +700,8 @@ namespace LayoutDesigner.Services
             double textY = element.Height / 2;
             double iconX = element.Width / 2;
             double iconY = element.Height / 2;
+
+            var textOpacity = GetColorOpacity(element.ForegroundColor);
 
             if (hasIcon)
             {
@@ -598,9 +731,15 @@ namespace LayoutDesigner.Services
                 writer.WriteAttributeString("y", FormatNumber(iconY));
                 writer.WriteAttributeString("font-family", element.FontFamily);
                 writer.WriteAttributeString("font-size", FormatNumber(iconSize));
-                writer.WriteAttributeString("fill", element.ForegroundColor);
+                writer.WriteAttributeString("fill", ConvertColorToSvg(element.ForegroundColor));
                 writer.WriteAttributeString("text-anchor", "middle");
                 writer.WriteAttributeString("dominant-baseline", "middle");
+
+                if (Math.Abs(textOpacity - 1.0) > 0.001)
+                {
+                    writer.WriteAttributeString("fill-opacity", FormatNumber(textOpacity));
+                }
+
                 writer.WriteString(element.Icon);
                 writer.WriteEndElement();
             }
@@ -611,9 +750,14 @@ namespace LayoutDesigner.Services
             writer.WriteAttributeString("y", FormatNumber(textY));
             writer.WriteAttributeString("font-family", element.FontFamily);
             writer.WriteAttributeString("font-size", FormatNumber(element.FontSize));
-            writer.WriteAttributeString("fill", element.ForegroundColor);
+            writer.WriteAttributeString("fill", ConvertColorToSvg(element.ForegroundColor));
             writer.WriteAttributeString("text-anchor", "middle");
             writer.WriteAttributeString("dominant-baseline", "middle");
+
+            if (Math.Abs(textOpacity - 1.0) > 0.001)
+            {
+                writer.WriteAttributeString("fill-opacity", FormatNumber(textOpacity));
+            }
 
             if (element.IsBold)
                 writer.WriteAttributeString("font-weight", "bold");
@@ -635,7 +779,14 @@ namespace LayoutDesigner.Services
 
             // Flood fill with shadow color
             writer.WriteStartElement("feFlood");
-            writer.WriteAttributeString("flood-color", color);
+            writer.WriteAttributeString("flood-color", ConvertColorToSvg(color));
+
+            var shadowOpacity = GetColorOpacity(color);
+            if (Math.Abs(shadowOpacity - 1.0) > 0.001)
+            {
+                writer.WriteAttributeString("flood-opacity", FormatNumber(shadowOpacity));
+            }
+
             writer.WriteAttributeString("result", "flood");
             writer.WriteEndElement();
 
@@ -717,12 +868,26 @@ namespace LayoutDesigner.Services
 
             writer.WriteStartElement("stop");
             writer.WriteAttributeString("offset", "0%");
-            writer.WriteAttributeString("stop-color", startColor);
+            writer.WriteAttributeString("stop-color", ConvertColorToSvg(startColor));
+
+            var startOpacity = GetColorOpacity(startColor);
+            if (Math.Abs(startOpacity - 1.0) > 0.001)
+            {
+                writer.WriteAttributeString("stop-opacity", FormatNumber(startOpacity));
+            }
+
             writer.WriteEndElement();
 
             writer.WriteStartElement("stop");
             writer.WriteAttributeString("offset", "100%");
-            writer.WriteAttributeString("stop-color", endColor);
+            writer.WriteAttributeString("stop-color", ConvertColorToSvg(endColor));
+
+            var endOpacity = GetColorOpacity(endColor);
+            if (Math.Abs(endOpacity - 1.0) > 0.001)
+            {
+                writer.WriteAttributeString("stop-opacity", FormatNumber(endOpacity));
+            }
+
             writer.WriteEndElement();
 
             writer.WriteEndElement(); // linearGradient or radialGradient
@@ -811,7 +976,14 @@ namespace LayoutDesigner.Services
             {
                 // Create shadow
                 writer.WriteStartElement("feFlood");
-                writer.WriteAttributeString("flood-color", element.ShadowColor);
+                writer.WriteAttributeString("flood-color", ConvertColorToSvg(element.ShadowColor));
+
+                var shadowOpacity = GetColorOpacity(element.ShadowColor);
+                if (Math.Abs(shadowOpacity - 1.0) > 0.001)
+                {
+                    writer.WriteAttributeString("flood-opacity", FormatNumber(shadowOpacity));
+                }
+
                 writer.WriteAttributeString("result", "shadowColor");
                 writer.WriteEndElement();
 
@@ -959,6 +1131,46 @@ namespace LayoutDesigner.Services
         private string FormatNumber(double value)
         {
             return value.ToString("F2", CultureInfo.InvariantCulture);
+        }
+
+        /// <summary>
+        /// Converts WPF color format (#AARRGGBB) to SVG format (#RRGGBB)
+        /// </summary>
+        private string ConvertColorToSvg(string wpfColor)
+        {
+            if (string.IsNullOrEmpty(wpfColor))
+                return wpfColor;
+
+            // If color has alpha channel (#AARRGGBB), extract RGB only
+            if (wpfColor.Length == 9 && wpfColor.StartsWith("#"))
+            {
+                // Extract RRGGBB (positions 3-8)
+                return "#" + wpfColor.Substring(3, 6);
+            }
+
+            return wpfColor;
+        }
+
+        /// <summary>
+        /// Extracts opacity from WPF color format (#AARRGGBB)
+        /// Returns 1.0 if no alpha channel or if fully opaque
+        /// </summary>
+        private double GetColorOpacity(string wpfColor)
+        {
+            if (string.IsNullOrEmpty(wpfColor))
+                return 1.0;
+
+            // If color has alpha channel (#AARRGGBB)
+            if (wpfColor.Length == 9 && wpfColor.StartsWith("#"))
+            {
+                var alphaHex = wpfColor.Substring(1, 2);
+                if (int.TryParse(alphaHex, System.Globalization.NumberStyles.HexNumber, null, out int alpha))
+                {
+                    return alpha / 255.0;
+                }
+            }
+
+            return 1.0;
         }
     }
 }
