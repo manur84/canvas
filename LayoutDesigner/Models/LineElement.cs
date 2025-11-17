@@ -19,12 +19,52 @@ namespace LayoutDesigner.Models
         public override string ElementType => "Line";
 
         /// <summary>
+        /// Width is calculated from X2 for LineElements
+        /// Setting Width updates X2 accordingly
+        /// </summary>
+        public override double Width
+        {
+            get => Math.Abs(_x2);
+            set
+            {
+                var newX2 = _x2 < 0 ? -value : value;
+                if (SetProperty(ref _x2, newX2, nameof(X2)))
+                {
+                    OnPropertyChanged(nameof(Width));
+                }
+            }
+        }
+
+        /// <summary>
+        /// Height is calculated from Y2 for LineElements
+        /// Setting Height updates Y2 accordingly
+        /// </summary>
+        public override double Height
+        {
+            get => Math.Abs(_y2);
+            set
+            {
+                var newY2 = _y2 < 0 ? -value : value;
+                if (SetProperty(ref _y2, newY2, nameof(Y2)))
+                {
+                    OnPropertyChanged(nameof(Height));
+                }
+            }
+        }
+
+        /// <summary>
         /// End X coordinate
         /// </summary>
         public double X2
         {
             get => _x2;
-            set => SetProperty(ref _x2, value);
+            set
+            {
+                if (SetProperty(ref _x2, value))
+                {
+                    OnPropertyChanged(nameof(Width));
+                }
+            }
         }
 
         /// <summary>
@@ -33,7 +73,13 @@ namespace LayoutDesigner.Models
         public double Y2
         {
             get => _y2;
-            set => SetProperty(ref _y2, value);
+            set
+            {
+                if (SetProperty(ref _y2, value))
+                {
+                    OnPropertyChanged(nameof(Height));
+                }
+            }
         }
 
         /// <summary>
