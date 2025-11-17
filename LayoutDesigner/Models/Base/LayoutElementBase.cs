@@ -67,7 +67,7 @@ namespace LayoutDesigner.Models.Base
         /// <summary>
         /// Width of the element
         /// </summary>
-        public double Width
+        public virtual double Width
         {
             get => _width;
             set => SetProperty(ref _width, value);
@@ -76,7 +76,7 @@ namespace LayoutDesigner.Models.Base
         /// <summary>
         /// Height of the element
         /// </summary>
-        public double Height
+        public virtual double Height
         {
             get => _height;
             set => SetProperty(ref _height, value);
