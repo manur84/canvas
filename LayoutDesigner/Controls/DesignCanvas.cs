@@ -268,10 +268,9 @@ namespace LayoutDesigner.Controls
             _draggingElementsStartPositions = null; // Reset dragging elements
 
             // Prepare for dragging: store start positions
+            // ONLY allow dragging if element is selected (or will be selected)
             if (layoutElement != null && !layoutElement.IsLocked)
             {
-                _draggingElementsStartPositions = new Dictionary<LayoutElementBase, Point>();
-
                 if (CanvasViewModel != null)
                 {
                     var canvasVmType = CanvasViewModel.GetType();
@@ -283,9 +282,11 @@ namespace LayoutDesigner.Controls
                         {
                             var selectedList = selectedElements.OfType<LayoutElementBase>().ToList();
 
-                            // If clicked element is part of selection, prepare to drag all selected elements
+                            // ONLY prepare dragging if clicked element is already in selection
                             if (selectedList.Contains(layoutElement))
                             {
+                                _draggingElementsStartPositions = new Dictionary<LayoutElementBase, Point>();
+
                                 foreach (var element in selectedList)
                                 {
                                     // Skip locked elements
@@ -295,18 +296,10 @@ namespace LayoutDesigner.Controls
                                     }
                                 }
                             }
-                            else
-                            {
-                                // Single element not in selection - just store its start position
-                                _draggingElementsStartPositions[layoutElement] = new Point(layoutElement.X, layoutElement.Y);
-                            }
+                            // If element is NOT selected, don't prepare for dragging
+                            // It will be selected on mouse up, then can be dragged next time
                         }
                     }
-                }
-                else
-                {
-                    // No ViewModel - just drag the single element
-                    _draggingElementsStartPositions[layoutElement] = new Point(layoutElement.X, layoutElement.Y);
                 }
             }
 
