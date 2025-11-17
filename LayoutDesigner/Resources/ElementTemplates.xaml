@@ -77,10 +77,17 @@
 
             <!-- Best Practice: Use RenderOptions for image quality -->
             <!-- Performance: ImagePathConverter implements lazy loading with caching -->
-            <Image Source="{Binding ImagePath, Converter={StaticResource ImagePathConverter}}"
-                   Stretch="{Binding StretchMode, Converter={StaticResource ImageStretchConverter}}"
+            <!-- MultiBinding: ImageData takes priority over ImagePath for embedded images -->
+            <Image Stretch="{Binding StretchMode, Converter={StaticResource ImageStretchConverter}}"
                    RenderOptions.BitmapScalingMode="HighQuality"
-                   RenderOptions.EdgeMode="Unspecified"/>
+                   RenderOptions.EdgeMode="Unspecified">
+                <Image.Source>
+                    <MultiBinding Converter="{StaticResource ImagePathConverter}">
+                        <Binding Path="ImagePath" Mode="OneWay"/>
+                        <Binding Path="ImageData" Mode="OneWay"/>
+                    </MultiBinding>
+                </Image.Source>
+            </Image>
         </Border>
     </DataTemplate>
 
