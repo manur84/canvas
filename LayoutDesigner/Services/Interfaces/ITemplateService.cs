@@ -1,4 +1,6 @@
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using LayoutDesigner.Models;
 
 namespace LayoutDesigner.Services.Interfaces
@@ -26,12 +28,12 @@ namespace LayoutDesigner.Services.Interfaces
         /// <summary>
         /// Saves a custom template
         /// </summary>
-        bool SaveTemplate(LayoutTemplate template);
+        Task<bool> SaveTemplateAsync(LayoutTemplate template, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Deletes a custom template
         /// </summary>
-        bool DeleteTemplate(string id);
+        Task<bool> DeleteTemplateAsync(string id, CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Gets all template categories

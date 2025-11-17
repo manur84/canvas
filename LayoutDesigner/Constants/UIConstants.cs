@@ -81,5 +81,64 @@ namespace LayoutDesigner.Constants
         public const double MaxElementSize = 5000;
 
         #endregion
+
+        #region SelectionAdorner Constants
+
+        /// <summary>
+        /// Size of resize handles in pixels
+        /// </summary>
+        public const double ResizeHandleSize = 10;
+
+        /// <summary>
+        /// Size of resize handles when hovered (in pixels)
+        /// </summary>
+        public const double ResizeHandleHoverSize = 12;
+
+        /// <summary>
+        /// Size of rotate handle in pixels
+        /// </summary>
+        public const double RotateHandleSize = 12;
+
+        /// <summary>
+        /// Size of rotate handle when hovered (in pixels)
+        /// </summary>
+        public const double RotateHandleHoverSize = 14;
+
+        /// <summary>
+        /// Vertical distance of rotate handle from element (in pixels)
+        /// </summary>
+        public const double RotateHandleDistance = 30;
+
+        /// <summary>
+        /// Border thickness for selection rectangle
+        /// </summary>
+        public const double SelectionBorderThickness = 2;
+
+        /// <summary>
+        /// Shadow border thickness for selection (depth effect)
+        /// </summary>
+        public const double SelectionShadowThickness = 4;
+
+        /// <summary>
+        /// Blur radius for shadow effect
+        /// </summary>
+        public const double ShadowBlurRadius = 3;
+
+        /// <summary>
+        /// Blur radius for drop shadow on handles
+        /// </summary>
+        public const double HandleShadowBlurRadius = 4;
+
+        /// <summary>
+        /// Shadow depth for drop shadow on handles
+        /// </summary>
+        public const double HandleShadowDepth = 2;
+
+        /// <summary>
+        /// Shadow opacity for drop shadow on handles
+        /// </summary>
+        public const double HandleShadowOpacity = 0.4;
+
+        #endregion
     }
 }

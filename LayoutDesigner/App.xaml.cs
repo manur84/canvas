@@ -26,6 +26,9 @@ namespace LayoutDesigner
 
         private void RegisterServices()
         {
+            // Register logger first for use in error handling
+            Services.Register<IAppLogger, ConsoleLogger>();
+            
             // Register ErrorHandlingService first since other services depend on it
             Services.Register<IErrorHandlingService, ErrorHandlingService>();
             Services.Register<IUndoRedoService, UndoRedoService>();
