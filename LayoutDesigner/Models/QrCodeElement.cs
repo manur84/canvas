@@ -11,6 +11,7 @@ namespace LayoutDesigner.Models
         private string _content = "https://example.com";
         private string _foregroundColor = "#FF000000";
         private string _backgroundColor = "#FFFFFFFF";
+        private string _borderColor = "#FFCCCCCC";
         private int _errorCorrectionLevel = 1; // 0=Low, 1=Medium, 2=Quartile, 3=High
 
         public override string ElementType => "QrCode";
@@ -43,6 +44,15 @@ namespace LayoutDesigner.Models
         }
 
         /// <summary>
+        /// Border color as hex string
+        /// </summary>
+        public string BorderColor
+        {
+            get => _borderColor;
+            set => SetProperty(ref _borderColor, value);
+        }
+
+        /// <summary>
         /// Error correction level (0-3: Low, Medium, Quartile, High)
         /// </summary>
         public int ErrorCorrectionLevel
@@ -68,6 +78,7 @@ namespace LayoutDesigner.Models
                 Content = Content,
                 ForegroundColor = ForegroundColor,
                 BackgroundColor = BackgroundColor,
+                BorderColor = BorderColor,
                 ErrorCorrectionLevel = ErrorCorrectionLevel
             };
         }

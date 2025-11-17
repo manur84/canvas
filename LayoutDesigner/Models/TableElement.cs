@@ -1,4 +1,6 @@
 using System;
+using System.Collections.ObjectModel;
+using System.Linq;
 using LayoutDesigner.Models.Base;
 
 namespace LayoutDesigner.Models
@@ -10,6 +12,7 @@ namespace LayoutDesigner.Models
     {
         private int _rows = 3;
         private int _columns = 3;
+        private ObservableCollection<ObservableCollection<TableCell>> _cells;
         private string _headerBackgroundColor = "#FF0078D7";
         private string _headerForegroundColor = "#FFFFFFFF";
         private string _rowBackgroundColor = "#FFFFFFFF";
@@ -31,6 +34,37 @@ namespace LayoutDesigner.Models
         {
             Width = 400;
             Height = 200;
+            _cells = new ObservableCollection<ObservableCollection<TableCell>>();
+            InitializeCells();
+        }
+
+        /// <summary>
+        /// Initializes the cell grid based on rows and columns
+        /// </summary>
+        private void InitializeCells()
+        {
+            _cells.Clear();
+            for (int row = 0; row < _rows; row++)
+            {
+                var rowCells = new ObservableCollection<TableCell>();
+                for (int col = 0; col < _columns; col++)
+                {
+                    rowCells.Add(new TableCell
+                    {
+                        Value = row == 0 ? $"Header {col + 1}" : $"Cell {row},{col}"
+                    });
+                }
+                _cells.Add(rowCells);
+            }
+        }
+
+        /// <summary>
+        /// 2D collection of table cells
+        /// </summary>
+        public ObservableCollection<ObservableCollection<TableCell>> Cells
+        {
+            get => _cells;
+            set => SetProperty(ref _cells, value);
         }
 
         /// <summary>
@@ -39,7 +73,13 @@ namespace LayoutDesigner.Models
         public int Rows
         {
             get => _rows;
-            set => SetProperty(ref _rows, value);
+            set
+            {
+                if (SetProperty(ref _rows, value))
+                {
+                    ResizeCells();
+                }
+            }
         }
 
         /// <summary>
@@ -48,7 +88,47 @@ namespace LayoutDesigner.Models
         public int Columns
         {
             get => _columns;
-            set => SetProperty(ref _columns, value);
+            set
+            {
+                if (SetProperty(ref _columns, value))
+                {
+                    ResizeCells();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Resizes the cell grid when rows or columns change
+        /// </summary>
+        private void ResizeCells()
+        {
+            // Add or remove rows
+            while (_cells.Count < _rows)
+            {
+                var newRow = new ObservableCollection<TableCell>();
+                for (int col = 0; col < _columns; col++)
+                {
+                    newRow.Add(new TableCell { Value = $"Cell {_cells.Count},{col}" });
+                }
+                _cells.Add(newRow);
+            }
+            while (_cells.Count > _rows)
+            {
+                _cells.RemoveAt(_cells.Count - 1);
+            }
+
+            // Add or remove columns in each row
+            foreach (var row in _cells)
+            {
+                while (row.Count < _columns)
+                {
+                    row.Add(new TableCell { Value = $"Cell {_cells.IndexOf(row)},{row.Count}" });
+                }
+                while (row.Count > _columns)
+                {
+                    row.RemoveAt(row.Count - 1);
+                }
+            }
         }
 
         /// <summary>
@@ -179,7 +259,7 @@ namespace LayoutDesigner.Models
 
         public override LayoutElementBase Clone()
         {
-            return new TableElement
+            var clone = new TableElement
             {
                 Name = Name + " (Copy)",
                 X = X,
@@ -208,6 +288,20 @@ namespace LayoutDesigner.Models
                 ShowBorder = ShowBorder,
                 AlternateRows = AlternateRows
             };
+
+            // Clone all cells
+            clone.Cells.Clear();
+            foreach (var row in Cells)
+            {
+                var clonedRow = new ObservableCollection<TableCell>();
+                foreach (var cell in row)
+                {
+                    clonedRow.Add(cell.Clone());
+                }
+                clone.Cells.Add(clonedRow);
+            }
+
+            return clone;
         }
     }
 }

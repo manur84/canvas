@@ -30,7 +30,8 @@
                             <Setter Property="Effect">
                                 <Setter.Value>
                                     <!-- Performance: RenderingBias=Performance for better frame rate -->
-                                    <DropShadowEffect BlurRadius="{Binding ShadowBlur, Mode=OneWay}"
+                                    <!-- Note: BlurRadius cannot be bound as DropShadowEffect is not a FrameworkElement -->
+                                    <DropShadowEffect BlurRadius="10"
                                                     ShadowDepth="5"
                                                     Color="Black"
                                                     Opacity="0.5"
@@ -201,17 +202,62 @@
 
     <!-- TableElement DataTemplate -->
     <DataTemplate DataType="{x:Type models:TableElement}">
-        <Border Background="{Binding RowBackgroundColor, Converter={StaticResource ColorToBrushConverter}}"
-                BorderBrush="{Binding BorderColor, Converter={StaticResource ColorToBrushConverter}}"
-                BorderThickness="{Binding BorderThickness}">
-            <Grid>
-                <TextBlock Text="{Binding Rows, StringFormat='Table ({0} rows)'}"
-                          FontFamily="{Binding FontFamily}"
-                          FontSize="{Binding FontSize}"
-                          Foreground="{Binding ForegroundColor, Converter={StaticResource ColorToBrushConverter}}"
-                          HorizontalAlignment="Center"
-                          VerticalAlignment="Center"/>
-            </Grid>
+        <Border BorderBrush="{Binding BorderColor, Converter={StaticResource ColorToBrushConverter}}"
+                BorderThickness="{Binding ShowBorder, Converter={StaticResource BoolToDouble}, ConverterParameter=1}">
+            <!-- 2D Grid of editable cells -->
+            <ItemsControl ItemsSource="{Binding Cells}">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Vertical"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <!-- Each row -->
+                        <ItemsControl ItemsSource="{Binding}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <!-- Each cell -->
+                                    <Border Background="{Binding BackgroundColor, Converter={StaticResource ColorToBrushConverter}}"
+                                            BorderBrush="{Binding BorderColor, Converter={StaticResource ColorToBrushConverter}}"
+                                            BorderThickness="{Binding BorderThickness}"
+                                            MinWidth="80"
+                                            MinHeight="30">
+                                        <TextBox Text="{Binding Value, UpdateSourceTrigger=LostFocus}"
+                                                FontFamily="{Binding FontFamily}"
+                                                FontSize="{Binding FontSize}"
+                                                Foreground="{Binding ForegroundColor, Converter={StaticResource ColorToBrushConverter}}"
+                                                Background="Transparent"
+                                                BorderThickness="0"
+                                                Padding="4"
+                                                IsReadOnly="{Binding IsReadOnly}"
+                                                TextAlignment="{Binding HorizontalAlignment}"
+                                                VerticalContentAlignment="{Binding VerticalAlignment}">
+                                            <TextBox.Style>
+                                                <Style TargetType="TextBox">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsBold}" Value="True">
+                                                            <Setter Property="FontWeight" Value="Bold"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding IsItalic}" Value="True">
+                                                            <Setter Property="FontStyle" Value="Italic"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBox.Style>
+                                        </TextBox>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
         </Border>
     </DataTemplate>
 

@@ -44,9 +44,9 @@ namespace LayoutDesigner.Controls
             RenderOptions.SetEdgeMode(this, EdgeMode.Aliased); // Faster rendering for grid lines
             RenderOptions.SetBitmapScalingMode(this, BitmapScalingMode.HighQuality); // Better image quality
 
-            MouseLeftButtonDown += OnMouseLeftButtonDown;
-            MouseLeftButtonUp += OnMouseLeftButtonUp;
-            MouseMove += OnMouseMove;
+            PreviewMouseLeftButtonDown += OnMouseLeftButtonDown;
+            PreviewMouseLeftButtonUp += OnMouseLeftButtonUp;
+            PreviewMouseMove += OnMouseMove;
 
             // Initialize adorners when loaded
             Loaded += OnLoaded;
