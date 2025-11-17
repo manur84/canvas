@@ -242,6 +242,9 @@ namespace LayoutDesigner.Controls
             if (!_dragStartPoint.HasValue || e.LeftButton != MouseButtonState.Pressed)
                 return;
 
+            // Prevent ScrollViewer from handling this event
+            e.Handled = true;
+
             var currentPoint = e.GetPosition(this);
             var delta = currentPoint - _dragStartPoint.Value;
 
@@ -271,12 +274,11 @@ namespace LayoutDesigner.Controls
             if (_isRectangleSelecting)
             {
                 _selectionAdorner?.UpdateSelection(currentPoint);
-                e.Handled = true;
                 return;
             }
 
             // Performance: Only process if we have valid element for dragging
-            if (_draggingElement == null)
+            if (_draggingElement == null || !_isDragging)
                 return;
 
             var layoutElement = _draggingElement;
@@ -326,7 +328,6 @@ namespace LayoutDesigner.Controls
             layoutElement.Y = Math.Max(0, newY);
 
             _dragStartPoint = currentPoint;
-            e.Handled = true;
         }
 
         private void OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
