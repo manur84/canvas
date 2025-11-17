@@ -4,6 +4,10 @@ using System.ComponentModel;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
+using LayoutDesigner.Constants;
+using LayoutDesigner.Services.Interfaces;
 
 namespace LayoutDesigner.Models
 {
@@ -14,11 +18,6 @@ namespace LayoutDesigner.Models
     public class ApplicationSettings : INotifyPropertyChanged
     {
         private static ApplicationSettings? _instance;
-        private static readonly string SettingsFilePath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            "LayoutDesigner",
-            "settings.json"
-        );
 
         #region Singleton
 
@@ -248,13 +247,14 @@ namespace LayoutDesigner.Models
         #region Persistence
 
         /// <summary>
-        /// Saves settings to file
+        /// Saves settings to file asynchronously
         /// </summary>
-        public void Save()
+        public async Task SaveAsync(CancellationToken cancellationToken = default)
         {
+            var logger = ServiceContainer.GetService<IAppLogger>();
             try
             {
-                var directory = Path.GetDirectoryName(SettingsFilePath);
+                var directory = Path.GetDirectoryName(ConfigurationDefaults.SettingsFilePath);
                 if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
                 {
                     Directory.CreateDirectory(directory);
@@ -265,13 +265,23 @@ namespace LayoutDesigner.Models
                     WriteIndented = true
                 });
 
-                File.WriteAllText(SettingsFilePath, json);
+                await File.WriteAllTextAsync(ConfigurationDefaults.SettingsFilePath, json, cancellationToken);
             }
             catch (Exception ex)
             {
+                logger?.LogError(ex, "Failed to save application settings");
                 var errorService = ServiceContainer.GetService<Services.Interfaces.IErrorHandlingService>();
                 errorService?.HandleError(ex, "Failed to save settings", showDialog: false);
             }
+        }
+
+        /// <summary>
+        /// Saves settings to file synchronously (for backward compatibility)
+        /// </summary>
+        public void Save()
+        {
+            // Use async version but wait synchronously (not ideal but maintains compatibility)
+            SaveAsync().GetAwaiter().GetResult();
         }
 
         /// <summary>
@@ -279,11 +289,12 @@ namespace LayoutDesigner.Models
         /// </summary>
         public static ApplicationSettings Load()
         {
+            var logger = ServiceContainer.GetService<IAppLogger>();
             try
             {
-                if (File.Exists(SettingsFilePath))
+                if (File.Exists(ConfigurationDefaults.SettingsFilePath))
                 {
-                    var json = File.ReadAllText(SettingsFilePath);
+                    var json = File.ReadAllText(ConfigurationDefaults.SettingsFilePath);
                     var settings = JsonSerializer.Deserialize<ApplicationSettings>(json);
                     if (settings != null)
                     {
@@ -293,6 +304,7 @@ namespace LayoutDesigner.Models
             }
             catch (Exception ex)
             {
+                logger?.LogError(ex, "Failed to load application settings");
                 var errorService = ServiceContainer.GetService<Services.Interfaces.IErrorHandlingService>();
                 errorService?.HandleError(ex, "Failed to load settings", showDialog: false);
             }

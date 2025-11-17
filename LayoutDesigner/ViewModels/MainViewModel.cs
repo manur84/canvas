@@ -351,9 +351,9 @@ namespace LayoutDesigner.ViewModels
             OnPropertyChanged(nameof(UndoRedoStatus));
         }
 
-        private void LoadRecentFiles()
+        private async void LoadRecentFiles()
         {
-            var files = _storageService.GetRecentFiles();
+            var files = await _storageService.GetRecentFilesAsync();
             RecentFiles = files;
         }
 
